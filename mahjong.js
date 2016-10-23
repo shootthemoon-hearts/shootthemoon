@@ -1,3 +1,4 @@
+'use strict';
 var io;
 var gameSocket;
 
@@ -7,24 +8,36 @@ var gameSocket;
  * @param sio The Socket.IO library
  * @param socket The socket object for the connected client.
  */
-exports.initGame = function(sio, socket){
-    io = sio;
-    gameSocket = socket;
-    gameSocket.emit('connected', { message: "You are connected!" });
 
-//    // Host Events
-    gameSocket.on('tileDragged', tileDragged);
+var MahjonggGame = function (sio, socket) {
+	this.io = sio;
+	this.gameSocket = socket;
+	this.sessionId = Math.random();
+	this.players = 0
+
+	// Host Events
+	this.io.sockets.on('tileDragged', tileDragged);
 //    gameSocket.on('hostRoomFull', hostPrepareGame);
 //    gameSocket.on('hostCountdownFinished', hostStartGame);
 //    gameSocket.on('hostNextRound', hostNextRound);
 //
 //    // Player Events
-//    gameSocket.on('playerJoinGame', playerJoinGame);
+	this.io.sockets.on('playerJoinGame', this.playerJoinGame);
 //    gameSocket.on('playerAnswer', playerAnswer);
 //    gameSocket.on('playerRestart', playerRestart);
 
 };
+exports.MahjonggGame = MahjonggGame;
+	
+MahjonggGame.prototype.playerJoinGame = function (socket) {
+	console.log("Player connected");
+	socket.emit('connected', this.sessionId);
+	this.players += 1;
+	console.log(this.players);
+	
+}
 
-function tileDragged() {
+function tileDragged(data) {
 	console.log("got drag event");
+	console.log(data);
 }

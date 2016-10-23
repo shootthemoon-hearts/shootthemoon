@@ -19,11 +19,11 @@ var server = require('http').createServer(app).listen(process.env.PORT || 8080);
 // Create a Socket.IO server and attach it to the http server
 var io = require('socket.io').listen(server);
 
-// Reduce the logging output of Socket.IO
-// io.set('log level',1);
-
 // Listen for Socket.IO Connections. Once connected, start the game logic.
+var game = null;
 io.sockets.on('connection', function (socket) {
-    console.log('client connected');
-    mahjong.initGame(io, socket);
+	if (game == null || game.players % 4 == 0) {
+		game = new mahjong.MahjonggGame(io, socket);
+	}
+	game.playerJoinGame(socket);
 });

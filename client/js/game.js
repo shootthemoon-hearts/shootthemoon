@@ -1,7 +1,6 @@
 ;
 jQuery(function($){    
     'use strict';
-    console.log("in jquery");
 
     /**
      * All the code relevant to Socket.IO is collected in the IO namespace.
@@ -15,6 +14,7 @@ jQuery(function($){
          * to the Socket.IO server
          */
         init: function() {
+        	console.log("IO init");
             IO.socket = io.connect();
             IO.bindEvents();
         },
@@ -30,11 +30,11 @@ jQuery(function($){
         /**
          * The client is successfully connected!
          */
-        onConnected : function() {
+        onConnected : function(data) {
         	console.log("Connected!");
+        	console.log("id:" + data);
             // Cache a copy of the client's socket.IO session ID on the App
 //            App.mySocketId = IO.socket.socket.sessionid;
-            // console.log(data.message);
         }
     };
     
@@ -126,8 +126,8 @@ jQuery(function($){
 		console.log("Drag Started");
 	}
 
-	function stopDrag() {
+	function stopDrag(sprite) {
 		console.log("Drag Stopped");
-		IO.socket.emit('tileDragged');
+		IO.socket.emit('tileDragged', {'a': 'b'});
 	}
 });
