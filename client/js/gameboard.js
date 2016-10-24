@@ -1,59 +1,39 @@
-;
-jQuery(function($){    
-    'use strict';
+/**
+ * Creates the irresistible beautiful game board
+ */
 
-    /**
-     * All the code relevant to Socket.IO is collected in the IO namespace.
-     *
-     * @type {{init: Function, bindEvents: Function, onConnected: Function, onNewGameCreated: Function, playerJoinedRoom: Function, beginNewGame: Function, onNewWordData: Function, hostCheckAnswer: Function, gameOver: Function, error: Function}}
-     */
-    var IO = {
-
-        /**
-         * This is called when the page is displayed. It connects the Socket.IO client
-         * to the Socket.IO server
-         */
-        init: function() {
-        	console.log("IO init");
-            IO.socket = io.connect();
-            IO.bindEvents();
-        },
-
-        /**
-         * While connected, Socket.IO will listen to the following events emitted
-         * by the Socket.IO server, then run the appropriate function.
-         */
-        bindEvents : function() {
-            IO.socket.on('connected', IO.onConnected );
-        },
-        
-        /**
-         * The client is successfully connected!
-         */
-        onConnected : function(data) {
-        	console.log("Connected!");
-        	console.log("id:" + data);
-            // Cache a copy of the client's socket.IO session ID on the App
-//            App.mySocketId = IO.socket.socket.sessionid;
-        }
-    };
-    
-    IO.init();
-
+/**
+ * Creates the graphics for the game to be synced up with the server which 
+ * holds the game logic
+ */
+function createGame() {
 	var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
+	/**
+	 * Load images and such to be used in the game
+	 */
 	function preload() {
 		game.load.image('tile', '../third_party/assets/mahjong-icon.png');
 	}
+	
+	/**
+	 * Create the game
+	 */
 	function create () {
 		createFakeHand();
 		createMostDynamicGameBoardEver();
 	}
 
+	/**
+	 * Update the game
+	 */
 	function update() {
 		
 	}
 
+	/**
+	 * Creates a fake hand for a player. Needs some work...
+	 */
 	function createFakeHand() {
 		var hands = [];
 		var num_players = 4;
@@ -75,6 +55,10 @@ jQuery(function($){
 		}
 	}
 
+	/**
+	 * Creates the most dynamic and beautiful game board that you've ever seen
+	 * in the history of Anime
+	 */
 	function createMostDynamicGameBoardEver() {
 
 		var array = (function() {
@@ -84,16 +68,16 @@ jQuery(function($){
 			}
 			return array;
 		})();
-		console.log(array[0]);
 		fillHorizontalText(array, 50, 50, 400);
 		fillHorizontalText(array, 375, 50, 400);
 
 		fillVerticalText(array, 10, 70, 380);
 		fillVerticalText(array, 410, 70, 380);
-
-
 	}
 
+	/**
+	 * This function is bad. Make it better. :)
+	 */
 	function fillHorizontalText(text, y, start_x, end_x) {
 		text = Array.from(text);
 		for (var i = 0; i < text.length; i++) {
@@ -108,6 +92,9 @@ jQuery(function($){
 		}
 	}
 
+	/**
+	 * This function is also bad. Make it betterer. :)
+	 */
 	function fillVerticalText(text, x, start_y, end_y) {
 		text = Array.from(text);
 		for (var i = 0; i < text.length; i++) {
@@ -122,12 +109,18 @@ jQuery(function($){
 		}
 	}
 
+	/**
+	 * Called when the player begins to drag a tile
+	 */
 	function startDrag() {
 		console.log("Drag Started");
 	}
 
+	/**
+	 * Called when the player finishes dragging a tile
+	 */
 	function stopDrag(sprite) {
 		console.log("Drag Stopped");
 		IO.socket.emit('tileDragged', {'a': 'b'});
 	}
-});
+}
