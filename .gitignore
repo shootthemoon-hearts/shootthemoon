@@ -1,0 +1,6 @@
+# Vim swp files
+*.swp
+*.swo
+
+# python byte code files
+*.pyc
