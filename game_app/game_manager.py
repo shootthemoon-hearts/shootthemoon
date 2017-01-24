@@ -13,7 +13,7 @@ def player_connected(channel):
         # Check if any of the existing rooms aren't full
         found_game = False;
         for game in games:
-            if (game.isFull()):
+            if (not game.isFull()):
                 found_game = True;
                 break;
         

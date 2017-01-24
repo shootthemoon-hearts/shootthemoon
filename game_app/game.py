@@ -11,5 +11,5 @@ class Game():
     def addPlayer(self, channel):
         channel.send({'text': '{"id":' + str(self.gameID) + '}'})
         self.players += 1
-        print ('Game has', self.players, 'players')
+        print ('Game', self.gameID, 'has', self.players, 'players')
     
