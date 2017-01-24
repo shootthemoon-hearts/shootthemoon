@@ -6,7 +6,7 @@
  * Creates the graphics for the game to be synced up with the server which 
  * holds the game logic
  */
-function createGame() {
+function createGame(IO) {
 	var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 	/**
@@ -121,6 +121,6 @@ function createGame() {
 	 */
 	function stopDrag(sprite) {
 		console.log("Drag Stopped");
-		IO.socket.emit('tileDragged', {'a': 'b'});
+		IO.socket.send('tileDragged');
 	}
 }

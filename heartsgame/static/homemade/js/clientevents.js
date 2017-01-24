@@ -18,25 +18,17 @@ jQuery(function($){
          * client to the Socket.IO server
          */
         init: function() {
-            IO.socket = io.connect();
-            IO.bindEvents();
+	    IO.socket = new WebSocket("ws://" + window.location.host);
+	    IO.bindevents();
         },
-
-        /**
-         * Binds the server / client events to the proper functions
-         */
-        bindEvents : function() {
-            IO.socket.on('connected', IO.onConnected );
-        },
-        
-        /**
-         * Called when the client is added to a game
-         */
-        onConnected : function(data) {
-        	console.log("Connected!");
-        	console.log("id:" + data);
+       
+	bindevents: function() {
+	    IO.socket.onmessage = function(message) {
+                console.log(message.data);
+            }
         }
+
     };
     IO.init();
-    createGame();
+    createGame(IO);
 });
