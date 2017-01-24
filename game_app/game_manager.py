@@ -1,4 +1,4 @@
-from .mahjongg_game import MahjonggGame
+from .game import Game
 
 games = []
 def player_connected(channel):
@@ -7,7 +7,7 @@ def player_connected(channel):
     
     # If no games have been created, create one
     if len(games) == 0:
-        game = MahjonggGame(channel, 1);
+        game = Game(channel, 1);
         games.append(game);
     else:
         # Check if any of the existing rooms aren't full
@@ -19,7 +19,7 @@ def player_connected(channel):
         
         # They're all full, create a new game
         if not found_game:
-            game = MahjonggGame(channel, len(games) + 1);
+            game = Game(channel, len(games) + 1);
             games.append(game);
 
     game.addPlayer(channel);

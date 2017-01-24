@@ -1,4 +1,4 @@
-class MahjonggGame():
+class Game():
 
     def __init__(self, channel, ID):
         self.channel = channel
