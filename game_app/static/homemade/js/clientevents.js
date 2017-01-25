@@ -18,15 +18,15 @@ jQuery(function($){
          * client to the Socket.IO server
          */
         init: function() {
-	    IO.socket = new WebSocket("ws://" + window.location.host);
-	    IO.bindevents();
+		    IO.socket = new WebSocket("ws://" + window.location.host);
+		    IO.bindevents();
         },
        
-	bindevents: function() {
-	    IO.socket.onmessage = function(message) {
-                console.log(message.data);
-            }
-        }
+		bindevents: function() {
+		    IO.socket.onmessage = function(message) {
+	                console.log(message.data);
+	        };
+	    }
 
     };
     IO.init();
