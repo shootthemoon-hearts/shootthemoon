@@ -2,6 +2,11 @@ from .game import Game
 
 games = []
 def player_connected(channel):
+    '''Added when a player connects to the server
+
+    Args:
+        channel: The channel to communicate with the player
+    '''
     global games
     game = None
     
