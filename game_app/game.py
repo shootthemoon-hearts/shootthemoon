@@ -1,3 +1,7 @@
+from .card import Card
+from .deck import Deck
+from .player import Player
+
 import logging
 
 class Game():
@@ -26,14 +30,14 @@ class Game():
                 as a parameter or should the game itself decide??
         '''
         self.channel = channel
-        self.players = 0
+        self.players = []
         self.gameID = ID
 
     def isFull(self):
         '''Returns whether or not the game is full'''
-        if self.players == MAX_PLAYERS:
+        if len(self.players) == Game.MAX_PLAYERS:
             return True
-        elif self.players > MAX_PLAYERS:
+        elif len(self.players) > Game.MAX_PLAYERS:
             logging.warn('The game %s somehow has more players than the maximum',
                     self.gameID)
             return True
@@ -49,6 +53,28 @@ class Game():
         '''
         #TODO: Add the player to the game's group
         channel.send({'text': '{"id":' + str(self.gameID) + '}'})
-        self.players += 1
+        self.players.append(Player(channel))
         print ('Game', self.gameID, 'has', self.players, 'players')
     
+    def setup_game(self):
+        '''Sets up the game'''
+        deck = Deck()
+        deck.populate_and_randomize()
+        self.deal_cards(deck)
+        self.send_players_their_cards()
+
+    def deal_cards(self, deck):
+        '''Deal the cards to each player'''
+        print ("Deck length", len(deck.cards))
+        while len(deck.cards) > 0:
+            for player in self.players:
+                player.hand.append(deck.cards.pop())
+
+    def send_players_their_cards(self):
+        '''Sends a message to each player telling them which cards are 
+        theirs'''
+        for player in self.players:
+            cards_str = ''
+            for card in player.hand:
+                cards_str += card.to_json()
+            player.channel.send({'text': '{"Cards":' + cards_str + '}'})
