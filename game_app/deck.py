@@ -1,4 +1,5 @@
 from .card import Card
+from random import shuffle
 
 class Deck():
     '''A deck of cards'''
@@ -19,5 +20,4 @@ class Deck():
 
     def randomize(self):
         '''Shuffles the cards'''
-        #TODO: Implement
-        pass
+        shuffle(self.cards)

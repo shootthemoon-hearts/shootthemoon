@@ -72,3 +72,40 @@ class Card():
         '''Returns a json representation of this card'''
         short_suit = Card.SUIT_TO_SHORT_SUIT_DICT[self.suit]
         return '%s%s' % (self.number, short_suit)
+    
+    def __lt__(self, other):
+        if self.suit != other.suit:
+            return self.suit < other.suit
+        else:
+            return self.number < other.number
+        
+    def __gt__(self,other):
+        if self.suit != other.suit:
+            return self.suit > other.suit
+        else:
+            return self.number > other.number
+        
+    def __eq__(self,other):
+        if self.suit != other.suit:
+            return self.suit == other.suit
+        else:
+            return self.number == other.number
+        
+    def __le__(self, other):
+        if self.suit != other.suit:
+            return self.suit <= other.suit
+        else:
+            return self.number <= other.number
+        
+    def __ge__(self, other):
+        if self.suit != other.suit:
+            return self.suit >= other.suit
+        else:
+            return self.number >= other.number
+ 
+    def __ne__(self, other):
+        if self.suit != other.suit:
+            return self.suit != other.suit
+        else:
+            return self.number != other.number
+        
