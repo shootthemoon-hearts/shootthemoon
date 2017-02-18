@@ -12,3 +12,5 @@ class Player():
         '''
         self.channel = channel
         self.hand = []
+        self.pass_hand = []
+        self.position = None
