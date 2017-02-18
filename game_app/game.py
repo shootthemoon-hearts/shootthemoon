@@ -77,4 +77,4 @@ class Game():
             cards_str = ''
             for card in player.hand:
                 cards_str += card.to_json()
-            player.channel.send({'text': '{"Cards":' + cards_str + '}'})
+            player.channel.send({'text': '{"Cards":"' + cards_str + '"}'})
