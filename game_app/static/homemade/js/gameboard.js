@@ -47,8 +47,10 @@ function createHorizontalCards(cards, y, start_x, end_x, game_board) {
         } else {
             sprite = create_card_sprite(game_board, x, y, cards[i]);
             sprite.inputEnabled = true;
+            sprite.clicked = false;
             sprite.events.onInputOver.add(mouseOn, game_board);
             sprite.events.onInputOut.add(mouseOff, game_board);
+            sprite.events.onInputUp.add(cardClicked, game_board);
         }
 	}
 }
@@ -63,17 +65,30 @@ function createVerticalCards(x, start_y, end_y, game_board) {
 }
 
 function mouseOn(sprite) {
-	current_scale_x = sprite.scale.x;
-	current_scale_y = sprite.scale.y;
-	sprite.scale.set(current_scale_x * 1.2, current_scale_y * 1.2);
-	sprite.tint = .8 * 0xFFFFFF;
+	if (!sprite.clicked) {
+		current_scale_x = sprite.scale.x;
+		current_scale_y = sprite.scale.y;
+		sprite.scale.set(current_scale_x * 1.1, current_scale_y * 1.1);
+		sprite.tint = .8 * 0xFFFFFF;
+	}
 }
 
 function mouseOff(sprite) {
-	current_scale_x = sprite.scale.x;
-	current_scale_y = sprite.scale.y;
-	sprite.scale.set(current_scale_x / 1.2, current_scale_y / 1.2);
-	sprite.tint = 0xFFFFFF;
+	if (!sprite.clicked) {
+		current_scale_x = sprite.scale.x;
+		current_scale_y = sprite.scale.y;
+		sprite.scale.set(current_scale_x / 1.1, current_scale_y / 1.1);
+		sprite.tint = 0xFFFFFF;
+	}
+}
+
+function cardClicked(sprite) {
+	if (!sprite.clicked) {
+		if (game_state == BEFORE_GAME) {
+			sprite.tint = 0xFF0000;
+			sprite.clicked = true;
+		}
+	}
 }
 
 function createGame() {
