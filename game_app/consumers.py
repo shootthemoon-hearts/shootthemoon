@@ -20,12 +20,3 @@ def ws_disconnect(message):
     '''
     pass
 
-@channel_session_user
-def ws_message(message):
-    '''Called when a client communicates via a websocket connection
-
-    Args:
-        message: The message sent by the client
-    '''
-    if 'text' in message.content:
-        print(message.content['text'])

@@ -6,121 +6,131 @@
  * Creates the graphics for the game to be synced up with the server which 
  * holds the game logic
  */
-function createGame(IO) {
-	var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var board_length = 800;
+var board_height = 500;
+
+var card_length = 198;
+var card_height = 260;
+
+
+function show_facedown_cards(game_board, player_cards) {
+    total_hor_space_of_cards = 300;
+    hor_start_x = board_length/2 - (total_hor_space_of_cards/2);
+    hor_end_x = board_length/2 + (total_hor_space_of_cards/2 - 60);
+    ver_start_x = board_height/2 - (total_hor_space_of_cards/2);
+    ver_end_x = board_height/2 + (total_hor_space_of_cards/2 - 60);
+
+    createHorizontalCards([], 50, hor_start_x, hor_end_x, game_board);
+    createHorizontalCards(player_cards, board_height - 50 - 130, hor_start_x, hor_end_x, game_board);
+    createVerticalCards(50, ver_start_x, ver_end_x, game_board);
+    createVerticalCards(board_length - 50 - 60, ver_start_x, ver_end_x, game_board);
+}
+
+/**
+ * This function is bad. Make it better. :)
+ */
+function createHorizontalCards(cards, y, start_x, end_x, game_board) {
+    var use_fd = false;
+    var len = cards.length;
+    if (len == 0) {
+        use_fd = true; 
+        len = 13;
+    } else {
+        len = cards.length;
+    }
+	for (var i = 0; i < len; i++) {
+		var x = ((end_x - start_x) / len * i) + start_x;
+
+        var sprint = null;
+        if (use_fd) {
+		    sprite = create_facedown_card(game_board, x, y);
+        } else {
+            sprite = create_card_sprite(game_board, x, y, cards[i]);
+            sprite.card = cards[i];
+            sprite.inputEnabled = true;
+            sprite.clicked = false;
+            sprite.events.onInputOver.add(mouseOn, game_board);
+            sprite.events.onInputOut.add(mouseOff, game_board);
+            sprite.events.onInputUp.add(cardClicked, game_board);
+        }
+	}
+}
+
+function createVerticalCards(x, start_y, end_y, game_board) {
+    var len = 13;
+	for (var i = 0; i < len; i++) {
+		var y = ((end_y - start_y) / len * i) + start_y;
+
+		var sprite = create_facedown_card(game_board, x, y);
+	}
+}
+
+function mouseOn(sprite) {
+	if (!sprite.clicked) {
+		current_scale_x = sprite.scale.x;
+		current_scale_y = sprite.scale.y;
+		sprite.scale.set(current_scale_x * 1.1, current_scale_y * 1.1);
+		sprite.tint = .8 * 0xFFFFFF;
+	}
+}
+
+function mouseOff(sprite) {
+	if (!sprite.clicked) {
+		current_scale_x = sprite.scale.x;
+		current_scale_y = sprite.scale.y;
+		sprite.scale.set(current_scale_x / 1.1, current_scale_y / 1.1);
+		sprite.tint = 0xFFFFFF;
+	}
+}
+
+function cardClicked(sprite) {
+	if (game_state != BEFORE_GAME) {
+		if (!sprite.clicked) {
+		
+			sprite.tint = 0xFF0000;
+			sprite.clicked = true;
+			selected_cards.push(sprite.card);
+			if (selected_cards.length == 3) {
+				all_cards_selected();
+			}
+		}else {
+			sprite.tint = 0xFFFFFF;
+			sprite.clicked = false;
+			selected_cards.remove(sprite.cards);
+		} 
+		
+	}
+}
+
+function createGame() {
+
+	var game = new Phaser.Game(board_length, board_height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 	/**
 	 * Load images and such to be used in the game
 	 */
 	function preload() {
-		game.load.image('tile', '../static/third_party/assets/mahjong-icon.png');
+
+		game.load.spritesheet(Card.CLUBS, '../static/third_party/assets/card_images/clubs/different_playing_card_vector_graphic.jpg', card_length, card_height);
+		game.load.spritesheet(Card.DIAMONDS, '../static/third_party/assets/card_images/diamonds/different_playing_card_vector_graphic.jpg', card_length, card_height);
+		game.load.spritesheet(Card.HEARTS, '../static/third_party/assets/card_images/hearts/different_playing_card_vector_graphic.jpg', card_length, card_height);
+		game.load.spritesheet(Card.SPADES, '../static/third_party/assets/card_images/spades/different_playing_card_vector_graphic.jpg', card_length, card_height);
+
 	}
 	
 	/**
 	 * Create the game
 	 */
 	function create () {
-		createFakeHand();
-		createMostDynamicGameBoardEver();
+        show_facedown_cards(this, player_cards);
 	}
 
 	/**
 	 * Update the game
 	 */
 	function update() {
-		
+
 	}
 
-	/**
-	 * Creates a fake hand for a player. Needs some work...
-	 */
-	function createFakeHand() {
-		var hands = [];
-		var num_players = 4;
-		var num_tiles = 13;
-		for (var i = 0; i < num_players; i++) {
-			var tiles = []
-			for (var tile_idx = 0; tile_idx < num_tiles; tile_idx++){
-				var value = Math.floor(Math.random() * (9 - 0)) + 0;
-				var suit = "sou";
-				tiles[tile_idx] = new Tile(suit, value);
-			}
-
-			hands[i] = new Hand(tiles);
-		}
-
-		var hand_str = '';
-		for (i = 0; i < num_tiles; i++) {
-			hand_str += hands[0].tiles[i].value;
-		}
-	}
-
-	/**
-	 * Creates the most dynamic and beautiful game board that you've ever seen
-	 * in the history of Anime
-	 */
-	function createMostDynamicGameBoardEver() {
-
-		var array = (function() {
-			var array = [];
-			for (var i = 0; i < 13; i++) {
-				array.push('tile');
-			}
-			return array;
-		})();
-		fillHorizontalText(array, 50, 50, 400);
-		fillHorizontalText(array, 375, 50, 400);
-
-		fillVerticalText(array, 10, 70, 380);
-		fillVerticalText(array, 410, 70, 380);
-	}
-
-	/**
-	 * This function is bad. Make it better. :)
-	 */
-	function fillHorizontalText(text, y, start_x, end_x) {
-		text = Array.from(text);
-		for (var i = 0; i < text.length; i++) {
-			var x = ((end_x - start_x) / text.length * i) + start_x;
-
-			var sprite = game.add.sprite(x, y, text[i]);
-			// Also enable sprite for drag
-			sprite.inputEnabled = true;
-			sprite.input.enableDrag();
-			sprite.events.onDragStart.add(startDrag, this);
-			sprite.events.onDragStop.add(stopDrag, this);
-		}
-	}
-
-	/**
-	 * This function is also bad. Make it betterer. :)
-	 */
-	function fillVerticalText(text, x, start_y, end_y) {
-		text = Array.from(text);
-		for (var i = 0; i < text.length; i++) {
-			var y = ((end_y - start_y) / text.length * i) + start_y;
-
-			var sprite = game.add.sprite(x, y, text[i]);
-			// Also enable sprite for drag
-			sprite.inputEnabled = true;
-			sprite.input.enableDrag();
-			sprite.events.onDragStart.add(startDrag, this);
-			sprite.events.onDragStop.add(stopDrag, this);
-		}
-	}
-
-	/**
-	 * Called when the player begins to drag a tile
-	 */
-	function startDrag() {
-		console.log("Drag Started");
-	}
-
-	/**
-	 * Called when the player finishes dragging a tile
-	 */
-	function stopDrag(sprite) {
-		console.log("Drag Stopped");
-		IO.socket.send('tileDragged');
-	}
+	return game;
 }
