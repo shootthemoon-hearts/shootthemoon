@@ -1,5 +1,8 @@
 from django.shortcuts import render
 
+def genericWs(request):
+    return render(request,'game_app/hanyuu.html',context = {})
+
 def index(request):
     '''Render the index.html file for this app when a client connects to this
     app's index URL (i.e. <website>/game.
