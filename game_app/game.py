@@ -1,7 +1,8 @@
 from .card import Card
 from .deck import Deck
 from .player import Player
-from .trick import Trick
+from .trick_turn import TrickTurn
+
 
 import logging
 from  . import event_manager
@@ -24,6 +25,7 @@ class Game():
     BEFORE_GAME = 'BEFORE_GAME'
     IN_TRICK = 'IN_TRICK'
     PASS_PHASE = 'PASS_PHASE'
+    
 
     def __init__(self, channel, ID):
         '''Constructor
@@ -40,6 +42,7 @@ class Game():
         self.gameID = ID
         self.round = 0
         self.phase = Game.BEFORE_GAME
+        self.tricks = []
 
     def isFull(self):
         '''Returns whether or not the game is full'''
@@ -71,6 +74,7 @@ class Game():
     def setup_game(self):
         '''Sets up the game'''
         event_manager.register_event_handler('pass_cards_selected', self.pass_cards_selected)
+        event_manager.register_event_handler('trick_card_selected', self.trick_cards_selected)
         deck = Deck()
         deck.populate_and_randomize()
         self.deal_cards(deck)
@@ -115,6 +119,13 @@ class Game():
         for player in self.players:
             player.channel.send({'text': '{"game_phase": "%s"}' % phase})
             
+    def send_players_discard(self, player, discard):
+        '''Sends a message to each player telling them which cards are 
+        theirs'''
+        for player_to_send_to in self.players:
+            player_to_send_to.channel.send({'text': '{"discard": "{"player": "%s", "card": "%s"}"}' 
+                                            % (player, discard)})
+            
     def start_game(self):
         self.organize_hand()
         
@@ -135,6 +146,23 @@ class Game():
             self.pass_round.set_hands_to_new_hands()
             self.send_players_their_cards()
             self.send_players_the_phase(Game.IN_TRICK)
+            self.tricks.append(TrickTurn(self.players, self.direction))
+            next_player = self.who_goes_first()
+            next_player.channel.send({'text':'{"your_turn": "true"}'})
+            
+    def trick_cards_selected(self, cards_str, channel):
+        cards = []
+        for card_str in cards_str:
+            cards.append(Card.from_short_string(card_str))
+        player = self.get_player_with_channel(channel)
+        everyone_discarded = self.tricks[-1].card_discarded(player, cards)
+        
+        if everyone_discarded:
+            pass
+        else:
+            next_player = self.tricks[-1].get_next_discarder()
+            next_player.channel.send({'text':'{"your_turn": "true"}'})
+            
     
     def pass_card_thing(self):
         self.send_players_the_phase(Game.PASS_PHASE)
@@ -159,14 +187,13 @@ class Game():
         self.who_starts = 0
         any_two_of_clubs = 0
         two_of_clubs = Card(2,'Clubs')
-        for i in range(0,len(self.players)):
-            if self.players[i].hand[0] == two_of_clubs:
-                self.who_starts = i
-                any_two_of_clubs += 1
+        for player in self.players:
+            if two_of_clubs in player.hand:
+                return player
         #need some kind of thing about if 0 goes first, then 1 goes,
         # then 2 goes, then 3 goes, then trick ends and cards are
         # collected into pile in front of player who won trick.
-        if any_two_of_clubs == 0:
-            pass
+        if any_two_of_clubs > 0:
+            return 
    
     

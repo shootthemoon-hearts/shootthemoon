@@ -66,39 +66,47 @@ function createVerticalCards(x, start_y, end_y, game_board) {
 }
 
 function mouseOn(sprite) {
-	if (!sprite.clicked) {
-		current_scale_x = sprite.scale.x;
-		current_scale_y = sprite.scale.y;
-		sprite.scale.set(current_scale_x * 1.1, current_scale_y * 1.1);
-		sprite.tint = .8 * 0xFFFFFF;
+	if (my_turn) {
+		if (!sprite.clicked) {
+			current_scale_x = sprite.scale.x;
+			current_scale_y = sprite.scale.y;
+			sprite.scale.set(current_scale_x * 1.1, current_scale_y * 1.1);
+			sprite.tint = .8 * 0xFFFFFF;
+		}
 	}
 }
 
 function mouseOff(sprite) {
-	if (!sprite.clicked) {
-		current_scale_x = sprite.scale.x;
-		current_scale_y = sprite.scale.y;
-		sprite.scale.set(current_scale_x / 1.1, current_scale_y / 1.1);
-		sprite.tint = 0xFFFFFF;
+	if (my_turn) {
+		if (!sprite.clicked) {
+			current_scale_x = sprite.scale.x;
+			current_scale_y = sprite.scale.y;
+			sprite.scale.set(current_scale_x / 1.1, current_scale_y / 1.1);
+			sprite.tint = 0xFFFFFF;
+		}
 	}
 }
 
 function cardClicked(sprite) {
-	if (game_state != BEFORE_GAME) {
-		if (!sprite.clicked) {
-		
-			sprite.tint = 0xFF0000;
-			sprite.clicked = true;
-			selected_cards.push(sprite.card);
-			if (selected_cards.length == 3) {
-				all_cards_selected();
-			}
-		}else {
-			sprite.tint = 0xFFFFFF;
-			sprite.clicked = false;
-			selected_cards.remove(sprite.cards);
-		} 
-		
+	if (my_turn) {
+		if (game_state != BEFORE_GAME) {
+			if (!sprite.clicked) {
+			
+				sprite.tint = 0xFF0000;
+				sprite.clicked = true;
+				selected_cards.push(sprite.card);
+
+				if (selected_cards.length == cards_to_select) {
+					all_cards_selected();
+				}
+				
+			} else {
+				sprite.tint = 0xFFFFFF;
+				sprite.clicked = false;
+				selected_cards.remove(sprite.cards);
+			} 
+			
+		}
 	}
 }
 
