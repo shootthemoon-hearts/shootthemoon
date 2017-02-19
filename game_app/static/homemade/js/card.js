@@ -76,5 +76,5 @@ Card.CardsFromJSON = function(str) {
 Card.prototype.toJSON = function() {
 	var i = Card.SUITS.indexOf(this.suit);
 	var short_suit = Card.SHORT_SUITS[i];
-	return number.toString() + short_suit;
+	return this.number.toString() + short_suit;
 }
