@@ -1,16 +1,7 @@
-from channels.generic.websockets import WebsocketDemultiplexer, JsonWebsocketConsumer
+from channels.generic.websockets import WebsocketDemultiplexer
 from game_app.match_maker_event_manager import MatchmakeEventConsumer
 from game_app.game_event_manager import GameEventConsumer
-
-        
-class MetricEventConsumer(JsonWebsocketConsumer):
-    def receive(self, content, multiplexer, **kwargs):
-        multiplexer.send({"metric_message": content})        
-        
-class DefaultEventConsumer(JsonWebsocketConsumer):
-    def receive(self, content, multiplexer=None, **kwargs):
-        multiplexer.send({"default_message": content})  
-
+from game_app.metric_event_manager import MetricEventConsumer 
 
 class Demultiplexer(WebsocketDemultiplexer):
     
@@ -18,14 +9,12 @@ class Demultiplexer(WebsocketDemultiplexer):
     consumers = {
         "matchmake": MatchmakeEventConsumer,
         "game": GameEventConsumer,
-        "metric": MetricEventConsumer,
-        "other": DefaultEventConsumer,        
+        "metric": MetricEventConsumer,     
     }
     
     @staticmethod
     def channel_names():
         return "websocket.receive"
-    
     
     
     

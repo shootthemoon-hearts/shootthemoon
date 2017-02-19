@@ -1,5 +1,4 @@
 from channels.generic.websockets import JsonWebsocketConsumer
-from channels.sessions import channel_session
 
 class gameEventData():
     user_id = 0
@@ -8,10 +7,10 @@ class gameEventData():
     action_type = "none"
     cards = ""
 
-
 class GameEventConsumer(JsonWebsocketConsumer):
     
-    @channel_session
+    http_user = True
+    
     def receive(self, content, multiplexer, **kwargs):
         multiplexer.send({"game_message": "fuck"}) 
         """

@@ -1,6 +1,7 @@
 from . import game_manager
-from channels import Group
+from channels.auth import channel_session_user, channel_session_user_from_http
 
+@channel_session_user_from_http
 def ws_add(message):
     '''Called when a websocket connection is made
 
@@ -10,6 +11,7 @@ def ws_add(message):
     message.reply_channel.send({'accept':True})
     game_manager.player_connected(message.reply_channel)
 
+@channel_session_user
 def ws_disconnect(message):
     '''Called when a websocket connection is broken
 
@@ -18,6 +20,7 @@ def ws_disconnect(message):
     '''
     pass
 
+@channel_session_user
 def ws_message(message):
     '''Called when a client communicates via a websocket connection
 

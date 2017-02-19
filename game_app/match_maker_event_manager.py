@@ -9,6 +9,9 @@ class matchEventData():
     
 
 class MatchmakeEventConsumer(JsonWebsocketConsumer):
+    
+    http_user = True
+    
     def receive(self, content, multiplexer, **kwargs):
         multiplexer.send({"matchmaker_message": content})
         
