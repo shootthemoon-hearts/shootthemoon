@@ -1,3 +1,5 @@
+import re
+
 class Card():
     '''This class is meant to represent any card to be used during the game.
 
@@ -61,6 +63,15 @@ class Card():
         '''
         self.suit = suit
         self.number = number
+        
+    @classmethod    
+    def from_short_string(cls, short):
+        regex = r"[0-9]{1,2}"
+        number = re.match(regex, short).group()
+        number = int(number)
+        regex = r"[DCSH]"
+        short_suit = re.search(regex, short).group()
+        return cls(number, Card.SUITS[Card.SHORT_SUITS.index(short_suit)])
 
     def __repr__(self):
         '''Returns a string representation of the card to help with 
@@ -108,4 +119,7 @@ class Card():
             return self.suit != other.suit
         else:
             return self.number != other.number
+        
+    def __hash__(self):
+        return hash((self.number, self.suit))
         
