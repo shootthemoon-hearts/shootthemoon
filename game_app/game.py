@@ -156,9 +156,8 @@ class Game():
             cards.append(Card.from_short_string(card_str))
         player = self.get_player_with_channel(channel)
         everyone_discarded = self.tricks[-1].card_discarded(player, cards)
-        
         if everyone_discarded:
-            pass
+            self.tricks[-1].get_winner()
         else:
             next_player = self.tricks[-1].get_next_discarder()
             next_player.channel.send({'text':'{"your_turn": "true"}'})
@@ -184,8 +183,6 @@ class Game():
 #         self.who_goes_first()
         
     def who_goes_first(self):
-        self.who_starts = 0
-        any_two_of_clubs = 0
         two_of_clubs = Card(2,'Clubs')
         for player in self.players:
             if two_of_clubs in player.hand:
@@ -193,7 +190,5 @@ class Game():
         #need some kind of thing about if 0 goes first, then 1 goes,
         # then 2 goes, then 3 goes, then trick ends and cards are
         # collected into pile in front of player who won trick.
-        if any_two_of_clubs > 0:
-            return 
    
     
