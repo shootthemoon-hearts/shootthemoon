@@ -1,5 +1,7 @@
 from . import game_manager
 from channels import Group
+from . import event_manager
+import json
 
 def ws_add(message):
     '''Called when a websocket connection is made
@@ -25,4 +27,5 @@ def ws_message(message):
         message: The message sent by the client
     '''
     if 'text' in message.content:
-        print(message.content['text'])
+        event = json.loads(message.content['text'])
+        event_manager.event_received(event, message.reply_channel);

@@ -46,6 +46,7 @@ function createHorizontalCards(cards, y, start_x, end_x, game_board) {
 		    sprite = create_facedown_card(game_board, x, y);
         } else {
             sprite = create_card_sprite(game_board, x, y, cards[i]);
+            sprite.card = cards[i];
             sprite.inputEnabled = true;
             sprite.clicked = false;
             sprite.events.onInputOver.add(mouseOn, game_board);
@@ -83,11 +84,21 @@ function mouseOff(sprite) {
 }
 
 function cardClicked(sprite) {
-	if (!sprite.clicked) {
-		if (game_state == BEFORE_GAME) {
+	if (game_state != BEFORE_GAME) {
+		if (!sprite.clicked) {
+		
 			sprite.tint = 0xFF0000;
 			sprite.clicked = true;
-		}
+			selected_cards.push(sprite.card);
+			if (selected_cards.length == 3) {
+				all_cards_selected();
+			}
+		}else {
+			sprite.tint = 0xFFFFFF;
+			sprite.clicked = false;
+			selected_cards.remove(sprite.cards);
+		} 
+		
 	}
 }
 
