@@ -59,6 +59,7 @@ class Game():
         self.players.append(new_player)
         position = self.players.index(new_player)
         new_player.position = position
+        channel.send({'text': '{"player_pos":%s}' % position})
         print ('Game', self.gameID, 'has', self.players, 'players')
     
     def setup_game(self):

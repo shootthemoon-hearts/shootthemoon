@@ -1,6 +1,5 @@
 var Card = function(number, suit) {
 
-    console.log("Creating a class with " + number + suit);
     this.number = number;
     this.suit = suit;
 
@@ -60,7 +59,6 @@ Card.CardFromShortSuit = function(number, short_suit) {
 
 Card.CardsFromJSON = function(str) {
     cards = [];
-    console.log("Passed into CardsFromJSON" + str);
     regex = /([0-9]{1,2}[DCSH]{1})/g;
     cards_str = str.match(regex);
     for (i in cards_str) {

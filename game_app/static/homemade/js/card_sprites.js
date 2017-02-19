@@ -7,7 +7,7 @@ function create_facedown_card(game, x, y) {
 }
 
 function create_card_sprite(game, x, y, card) {
-    sprite =  game.add.sprite( x, y, card.suit, card.number);
+    sprite =  game.add.sprite( x, y, card.suit, card.number - 1);
     sprite.scale.set(.5, .5);
     return sprite;
 }
