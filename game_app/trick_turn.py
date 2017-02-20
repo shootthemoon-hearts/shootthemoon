@@ -5,13 +5,15 @@ class TrickTurn():
         
         self.players_new_hands = {}
         self.players = players
+        self.player_order = []
         self.direction = direction
-        last_discarder = None
+        self.last_discarder = None
         for player in players:
-            self.discards_per_player[player] = []
+            self.discards_per_player[player] = None
             
     def card_discarded(self, player, discard):
         discard = discard[0]
+        self.player_order.append(player)
         self.discards_per_player[player] = discard
         new_hand = player.hand[:]
         for card in new_hand:
@@ -35,3 +37,17 @@ class TrickTurn():
             
     def get_next_discarder(self):
         return self.players[(self.last_discarder.position+self.direction)%4]
+    
+    def get_winner(self):
+        first_discard = self.discards_per_player[self.player_order[0]]
+        discards = []
+        for player in self.player_order[1:]:
+            if first_discard.suit == self.discards_per_player[player].suit:
+                discards.append(self.discards_per_player[player])
+        discards.append(first_discard)
+        discards.sort()
+        winning_card = discards[-1]
+        for player, discard in self.discards_per_player.items():
+            if discard == winning_card:
+                return player
+        
