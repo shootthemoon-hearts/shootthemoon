@@ -1,6 +1,5 @@
 from channels.generic.websockets import JsonWebsocketConsumer
 from game_app import event_manager
-import json
 
 class gameEventData():
     user_id = 0
@@ -14,9 +13,6 @@ class GameEventConsumer(JsonWebsocketConsumer):
     http_user = True
     
     def receive(self, content, multiplexer, **kwargs):
-        
-        if 'text' in content:
-            event = json.loads(content['text'])
-            event_manager.event_received(event, multiplexer.reply_channel);
+        event_manager.event_received(content, multiplexer.reply_channel);
         
         

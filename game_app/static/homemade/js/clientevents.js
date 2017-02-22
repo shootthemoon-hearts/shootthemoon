@@ -28,6 +28,6 @@ function register_event_handler(key, event_handler) {
     key_to_event_handler_dict[key] = event_handler;
 }
 
-
+bind_to_stream("game", handle_event)
 init_ws_connection();
 init_game();

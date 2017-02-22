@@ -3,10 +3,15 @@ from .deck import Deck
 from .player import Player
 from .trick_turn import TrickTurn
 
-
+from json import dumps
 import logging
 from  . import event_manager
 from .pass_round import PassRound
+
+def tx_multiplexed_data(channel,data):
+    packet = {'stream':'game',
+              'payload':data}
+    channel.send({'text': dumps(packet)})
 
 class Game():
     '''This class will represent an individual game
@@ -63,12 +68,12 @@ class Game():
                 client
         '''
         #TODO: Add the player to the game's group
-        channel.send({'text': '{"id":' + str(self.gameID) + '}'})
+        tx_multiplexed_data(channel,{'id':str(self.gameID)})
         new_player = Player(channel)
         self.players.append(new_player)
         position = len(self.players) - 1
         new_player.position = position
-        channel.send({'text': '{"player_pos":%s}' % position})
+        tx_multiplexed_data(channel,{"player_pos":position})
         print ('Game', self.gameID, 'has', self.players, 'players')
     
     def setup_game(self):
@@ -111,20 +116,19 @@ class Game():
             cards_str = ''
             for card in player.hand:
                 cards_str += card.to_json()
-            player.channel.send({'text': '{"Cards":"' + cards_str + '"}'})
+            tx_multiplexed_data(player.channel,{"Cards":cards_str})
             
     def send_players_the_phase(self, phase):
         '''Sends a message to each player telling them which cards are 
         theirs'''
         for player in self.players:
-            player.channel.send({'text': '{"game_phase": "%s"}' % phase})
+            tx_multiplexed_data(player.channel,{"game_phase": phase})
             
     def send_players_discard(self, player, discard):
         '''Sends a message to each player telling them which cards are 
         theirs'''
         for player_to_send_to in self.players:
-            player_to_send_to.channel.send({'text': '{"discard": "{"player": "%s", "card": "%s"}"}' 
-                                            % (player, discard)})
+            tx_multiplexed_data(player_to_send_to.channel,{"discard": {"player": player, "card": discard}})
             
     def start_game(self):
         self.organize_hand()
@@ -148,7 +152,7 @@ class Game():
             self.send_players_the_phase(Game.IN_TRICK)
             self.tricks.append(TrickTurn(self.players, self.direction))
             next_player = self.who_goes_first()
-            next_player.channel.send({'text':'{"your_turn": "true"}'})
+            tx_multiplexed_data(next_player.channel,{"your_turn": "true"})
             
     def trick_cards_selected(self, cards_str, channel):
         cards = []
@@ -160,7 +164,7 @@ class Game():
             self.tricks[-1].get_winner()
         else:
             next_player = self.tricks[-1].get_next_discarder()
-            next_player.channel.send({'text':'{"your_turn": "true"}'})
+            tx_multiplexed_data(next_player.channel,{"your_turn": "true"})
             
     
     def pass_card_thing(self):
