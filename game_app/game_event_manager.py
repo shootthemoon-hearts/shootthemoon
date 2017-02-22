@@ -1,18 +1,17 @@
 from channels.generic.websockets import JsonWebsocketConsumer
-from game_app import event_manager
+from json import dumps
+from game_app.event_handler_generics import key_is_key_event_handler
 
-class gameEventData():
-    user_id = 0
-    game_id = 0
-    turn_id = 0
-    action_type = "none"
-    cards = ""
+event_manager = key_is_key_event_handler()
 
 class GameEventConsumer(JsonWebsocketConsumer):
-    
-    http_user = True
-    
+    http_user = True    
     def receive(self, content, multiplexer, **kwargs):
-        event_manager.event_received(content, multiplexer.reply_channel);
-        
+        #we should get player specific game object here and pass it into act_on
+        event_manager.act_on(content, multiplexer.reply_channel)
+
+def transmit(channel,data):
+    packet = {'stream':'game',
+              'payload':data}
+    channel.send({'text': dumps(packet)})
         
