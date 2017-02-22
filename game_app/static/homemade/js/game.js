@@ -61,9 +61,9 @@ function all_cards_selected() {
 	}
 	my_turn = false;
 	if (game_state == PASS_PHASE) {
-		socket.send(JSON.stringify({'pass_cards_selected': short_cards}));
+		tx_multiplexed_packet("game",{'pass_cards_selected': short_cards});
 	}
 	if (game_state == IN_TRICK) {
-		socket.send(JSON.stringify({'trick_card_selected': short_cards}));
+		tx_multiplexed_packet("game",{'trick_card_selected': short_cards});
 	}
 }

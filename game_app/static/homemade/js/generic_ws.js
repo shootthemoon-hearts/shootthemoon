@@ -1,5 +1,5 @@
 socket = new WebSocket("ws://" + window.location.host + "/");
-console.log("opening");
+document.write("opening");
 
 socket.onopen = function() {
     socket.send(JSON.stringify({
