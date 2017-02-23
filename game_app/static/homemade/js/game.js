@@ -18,10 +18,10 @@ var game_state = BEFORE_GAME;
 
 function init_game() {
 
-    register_event_handler("Cards", got_cards);
-    register_event_handler("player_pos", got_player_pos);
-    register_event_handler("game_phase", new_game_phase);
-    register_event_handler("your_turn", now_my_turn);
+	game_event_handler.register_handler("Cards", got_cards);
+	game_event_handler.register_handler("player_pos", got_player_pos);
+	game_event_handler.register_handler("game_phase", new_game_phase);
+	game_event_handler.register_handler("your_turn", now_my_turn);
 	game_board = createGame();
 };
 
