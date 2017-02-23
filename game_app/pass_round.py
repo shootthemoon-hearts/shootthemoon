@@ -14,7 +14,7 @@ class PassRound():
         i = player.position
         receiving_player = self.players[(i+self.direction)%4]
         receiving_new_hand = sorted(self.players_new_hands[receiving_player] + passed_cards)
-        giving_new_hand = sorted(list(set(player.hand) - set(passed_cards)))
+        giving_new_hand = sorted(list(set(self.players_new_hands[player]) - set(passed_cards)))
         
         self.players_new_hands[receiving_player] = receiving_new_hand
         self.players_new_hands[player] = giving_new_hand
@@ -31,3 +31,11 @@ class PassRound():
     def set_hands_to_new_hands(self):
         for player in self.players:
             player.hand = self.players_new_hands[player]
+            
+            
+            
+            
+            
+            
+            
+            
