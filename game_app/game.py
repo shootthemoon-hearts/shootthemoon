@@ -41,6 +41,7 @@ class Game():
         self.players = []
         self.gameID = ID
         self.round = 0
+        self.tricks_this_hand = 0
         self.phase = Game.BEFORE_GAME
         self.tricks = []
 
@@ -71,10 +72,24 @@ class Game():
         transmit(channel,{"player_pos":position})
         print ('Game', self.gameID, 'has', self.players, 'players')
     
+    def clear_hands(self):
+        for i in self.players:
+            i.hand = []
+            i.pass_hand = []
+            
+    #def update__player_positions(self):
+        #for i in self.players:
+            #if self.round != 0:
+                #position = (i.position + self.round)%4
+                #i.position = (i.position + self.round)%4
+                #transmit(i.channel,{"player_pos":position})
+    
     def setup_game(self):
         '''Sets up the game'''
         event_manager.register_handler('pass_cards_selected', self.pass_cards_selected)
         event_manager.register_handler('trick_card_selected', self.trick_cards_selected)
+        self.clear_hands()
+        #self.update__player_positions()
         deck = Deck()
         deck.populate_and_randomize()
         self.deal_cards(deck)
@@ -156,7 +171,15 @@ class Game():
         player = self.get_player_with_channel(channel)
         everyone_discarded = self.tricks[-1].card_discarded(player, cards)
         if everyone_discarded:
-            self.tricks[-1].get_winner()
+            self.tricks_this_hand += 1
+            next_player = self.tricks[-1].get_winner()
+            self.send_players_the_phase(Game.IN_TRICK)
+            self.tricks.append(TrickTurn(self.players, self.direction))
+            transmit(next_player.channel,{"your_turn": "true"})
+            if self.tricks_this_hand == 13: #normally 13 (set lower for test)
+                self.tricks_this_hand = 0
+                self.round += 1
+                self.setup_game()
         else:
             next_player = self.tricks[-1].get_next_discarder()
             transmit(next_player.channel,{"your_turn": "true"})
@@ -165,29 +188,11 @@ class Game():
     def pass_card_thing(self):
         self.send_players_the_phase(Game.PASS_PHASE)
         self.pass_round = PassRound(players=self.players, direction=self.direction)
-#         print ("self direction")
-#         print (self.direction)
-#         print (self.players[0].hand)
-#         if self.direction == 0:
-#                 pass
-#         else:
-#             for player in self.players:
-#                 player.pass_hand += player.hand[0:3]
-#                 player.hand.remove(player.hand[0])
-#                 player.hand.remove(player.hand[0])
-#                 player.hand.remove(player.hand[0])
-#             for i in range(0,len(self.players)):
-#                 self.players[i].hand += self.players[(i+self.direction)%4].pass_hand
-#         print (self.players[0].hand)
-#         self.who_goes_first()
         
     def who_goes_first(self):
         two_of_clubs = Card(2,'Clubs')
         for player in self.players:
             if two_of_clubs in player.hand:
                 return player
-        #need some kind of thing about if 0 goes first, then 1 goes,
-        # then 2 goes, then 3 goes, then trick ends and cards are
-        # collected into pile in front of player who won trick.
    
     
