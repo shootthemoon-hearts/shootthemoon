@@ -14,4 +14,6 @@ class Player():
         self.hand = []
         self.pass_hand = []
         self.position = None
+        self.hand_points = 0
+        self.game_points = 0
         

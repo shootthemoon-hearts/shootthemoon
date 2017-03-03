@@ -52,4 +52,16 @@ class TrickTurn():
         for player, discard in self.discards_per_player.items():
             if discard == winning_card:
                 return player
+            
+    def get_trick_points(self):
+        points = 0
+        discards = []
+        for player in self.player_order[0:]:
+            discards.append(self.discards_per_player[player])
+        for i in discards:
+            if i.suit == 'Hearts':
+                points += 1
+            if i.suit == 'Spades' and i.number == 12:
+                points += 13
+        return points
         

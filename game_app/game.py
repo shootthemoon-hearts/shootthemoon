@@ -44,6 +44,7 @@ class Game():
         self.tricks_this_hand = 0
         self.phase = Game.BEFORE_GAME
         self.tricks = []
+        self.game_winner = -1
 
     def isFull(self):
         '''Returns whether or not the game is full'''
@@ -146,7 +147,13 @@ class Game():
             self.players[i].hand.sort()
             print ("player %s's hand: %s" % (i ,self.players[i].hand))
         self.send_players_their_cards()
-        self.pass_card_thing()
+        if self.direction != 0:
+            self.pass_card_thing()
+        else:
+            self.send_players_the_phase(Game.IN_TRICK)
+            self.tricks.append(TrickTurn(self.players, self.direction))
+            next_player = self.who_goes_first()
+            transmit(next_player.channel,{"your_turn": "true"})
         
     def pass_cards_selected(self, cards_str, channel):
         cards = []
@@ -171,12 +178,38 @@ class Game():
         if everyone_discarded:
             self.tricks_this_hand += 1
             next_player = self.tricks[-1].get_winner()
+            next_player.hand_points += self.tricks[-1].get_trick_points()
             self.send_players_the_phase(Game.IN_TRICK)
             self.tricks.append(TrickTurn(self.players, self.direction))
             transmit(next_player.channel,{"your_turn": "true"})
+            ###################################################
+            ##### BELOW IF STATEMENT IS THE END OF A HAND #####
+            ###################################################
             if self.tricks_this_hand == 13: #normally 13 (set lower for test)
                 self.tricks_this_hand = 0
-                self.setup_game()
+                ####
+                for i in self.players:
+                    #checking if player shot the moon and if so applying exception#
+                    if i.hand_points == 26:
+                        for j in self.players:
+                            j.hand_points = 27
+                        i.hand_points = 0
+                for i in self.players:
+                    if i.hand_points == 27:
+                        i.hand_points -= 1
+                for i in self.players:
+                    i.game_points += i.hand_points
+                        ####
+                for i in self.players:
+                    i.hand_points = 0
+                game_over = 0
+                for i in self.players:
+                    if i.game_points >= 100:
+                        game_over += 1
+                if game_over == 0:
+                    self.setup_game()
+                else:
+                    self.game_over()
         else:
             next_player = self.tricks[-1].get_next_discarder()
             transmit(next_player.channel,{"your_turn": "true"})
@@ -191,5 +224,7 @@ class Game():
         for player in self.players:
             if two_of_clubs in player.hand:
                 return player
-   
-    
+            
+    def game_over(self):
+        pass
+            
