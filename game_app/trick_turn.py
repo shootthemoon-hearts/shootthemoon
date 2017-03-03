@@ -35,8 +35,10 @@ class TrickTurn():
         for player in self.players:
             player.hand = self.players_new_hands[player]
             
+            # +self.direction was changed to +1, because the play order doesn't
+            # use self.direction, only the passing uses that
     def get_next_discarder(self):
-        return self.players[(self.last_discarder.position+self.direction)%4]
+        return self.players[(self.last_discarder.position+1)%4]
     
     def get_winner(self):
         first_discard = self.discards_per_player[self.player_order[0]]

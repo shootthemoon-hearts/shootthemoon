@@ -77,19 +77,17 @@ class Game():
             i.hand = []
             i.pass_hand = []
             
-    #def update__player_positions(self):
-        #for i in self.players:
-            #if self.round != 0:
-                #position = (i.position + self.round)%4
-                #i.position = (i.position + self.round)%4
-                #transmit(i.channel,{"player_pos":position})
+    #def clear_tricks(self):
+        #self.tricks = []
     
     def setup_game(self):
         '''Sets up the game'''
         event_manager.register_handler('pass_cards_selected', self.pass_cards_selected)
         event_manager.register_handler('trick_card_selected', self.trick_cards_selected)
         self.clear_hands()
-        #self.update__player_positions()
+        #self.clear_tricks()
+        if self.round != 0:
+            self.send_players_the_phase(Game.BEFORE_GAME)
         deck = Deck()
         deck.populate_and_randomize()
         self.deal_cards(deck)
@@ -178,7 +176,6 @@ class Game():
             transmit(next_player.channel,{"your_turn": "true"})
             if self.tricks_this_hand == 13: #normally 13 (set lower for test)
                 self.tricks_this_hand = 0
-                self.round += 1
                 self.setup_game()
         else:
             next_player = self.tricks[-1].get_next_discarder()
