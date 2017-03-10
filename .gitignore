@@ -4,3 +4,7 @@
 
 # python byte code files
 *.pyc
+
+# django database files
+*.sqlite3
+
