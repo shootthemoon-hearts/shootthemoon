@@ -2,14 +2,14 @@ from game_app.card import Card
 
 class TrickTurn():
     
-    def __init__(self, players, direction, first_turn):
+    def __init__(self, players, direction, first_turn, hearts_broken):
         self.first_turn = first_turn
         self.discards_per_player = {}
         self.players_new_hands = {}
         self.players = players
         self.player_order = []
         self.direction = direction
-        self.hearts_broken = False
+        self.hearts_broken = hearts_broken
         self.last_discarder = None
         for player in players:
             self.discards_per_player[player] = None
@@ -83,7 +83,9 @@ class TrickTurn():
             if discard.suit == Card.HEARTS:
                 counter += 1
         if counter != 0:
-            self.hearts_broken = True
+            return True
+        else:
+            return False
 
     def valid_cards_follower(self, hand):
         lead_suit = self.what_was_lead()

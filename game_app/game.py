@@ -45,7 +45,8 @@ class Game():
         self.phase = Game.BEFORE_GAME
         self.tricks = []
         self.game_winner = -1
-        self.trick_count = 13 #13 normally
+        self.trick_count = 2 #13 normally
+        self.hearts_broken = False
 
     def isFull(self):
         '''Returns whether or not the game is full'''
@@ -79,6 +80,12 @@ class Game():
             i.hand = []
             i.pass_hand = []
             
+    def clear_tricks(self):
+        self.tricks = []
+            
+    def reset_hearts_broken(self):
+        self.hearts_broken = False
+            
     #def clear_tricks(self):
         #self.tricks = []
     
@@ -87,6 +94,8 @@ class Game():
         event_manager.register_handler('pass_cards_selected', self.pass_cards_selected)
         event_manager.register_handler('trick_card_selected', self.trick_cards_selected)
         self.clear_hands()
+        self.reset_hearts_broken()
+        self.clear_tricks()
         #self.clear_tricks()
         if self.round != 0:
             self.send_players_the_phase(Game.BEFORE_GAME)
@@ -178,7 +187,7 @@ class Game():
             self.pass_round.set_hands_to_new_hands()
             self.send_players_their_cards()
             self.send_players_the_phase(Game.IN_TRICK)
-            self.tricks.append(TrickTurn(self.players, self.direction, len(self.tricks) == 0))
+            self.tricks.append(TrickTurn(self.players, self.direction, len(self.tricks) == 0, self.hearts_broken))
             next_player = self.who_goes_first()
             #
             valid_cards = self.tricks[-1].valid_cards_leader(next_player.hand)
@@ -193,6 +202,8 @@ class Game():
         player = self.get_player_with_channel(channel)
         everyone_discarded = self.tricks[-1].card_discarded(player, cards)
         if everyone_discarded:
+            if self.hearts_broken == False:
+                self.hearts_broken = self.tricks[-1].are_hearts_broken()
             self.tricks_this_hand += 1
             next_player = self.tricks[-1].get_winner()
             next_player.hand_points += self.tricks[-1].get_trick_points()
@@ -200,7 +211,7 @@ class Game():
                 player.hand = self.tricks[-1].players_new_hands[player]
             self.send_players_their_cards()
             self.send_players_the_phase(Game.IN_TRICK)
-            self.tricks.append(TrickTurn(self.players, self.direction, len(self.tricks) == 0))
+            self.tricks.append(TrickTurn(self.players, self.direction, len(self.tricks) == 0, self.hearts_broken))
             #
             valid_cards = self.tricks[-1].valid_cards_leader(next_player.hand)
             self.send_player_valid_cards(next_player.channel, valid_cards)
