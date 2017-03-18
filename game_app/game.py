@@ -45,7 +45,7 @@ class Game():
         self.phase = Game.BEFORE_GAME
         self.tricks = []
         self.game_winner = -1
-        self.trick_count = 2 #13 normally
+        self.trick_count = 13 #13 normally
         self.hearts_broken = False
 
     def isFull(self):
