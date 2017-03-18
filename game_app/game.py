@@ -45,6 +45,7 @@ class Game():
         self.phase = Game.BEFORE_GAME
         self.tricks = []
         self.game_winner = -1
+        self.trick_count = 13 #13 normally
 
     def isFull(self):
         '''Returns whether or not the game is full'''
@@ -127,6 +128,17 @@ class Game():
                 cards_str += card.to_json()
             transmit(player.channel,{"Cards":cards_str})
             
+    def send_player_valid_cards(self, channel, valid_cards):
+        cards_str = ""
+        for card in valid_cards:
+                cards_str += card.to_json()
+        transmit(channel,{"valid_cards":cards_str})
+        
+    def send_players_initial_valid_cards(self):
+        for player in self.players:
+            valid_cards = player.hand
+            self.send_player_valid_cards(player.channel, valid_cards)
+            
     def send_players_the_phase(self, phase):
         '''Sends a message to each player telling them which cards are 
         theirs'''
@@ -147,6 +159,7 @@ class Game():
             self.players[i].hand.sort()
             print ("player %s's hand: %s" % (i ,self.players[i].hand))
         self.send_players_their_cards()
+        self.send_players_initial_valid_cards()
         if self.direction != 0:
             self.pass_card_thing()
         else:
@@ -165,10 +178,14 @@ class Game():
             self.pass_round.set_hands_to_new_hands()
             self.send_players_their_cards()
             self.send_players_the_phase(Game.IN_TRICK)
-            self.tricks.append(TrickTurn(self.players, self.direction))
+            self.tricks.append(TrickTurn(self.players, self.direction, len(self.tricks) == 0))
             next_player = self.who_goes_first()
+            #
+            valid_cards = self.tricks[-1].valid_cards_leader(next_player.hand)
+            self.send_player_valid_cards(next_player.channel, valid_cards)
+            #
             transmit(next_player.channel,{"your_turn": "true"})
-            
+      
     def trick_cards_selected(self, cards_str, channel):
         cards = []
         for card_str in cards_str:
@@ -179,13 +196,20 @@ class Game():
             self.tricks_this_hand += 1
             next_player = self.tricks[-1].get_winner()
             next_player.hand_points += self.tricks[-1].get_trick_points()
+            for player in self.players:
+                player.hand = self.tricks[-1].players_new_hands[player]
+            self.send_players_their_cards()
             self.send_players_the_phase(Game.IN_TRICK)
-            self.tricks.append(TrickTurn(self.players, self.direction))
+            self.tricks.append(TrickTurn(self.players, self.direction, len(self.tricks) == 0))
+            #
+            valid_cards = self.tricks[-1].valid_cards_leader(next_player.hand)
+            self.send_player_valid_cards(next_player.channel, valid_cards)
+            #
             transmit(next_player.channel,{"your_turn": "true"})
             ###################################################
             ##### BELOW IF STATEMENT IS THE END OF A HAND #####
             ###################################################
-            if self.tricks_this_hand == 13: #normally 13 (set lower for test)
+            if self.tricks_this_hand == self.trick_count: #normally 13 (set lower for test)
                 self.tricks_this_hand = 0
                 ####
                 for i in self.players:
@@ -212,13 +236,16 @@ class Game():
                     self.game_over()
         else:
             next_player = self.tricks[-1].get_next_discarder()
+            #
+            valid_cards = self.tricks[-1].valid_cards_follower(next_player.hand)
+            self.send_player_valid_cards(next_player.channel, valid_cards)
+            #
             transmit(next_player.channel,{"your_turn": "true"})
             
-    
     def pass_card_thing(self):
         self.send_players_the_phase(Game.PASS_PHASE)
         self.pass_round = PassRound(players=self.players, direction=self.direction)
-        
+            
     def who_goes_first(self):
         two_of_clubs = Card(2,'Clubs')
         for player in self.players:

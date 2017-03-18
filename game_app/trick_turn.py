@@ -1,12 +1,15 @@
+from game_app.card import Card
+
 class TrickTurn():
     
-    def __init__(self, players, direction):
+    def __init__(self, players, direction, first_turn):
+        self.first_turn = first_turn
         self.discards_per_player = {}
-        
         self.players_new_hands = {}
         self.players = players
         self.player_order = []
         self.direction = direction
+        self.hearts_broken = False
         self.last_discarder = None
         for player in players:
             self.discards_per_player[player] = None
@@ -59,9 +62,69 @@ class TrickTurn():
         for player in self.player_order[0:]:
             discards.append(self.discards_per_player[player])
         for i in discards:
-            if i.suit == 'Hearts':
+            if i.suit == Card.HEARTS:
                 points += 1
-            if i.suit == 'Spades' and i.number == 12:
+            if i.suit == Card.SPADES and i.number == 12:
                 points += 13
         return points
         
+    def what_was_lead(self):
+        '''this check is run after the first guy discards'''
+        first_discard = self.discards_per_player[self.player_order[0]]
+        return first_discard.suit
+    
+    def are_hearts_broken(self):
+        '''this check is run after everyone discarded in a trick'''
+        discards = []
+        counter = 0
+        for player in self.player_order[0:]:
+            discards.append(self.discards_per_player[player])
+        for discard in discards:
+            if discard.suit == Card.HEARTS:
+                counter += 1
+        if counter != 0:
+            self.hearts_broken = True
+
+    def valid_cards_follower(self, hand):
+        lead_suit = self.what_was_lead()
+        valid_cards = []
+        counter = 0
+        if self.first_turn == False:
+            for card in hand:
+                if card.suit == lead_suit:
+                    counter += 1
+            if counter != 0:
+                for card in hand:
+                    if card.suit == lead_suit:
+                        valid_cards.append(card)
+            else:
+                for card in hand:
+                    valid_cards.append(card)
+        else:
+            for card in hand:
+                if card.suit == lead_suit:
+                    counter += 1
+            for card in hand:
+                if counter != 0:
+                    if card.suit == lead_suit:
+                        valid_cards.append(card)
+                else:     
+                    for card in hand:
+                        if card.suit != Card.HEARTS and card != Card(12,'Spades'):
+                            valid_cards.append(card)
+        return valid_cards 
+        
+    def valid_cards_leader(self, hand):
+        valid_cards = []
+        if self.first_turn == True:
+            valid_cards.append(Card(2,'Clubs'))
+        else:
+            if self.hearts_broken == False:
+                for card in hand:
+                    if card.suit != Card.HEARTS:
+                        valid_cards.append(card)
+            else:
+                for card in hand:
+                    valid_cards.append(card)
+        return valid_cards     
+    
