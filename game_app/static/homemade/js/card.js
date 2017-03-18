@@ -78,3 +78,7 @@ Card.prototype.toJSON = function() {
 	var short_suit = Card.SHORT_SUITS[i];
 	return this.number.toString() + short_suit;
 }
+
+Card.prototype.equals = function(other) {
+	return this.number == other.number && this.suit == other.suit;
+}
