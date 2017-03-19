@@ -1,5 +1,6 @@
 from game_app.models import Game
 from game_app.models import MatchMakingQueue
+from channels import Channel
 
 def join_queue(queue_name,player):
     
@@ -24,7 +25,9 @@ def join_queue(queue_name,player):
             player_to_join_game.active_game = new_game
             player_to_join_game.seat = seat_count
             player_to_join_game.save()
+            seat_count += 1
         
+        Channel('game_command').send({})
     
         
 def multiple_leave_queue_with_trust(queue_name,players):
