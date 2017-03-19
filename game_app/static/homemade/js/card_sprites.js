@@ -14,7 +14,6 @@ function create_card_sprite(game, x, y, card) {
     sprite.scale.set(DEFAULT_SCALE_X, DEFAULT_SCALE_Y);
     return sprite;
 }
-
     
     
     

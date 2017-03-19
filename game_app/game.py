@@ -173,6 +173,14 @@ class Game():
             discard_json += card.to_json()
         transmit(self.group,{"discard": {"player": player.position, "card": discard_json}})
         
+    def send_players_score(self):
+        '''Sends a message to each player telling them the scores -- only
+        updates after each hand'''
+        score_list = []
+        for player in self.players:
+            score_list.append(player.game_points)
+        transmit(self.group,{"scores": {"player": player.position, "score_list": score_list}})
+        
     def organize_hand(self):
         for i in range(0,len(self.players)):
             self.players[i].hand.sort()
@@ -263,6 +271,7 @@ class Game():
                     if i.game_points >= 100:
                         game_over += 1
                 if game_over == 0:
+                    self.send_players_score()
                     self.setup_game()
                 else:
                     self.game_over()
