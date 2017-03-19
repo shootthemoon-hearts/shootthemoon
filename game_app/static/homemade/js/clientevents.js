@@ -9,4 +9,3 @@
 var game_event_handler = new key_is_key_event_handler();
 bind_to_stream("game", game_event_handler.act_on)
 init_ws_connection();
-init_game();

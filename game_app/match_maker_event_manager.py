@@ -1,33 +1,31 @@
 from channels.generic.websockets import JsonWebsocketConsumer
+from json import dumps
+from game_app.event_handler_generics import key_is_key_event_handler
+from game_app.models import Player
+from game_app.models import MatchMakingQueue
+from game_app import matchmaker
 
-class matchEventData():
-    user_id = 0
-    game_session = 0
-    game_type = ""
-    lobby = ""
-    rank = ""
-    
+event_manager = key_is_key_event_handler()
+event_manager.register_handler('join', matchmaker.join_queue)
+event_manager.register_handler('leave',matchmaker.leave_queue_with_check)
+
+MatchMakingQueue.objects.all().delete()
+queue = MatchMakingQueue()
+queue.total_players = 0;
+queue.name = 'hanyuu'
+queue.save()
 
 class MatchmakeEventConsumer(JsonWebsocketConsumer):
-    
-    http_user = True
-    
+    http_user = True    
     def receive(self, content, multiplexer, **kwargs):
-        multiplexer.send({"matchmaker_message": content})
-        
-        
-        
-        """      
-        if game_session >= 0:
-            #send back, join game session
-            pass
-        else:
-            pass #match = match_for_player(game_type,lobby,rank);
-            if 0 == NULL:
-                pass #save_player(game_type,lobby,rank)
-                pass #wait_time = get_wait_time(game_type,lobby,rank)
-                #send back wait time
-            else:
-                #send back, join game session
-                pass
-                """
+        #we should get player specific game object here and pass it into act_on
+        player =  Player()
+        player.channel = multiplexer.reply_channel.name
+                
+        event_manager.act_on(content,player)
+
+def transmit(channel,data):
+    packet = {'stream':'matchmake',
+              'payload':data}
+    channel.send({'text': dumps(packet)})
+ 

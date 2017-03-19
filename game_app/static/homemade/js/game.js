@@ -17,12 +17,12 @@ var game_state = BEFORE_GAME;
 
 
 function init_game() {
-
 	game_event_handler.register_handler("Cards", got_cards);
 	game_event_handler.register_handler("player_pos", got_player_pos);
 	game_event_handler.register_handler("game_phase", new_game_phase);
 	game_event_handler.register_handler("your_turn", now_my_turn);
 	game_board = createGame();
+	tx_multiplexed_packet('matchmake',{'join':'hanyuu'});
 };
 
 function got_cards(card_str) {

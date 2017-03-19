@@ -9,7 +9,6 @@ def ws_add(message):
         message: The message sent by the client
     '''
     message.reply_channel.send({'accept':True})
-    game_manager.player_connected(message.reply_channel)
 
 @channel_session_user
 def ws_disconnect(message):
