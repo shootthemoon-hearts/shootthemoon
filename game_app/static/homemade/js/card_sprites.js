@@ -1,5 +1,5 @@
-var DEFAULT_SCALE_X = .5;
-var DEFAULT_SCALE_Y = .5;
+var DEFAULT_SCALE_X = .4;
+var DEFAULT_SCALE_Y = .4;
 
 function create_sprite_for_card(card) {}
 

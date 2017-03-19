@@ -24,8 +24,14 @@ function init_game() {
 	game_event_handler.register_handler("game_phase", new_game_phase);
 	game_event_handler.register_handler("your_turn", now_my_turn);
 	game_event_handler.register_handler("valid_cards", got_valid_cards);
+	game_event_handler.register_handler("discard", got_discard);
 	game_board = createGame();
 };
+
+function got_discard(card_player_dict){
+	//console.log(card_player_dict);
+	createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
+}
 
 function got_valid_cards(card_str){
 	cards = Card.CardsFromJSON(card_str);

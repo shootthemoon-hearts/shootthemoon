@@ -7,7 +7,7 @@
  * holds the game logic
  */
 var board_length = 800;
-var board_height = 500;
+var board_height = 600;
 
 var card_length = 198;
 var card_height = 260;
@@ -73,6 +73,26 @@ function createVerticalCards(x, start_y, end_y, game_board) {
 	}
 }
 
+function createHorizontalDiscards(card, discard_player_position){
+	// if you discarded
+	if(discard_player_position == player_pos){
+		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
+	}
+	// if the player before you discarded
+	if((discard_player_position + 3)%4 == player_pos){
+		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
+		sprite.angle = 90;
+	}
+	if((discard_player_position + 2)%4 == player_pos){
+		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
+		sprite.angle = 180;
+	}
+	if((discard_player_position + 1)%4 == player_pos){
+		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
+		sprite.angle = -90;
+	} 
+}
+
 function mouseOn(sprite) {
 	if (my_turn && is_card_valid(sprite.card)) {
 		if (!sprite.clicked) {
@@ -121,7 +141,7 @@ function cardClicked(sprite) {
 function createGame() {
 
 	var game = new Phaser.Game(board_length, board_height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-
+//	game.scale.setGameSize(board_length, board_height);
 	/**
 	 * Load images and such to be used in the game
 	 */

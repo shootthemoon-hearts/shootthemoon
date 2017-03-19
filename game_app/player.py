@@ -16,4 +16,3 @@ class Player():
         self.position = None
         self.hand_points = 0
         self.game_points = 0
-        
