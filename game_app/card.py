@@ -1,5 +1,6 @@
 import re
 
+
 class Card():
     '''This class is meant to represent any card to be used during the game.
 
@@ -88,13 +89,23 @@ class Card():
         if self.suit != other.suit:
             return self.suit < other.suit
         else:
-            return self.number < other.number
+            if self.number == 1 and other.number != 1:
+                return False
+            elif other.number == 1 and self.number != 1:
+                return True
+            else:
+                return self.number < other.number
         
     def __gt__(self,other):
         if self.suit != other.suit:
             return self.suit > other.suit
         else:
-            return self.number > other.number
+            if self.number == 1 and other.number != 1:
+                return True
+            elif other.number == 1 and self.number != 1:
+                return False
+            else:
+                return self.number > other.number
         
     def __eq__(self,other):
         if self.suit != other.suit:
@@ -106,13 +117,23 @@ class Card():
         if self.suit != other.suit:
             return self.suit <= other.suit
         else:
-            return self.number <= other.number
+            if self.number == 1 and other.number != 1:
+                return False
+            elif other.number == 1 and self.number != 1:
+                return True
+            else:
+                return self.number <= other.number
         
     def __ge__(self, other):
         if self.suit != other.suit:
             return self.suit >= other.suit
         else:
-            return self.number >= other.number
+            if self.number == 1 and other.number != 1:
+                return True
+            elif other.number == 1 and self.number != 1:
+                return False
+            else:
+                return self.number >= other.number
  
     def __ne__(self, other):
         if self.suit != other.suit:

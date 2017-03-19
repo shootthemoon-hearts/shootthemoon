@@ -7,13 +7,19 @@
  * holds the game logic
  */
 var board_length = 800;
-var board_height = 500;
+var board_height = 600;
 
 var card_length = 198;
 var card_height = 260;
-
+var sprite_group = null;
 
 function show_facedown_cards(game_board, player_cards) {
+	if(sprite_group != null){
+		sprite_group.destroy();
+	}
+	
+	sprite_group = game_board.add.group();
+	
     total_hor_space_of_cards = 300;
     hor_start_x = board_length/2 - (total_hor_space_of_cards/2);
     hor_end_x = board_length/2 + (total_hor_space_of_cards/2 - 60);
@@ -53,6 +59,7 @@ function createHorizontalCards(cards, y, start_x, end_x, game_board) {
             sprite.events.onInputOut.add(mouseOff, game_board);
             sprite.events.onInputUp.add(cardClicked, game_board);
         }
+        sprite_group.add(sprite);
 	}
 }
 
@@ -62,11 +69,32 @@ function createVerticalCards(x, start_y, end_y, game_board) {
 		var y = ((end_y - start_y) / len * i) + start_y;
 
 		var sprite = create_facedown_card(game_board, x, y);
+		sprite_group.add(sprite);
 	}
 }
 
+function createHorizontalDiscards(card, discard_player_position){
+	// if you discarded
+	if(discard_player_position == player_pos){
+		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
+	}
+	// if the player before you discarded
+	if((discard_player_position + 3)%4 == player_pos){
+		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
+		sprite.angle = 90;
+	}
+	if((discard_player_position + 2)%4 == player_pos){
+		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
+		sprite.angle = 180;
+	}
+	if((discard_player_position + 1)%4 == player_pos){
+		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
+		sprite.angle = -90;
+	} 
+}
+
 function mouseOn(sprite) {
-	if (my_turn) {
+	if (my_turn && is_card_valid(sprite.card)) {
 		if (!sprite.clicked) {
 			current_scale_x = sprite.scale.x;
 			current_scale_y = sprite.scale.y;
@@ -77,7 +105,7 @@ function mouseOn(sprite) {
 }
 
 function mouseOff(sprite) {
-	if (my_turn) {
+	if (my_turn && is_card_valid(sprite.card)) {
 		if (!sprite.clicked) {
 			current_scale_x = sprite.scale.x;
 			current_scale_y = sprite.scale.y;
@@ -88,7 +116,7 @@ function mouseOff(sprite) {
 }
 
 function cardClicked(sprite) {
-	if (my_turn) {
+	if (my_turn && is_card_valid(sprite.card)) {
 		if (game_state != BEFORE_GAME) {
 			if (!sprite.clicked) {
 			
@@ -103,7 +131,7 @@ function cardClicked(sprite) {
 			} else {
 				sprite.tint = 0xFFFFFF;
 				sprite.clicked = false;
-				selected_cards.remove(sprite.cards);
+				selected_cards.remove(sprite.card);
 			} 
 			
 		}
@@ -113,7 +141,7 @@ function cardClicked(sprite) {
 function createGame() {
 
 	var game = new Phaser.Game(board_length, board_height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-
+//	game.scale.setGameSize(board_length, board_height);
 	/**
 	 * Load images and such to be used in the game
 	 */

@@ -6,6 +6,7 @@ IN_TRICK = "IN_TRICK";
 
 var game_board = null;
 var player_cards = [];
+var valid_cards = [];
 var player_pos = null;
 var selected_cards = [];
 var my_turn = true;
@@ -21,9 +22,30 @@ function init_game() {
 	game_event_handler.register_handler("player_pos", got_player_pos);
 	game_event_handler.register_handler("game_phase", new_game_phase);
 	game_event_handler.register_handler("your_turn", now_my_turn);
+	game_event_handler.register_handler("valid_cards", got_valid_cards);
+	game_event_handler.register_handler("discard", got_discard);
 	game_board = createGame();
 	tx_multiplexed_packet('matchmake',{'join':'hanyuu'});
 };
+
+function got_discard(card_player_dict){
+	//console.log(card_player_dict);
+	createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
+}
+
+function got_valid_cards(card_str){
+	cards = Card.CardsFromJSON(card_str);
+	valid_cards = cards;
+}
+
+function is_card_valid(card){
+	for(var i = 0; i < valid_cards.length; i++){
+		if(card.equals(valid_cards[i])){
+			return true;
+		}
+	}
+	return false;
+}
 
 function got_cards(card_str) {
     cards = Card.CardsFromJSON(card_str);
