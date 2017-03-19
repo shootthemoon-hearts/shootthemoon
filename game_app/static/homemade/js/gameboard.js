@@ -16,6 +16,7 @@ var sprite_group = null;
 var sprite_discard_group = null;
 
 var sprite_discard_counter = 0;
+var sprite_discard_trick_counter = 0;
 
 var score_textbox = null;
 
@@ -79,12 +80,18 @@ function createVerticalCards(x, start_y, end_y, game_board) {
 	}
 }
 
+function destroy_discards_after_hand(){
+	sprite_discard_group.destroy();
+	sprite_discard_counter = 0;
+	sprite_discard_group = null;
+}
+
 function createHorizontalDiscards(card, discard_player_position){
-	sprite_discard_counter += 1
+	sprite_discard_counter += 1;
 	if(sprite_discard_counter == 5){
 		sprite_discard_counter = 1;
-		sprite_discard_group.destroy()
-		sprite_discard_group = null
+		sprite_discard_group.destroy();
+		sprite_discard_group = null;
 	}
 	if(sprite_discard_group == null){
 		sprite_discard_group = game_board.add.group();
@@ -175,7 +182,7 @@ function createGame() {
 	 */
 	function create () {
         show_facedown_cards(this, player_cards);
-        score_textbox = game.add.text((board_length/2), (board_height/2), "no score");
+        score_textbox = game.add.text((board_length/1.25), (board_height/7), "0 0 0 0");
         score_textbox.fill = "red";
 	}
 

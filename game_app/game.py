@@ -178,7 +178,7 @@ class Game():
         updates after each hand'''
         score_list = []
         for player in self.players:
-            score_list.append(player.game_points)
+            score_list.append(str(player.game_points))
         transmit(self.group,{"scores": {"player": player.position, "score_list": score_list}})
         
     def organize_hand(self):
