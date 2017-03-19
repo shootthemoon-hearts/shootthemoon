@@ -24,9 +24,14 @@ function init_game() {
 	game_event_handler.register_handler("your_turn", now_my_turn);
 	game_event_handler.register_handler("valid_cards", got_valid_cards);
 	game_event_handler.register_handler("discard", got_discard);
+	game_event_handler.register_handler("scores", got_scores);
 	game_board = createGame();
 	tx_multiplexed_packet('matchmake',{'join':'hanyuu'});
 };
+
+function got_scores(score_list){
+	console.log(score_list);
+}
 
 function got_discard(card_player_dict){
 	//console.log(card_player_dict);

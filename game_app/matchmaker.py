@@ -27,7 +27,7 @@ def join_queue(queue_name,player):
             player_to_join_game.save()
             seat_count += 1
         
-        Channel('game_command').send({})
+        Channel('game_command').send({'setup_game':new_game.id})
     
         
 def multiple_leave_queue_with_trust(queue_name,players):
