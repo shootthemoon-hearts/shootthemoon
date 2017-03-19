@@ -6,12 +6,19 @@
  * Creates the graphics for the game to be synced up with the server which 
  * holds the game logic
  */
+
 var board_length = 800;
 var board_height = 600;
 
 var card_length = 198;
 var card_height = 260;
 var sprite_group = null;
+var sprite_discard_group = null;
+
+var sprite_discard_counter = 0;
+var sprite_discard_trick_counter = 0;
+
+var score_textbox = null;
 
 function show_facedown_cards(game_board, player_cards) {
 	if(sprite_group != null){
@@ -73,7 +80,22 @@ function createVerticalCards(x, start_y, end_y, game_board) {
 	}
 }
 
+function destroy_discards_after_hand(){
+	sprite_discard_group.destroy();
+	sprite_discard_counter = 0;
+	sprite_discard_group = null;
+}
+
 function createHorizontalDiscards(card, discard_player_position){
+	sprite_discard_counter += 1;
+	if(sprite_discard_counter == 5){
+		sprite_discard_counter = 1;
+		sprite_discard_group.destroy();
+		sprite_discard_group = null;
+	}
+	if(sprite_discard_group == null){
+		sprite_discard_group = game_board.add.group();
+	}
 	// if you discarded
 	if(discard_player_position == player_pos){
 		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
@@ -91,6 +113,7 @@ function createHorizontalDiscards(card, discard_player_position){
 		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
 		sprite.angle = -90;
 	} 
+	sprite_discard_group.add(sprite)
 }
 
 function mouseOn(sprite) {
@@ -159,6 +182,8 @@ function createGame() {
 	 */
 	function create () {
         show_facedown_cards(this, player_cards);
+        score_textbox = game.add.text((board_length/1.25), (board_height/7), "0 0 0 0");
+        score_textbox.fill = "red";
 	}
 
 	/**

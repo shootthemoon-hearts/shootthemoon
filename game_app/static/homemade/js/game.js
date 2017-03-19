@@ -25,12 +25,20 @@ function init_game() {
 	game_event_handler.register_handler("your_turn", now_my_turn);
 	game_event_handler.register_handler("valid_cards", got_valid_cards);
 	game_event_handler.register_handler("discard", got_discard);
+	game_event_handler.register_handler("scores", got_scores);
 	game_board = createGame();
 };
+
+function got_scores(score_list_dict){
+	console.log(score_list_dict);
+	destroy_discards_after_hand();
+	score_textbox.text = score_list_dict["score_list"][0] + " " + score_list_dict["score_list"][1] + " " + score_list_dict["score_list"][2] + " " + score_list_dict["score_list"][3];
+}
 
 function got_discard(card_player_dict){
 	//console.log(card_player_dict);
 	createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
+
 }
 
 function got_valid_cards(card_str){
