@@ -1,3 +1,4 @@
+from .accounts import Accounts
 from .round import Round
 from .card import Card
 from .deck import Deck
@@ -50,6 +51,7 @@ class Game():
         self.trick_count = 13 #13 normally
         self.hearts_broken = False
         self.group = Group("game_%s" % ID)
+        self.final_scores = []
         
     def add_players_to_group(self, group):
         for player in self.players:
@@ -274,6 +276,8 @@ class Game():
                     self.send_players_score()
                     self.setup_game()
                 else:
+                    place_list = self.how_people_placed()
+                    self.elo_calculation(place_list)
                     self.game_over()
         else:
             next_player = self.rounds[-1].tricks[-1].get_next_discarder()
@@ -295,6 +299,104 @@ class Game():
             if two_of_clubs in player.hand:
                 return player
             
+    def how_people_placed(self):
+        ''' gets scores for all players, sorts them, returns a list where
+        the first element of the list is the position of the player who got first,
+        the second element of the list is the position of the player who got second,
+        etc. '''
+        final_scores_list = []
+        for i in range(0,len(self.players)):
+            final_scores_list.append(int(str(self.players[i].game_points) + str(i)))
+        final_scores_list.sort()
+        place_list = []
+        for i in range(0,len(self.players)):
+            place_list.append(int(str(final_scores_list[i])[-1]))
+        return place_list
+    
     def game_over(self):
         pass
             
+    def elo_calculation(self, place_list):
+        
+        placings = place_list
+        
+        #games_played, #get the number of games that player has played, and this
+        #should be set to one after their first game cus u don't wanna divide by 0
+        #in my below equation lol#
+        
+        '''player_elo, #get this -- but ya default is 1500
+        #print (player_elo)'''
+        
+        player_elo = []
+        games_played = []
+        average_other_elo = []
+        elsa = 0
+        divisor = []
+        difference = []
+        multiplier = [3,1,1,3]
+        win_vs_other_player = [1,1,0,0]
+        shifter = []
+        elo_change = 0
+        elo_change_final = []
+
+        for i in range(0,4):
+            player_elo.append(self.players[placings[i]].accounts.elo)
+            games_played.append(self.players[placings[i]].accounts.games_played)
+            
+        for i in range(0,4):
+            elsa = (float((player_elo[(i+1)%4] + player_elo[(i+2)%4] + player_elo[(i+3)%4]))/3)
+            average_other_elo.append(elsa)
+        
+        for i in range(0,4):
+            difference[i] = player_elo[i] - average_other_elo[i]
+        
+        # the more games played, the less elo change
+        for i in range(0,4):
+            if games_played[i] >= 200:
+                divisor[i].append(3)
+            else:
+                divisor[i].append(1 + (float(games_played)/100))
+        
+        #dealing with how much better/worse the player is
+        for i in range(0,4):
+            shifter[i].append(1 + (float(abs(difference[i]))/1000))
+        
+
+        for i in range(0,4):
+            if difference[i] == 0:
+                if win_vs_other_player[i] == 1:
+                    elo_change = 10
+                else:
+                    elo_change = -10       
+            elif difference[i] >= 500:
+                if win_vs_other_player[i] == 1:
+                    elo_change = 5
+                else:
+                    elo_change = -15
+            elif difference[i] <= -500:
+                if win_vs_other_player[i] == 1:
+                    elo_change = 15
+                else:
+                    elo_change = -5
+            else:
+                if difference[i] < 0:
+                    if win_vs_other_player[i] == 1:
+                        elo_change = float(10)*shifter[i]
+                    else:
+                        elo_change = -(float(10)/shifter[i])
+                else:
+                    if win_vs_other_player[i] == 1:
+                        elo_change = float(10)/shifter[i]
+                    else:
+                        elo_change = -(float(10)*shifter[i])
+            elo_change = (float(elo_change)/divisor[i]) * multiplier[i]
+            elo_change = round(elo_change, 1)
+            elo_change_final.append(elo_change)
+        for i in range(0,4):
+            self.players[placings[i]].new_elo = self.players[placings[i]].accounts.elo + elo_change_final[i]
+            
+            
+            
+            
+            
+                
