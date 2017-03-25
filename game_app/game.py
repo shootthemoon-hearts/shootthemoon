@@ -278,6 +278,7 @@ class Game():
                 else:
                     place_list = self.how_people_placed()
                     self.elo_calculation(place_list)
+                    self.rank_calculation(place_list)
                     self.game_over()
         else:
             next_player = self.rounds[-1].tricks[-1].get_next_discarder()
