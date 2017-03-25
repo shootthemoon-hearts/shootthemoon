@@ -50,9 +50,22 @@ class GameTestCase(TestCase):
         
         self.assertEqual(eloExpected, eloActual)
         
+    def test_rank_calculation(self):
+        place_list = [1,3,2,0]
+        for i in range(0,4):
+            self.game.players[i].accounts.rank = 1
+            self.game.players[i].accounts.rank_points = 200
+            
+        self.game.rank_calculation(place_list)
         
+        rankExpected = self.players[1].new_rank
+        rankActual = 1
         
+        self.assertEqual(rankExpected, rankActual)
         
+        rankProgressExpected = self.players[0].new_rank_progress
+        rankProgressActual = 245
         
+        self.assertEqual(rankProgressExpected, rankProgressActual)
         
         

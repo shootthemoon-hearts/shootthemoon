@@ -18,3 +18,5 @@ class Player():
         self.game_points = 0
         self.accounts = None
         self.new_elo = 0
+        self.new_rank = 0
+        self.new_rank_progress = 0
