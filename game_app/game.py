@@ -1,4 +1,4 @@
-from .accounts import Accounts
+from .accounts import Account
 from .round import Round
 from .card import Card
 from .deck import Deck
@@ -348,18 +348,20 @@ class Game():
             average_other_elo.append(elsa)
         
         for i in range(0,4):
-            difference[i] = player_elo[i] - average_other_elo[i]
+            difference.append(player_elo[i] - average_other_elo[i])
         
         # the more games played, the less elo change
         for i in range(0,4):
             if games_played[i] >= 200:
-                divisor[i].append(3)
+                divisor.append(3)
+            elif games_played[i] == 0:
+                divisor.append(1)
             else:
-                divisor[i].append(1 + (float(games_played)/100))
+                divisor.append(1 + (float(games_played[i])/100))
         
         #dealing with how much better/worse the player is
         for i in range(0,4):
-            shifter[i].append(1 + (float(abs(difference[i]))/1000))
+            shifter.append(1 + (float(abs(difference[i]))/1000))
         
 
         for i in range(0,4):
