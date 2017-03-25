@@ -82,6 +82,8 @@ class TrickTurn():
         for discard in discards:
             if discard.suit == Card.HEARTS:
                 counter += 1
+            if discard.suit == Card.SPADES and discard.number == 12:
+                counter += 1
         if counter != 0:
             return True
         else:
