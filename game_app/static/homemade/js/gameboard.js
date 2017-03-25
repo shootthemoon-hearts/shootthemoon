@@ -182,10 +182,43 @@ function createGame() {
 	 */
 	function create () {
         show_facedown_cards(this, player_cards);
-        score_textbox = game.add.text((board_length/1.25), (board_height/7), "0 0 0 0");
-        score_textbox.fill = "red";
+        ///super terrible lazy code, going to be deleted anyways later cus temporary///
+        score_textbox_p0 = game.add.text((board_length/1.25), (board_height/7), "0");
+        score_textbox_p0.fill = "blue";
+        score_textbox_p1 = game.add.text((board_length/1.25) + 40, (board_height/7), "0");
+        score_textbox_p1.fill = "red";
+        score_textbox_p2 = game.add.text((board_length/1.25) + 80, (board_height/7), "0");
+        score_textbox_p2.fill = "green";
+        score_textbox_p3 = game.add.text((board_length/1.25) + 120, (board_height/7), "0");
+        score_textbox_p3.fill = "yellow";
+        if(player_pos == 0){
+        	p0 = game.add.text((board_length/2 - 10), (board_height/1.13),"p0");
+    		p1 = game.add.text((board_length/50), (board_height/2),"p1");
+    		p2 = game.add.text((board_length/2) - 10, (board_height/30),"p2");
+    		p3 = game.add.text((board_length/1.04), (board_height/2),"p3");
+        } else if(player_pos == 1){
+        	p1 = game.add.text((board_length/2 - 10), (board_height/1.13),"p1");
+    		p2 = game.add.text((board_length/50), (board_height/2),"p2");
+    		p3 = game.add.text((board_length/2) - 10, (board_height/30),"p3");
+    		p0 = game.add.text((board_length/1.04), (board_height/2),"p0");
+        } else if(player_pos == 2){
+        	p2 = game.add.text((board_length/2 - 10), (board_height/1.13),"p2");
+    		p3 = game.add.text((board_length/50), (board_height/2),"p3");
+    		p0 = game.add.text((board_length/2) - 10, (board_height/30),"p0");
+    		p1 = game.add.text((board_length/1.04), (board_height/2),"p1");
+        } else if(player_pos == 3){
+        	p3 = game.add.text((board_length/2 - 10), (board_height/1.13),"p3");
+    		p0 = game.add.text((board_length/50), (board_height/2),"p0");
+    		p1 = game.add.text((board_length/2) - 10, (board_height/30),"p1");
+    		p2 = game.add.text((board_length/1.04), (board_height/2),"p2");
+        }
+		p0.fill = "blue";
+        p1.fill = "red";
+        p2.fill = "green";
+        p3.fill = "yellow";
+        ///-///
 	}
-
+	
 	/**
 	 * Update the game
 	 */
