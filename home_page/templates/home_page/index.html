@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Yay!</title>
+    {% load staticfiles %}
+	<style type="text/css" src="{% static 'homemade/assets/home_page.css' %}"></style>
+
+</head>
+	<FORM>
+		<INPUT TYPE="button" VALUE="Quit Playing Games with my Hearts" ONCLICK="window.location.href='{% url 'game_app:index' %}'">
+	</FORM>
+</html>
