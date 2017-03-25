@@ -26,6 +26,11 @@ class GameTestCase(TestCase):
         
         self.assertListEqual(listExpected, listActual)
         
+        storeExpected = self.players[3].place_this_game
+        storeActual = 0
+        
+        self.assertEqual(storeExpected, storeActual)
+        
     def test_how_people_placed_tie(self):
         self.players[0].game_points = 130
         self.players[1].game_points = 13
@@ -63,7 +68,7 @@ class GameTestCase(TestCase):
         
         self.assertEqual(rankExpected, rankActual)
         
-        rankProgressExpected = self.players[0].new_rank_progress
+        rankProgressExpected = self.players[1].new_rank_progress
         rankProgressActual = 245
         
         self.assertEqual(rankProgressExpected, rankProgressActual)

@@ -305,6 +305,8 @@ class Game():
         the first element of the list is the position of the player who got first,
         the second element of the list is the position of the player who got second,
         etc. '''
+        ''' also now saves the place each player got in each players' place_this_game
+        attribute. '''
         final_scores_list = []
         for i in range(0,len(self.players)):
             final_scores_list.append(int(str(self.players[i].game_points) + str(i)))
@@ -312,6 +314,10 @@ class Game():
         place_list = []
         for i in range(0,len(self.players)):
             place_list.append(int(str(final_scores_list[i])[-1]))
+        #####
+        for i in range(0,len(self.players)):
+            self.players[place_list[i]].place_this_game = i
+        #####
         return place_list
     
     def game_over(self):

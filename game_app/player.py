@@ -16,7 +16,15 @@ class Player():
         self.position = None
         self.hand_points = 0
         self.game_points = 0
+        
         self.accounts = None
-        self.new_elo = 0
-        self.new_rank = 0
-        self.new_rank_progress = 0
+        
+        ''' these are supposed to get sent to update the account in some way after the game '''
+        self.new_elo = None
+        self.new_rank = None
+        self.new_rank_progress = None
+        self.place_this_game = None
+        
+        
+        
+        
