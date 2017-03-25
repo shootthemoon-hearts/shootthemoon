@@ -77,8 +77,7 @@ class Card():
     def __repr__(self):
         '''Returns a string representation of the card to help with 
         debugging'''
-        number_str = Card.NUMBER_STR_DICT[self.number]
-        return '%s of %s' % (number_str, self.suit)
+        return self.to_json()
 
     def to_json(self):
         '''Returns a json representation of this card'''

@@ -16,15 +16,22 @@ class GameRound(models.Model):
     number = models.IntegerField(default=-1)
     game = models.ForeignKey(Game, null = True, on_delete=models.CASCADE)
     phase = models.CharField(max_length=10, default='')
+    hearts_broken = models.BooleanField(default=False)
     
 class GameTrick(models.Model):
-    active = models.BooleanField()
-    number = models.IntegerField()
+    active = models.BooleanField(default=False)
+    number = models.IntegerField(default=-1)
     game_round = models.ForeignKey(GameRound, on_delete=models.CASCADE)
-    discards = models.CharField(max_length=card_max_chars*4)
-    seat_order = models.CharField(max_length=card_max_chars*4)
+    discards = models.CharField(max_length=card_max_chars*4,default='')
+    seat_order = models.CharField(max_length=card_max_chars*4,default='')
     '''discards = models.CharField(max_length=card_max_chars*4,validators=[card_validator])
     seat_order = models.CharField(max_length=card_max_chars*4,validators=[int_list_validator])'''
+
+class GamePassPhase(models.Model):
+    active = models.BooleanField(default=False)
+    game_round = models.ForeignKey(GameRound, on_delete=models.CASCADE)
+    direction = models.IntegerField(default=0)
+    passed_cards = models.CharField(max_length=card_max_chars*12,default='')
 
 class MatchMakingQueue(models.Model):
     name = models.CharField(max_length=12,default='default')
@@ -37,6 +44,9 @@ class Player(models.Model):
     seat = models.IntegerField(default=-1)
     hand = models.CharField(max_length=card_max_chars*13,default='')
     #hand = models.CharField(max_length=card_max_chars*13,validators=[card_validator])
-    points = models.IntegerField(default=0)  
+    points = models.IntegerField(default=0)
+    
+class CardList(list):
+    
     
     

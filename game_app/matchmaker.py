@@ -15,19 +15,11 @@ def join_queue(queue_name,player):
     player.save()
     
     if queue.total_players >= 4:
-        new_game = Game()
-        new_game.save()
         players_to_join_game = list(queue.player_set.all()[0:4])
         multiple_leave_queue_with_trust(queue_name,players_to_join_game)
-        
-        seat_count = 0
-        for player_to_join_game in players_to_join_game:
-            player_to_join_game.active_game = new_game
-            player_to_join_game.seat = seat_count
-            player_to_join_game.save()
-            seat_count += 1
-        
-        Channel('game_command').send({'setup_game':new_game.id})
+        new_game = Game()
+        new_game.setup(players_to_join_game)     
+        Channel('game_command').send({'command':'start_game','game_id':new_game.id})
     
         
 def multiple_leave_queue_with_trust(queue_name,players):
