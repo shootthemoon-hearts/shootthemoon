@@ -11,7 +11,7 @@ class Player(models.Model):
     enrolled_game = models.ForeignKey(Game, null=True, on_delete=models.SET_NULL)
     channel = models.CharField(max_length=24,default='')
     position = models.IntegerField(null=True, default=None)
-    hand = CardListField(max_elements=13,default=[])
+    hand = CardListField(default=[])
     game_points = models.IntegerField(default=0)
     hand_points = models.IntegerField(default=0)
     

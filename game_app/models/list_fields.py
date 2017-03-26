@@ -10,6 +10,12 @@ class TypedListField(models.CharField):
         kwargs['max_length'] = max_chars_per_element*max_elements
         super(TypedListField, self).__init__(*args, **kwargs)
         
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return None
+        return self.string_converter(value)
+    
+    
     def to_python(self, value):
         if value is None:
             return None
@@ -21,14 +27,11 @@ class TypedListField(models.CharField):
 
 class SmallIntListField(TypedListField):
     def __init__(self, *args, **kwargs):
-        max_elements = kwargs['max_elements']
-        super(SmallIntListField,self).__init__(eval,4, max_elements,*args,**kwargs)
+        super(SmallIntListField,self).__init__(eval,4, 4,*args,**kwargs)
         
 class CardListField(TypedListField):
     def __init__(self, *args, **kwargs):
-        max_elements = kwargs['max_elements']
-        super(CardListField,self).__init__(CardListField.parse_card_string,5, max_elements,*args,**kwargs)
-        
+        super(CardListField,self).__init__(CardListField.parse_card_string,5, 13,*args,**kwargs)
     card_re = re.compile('\d{1,2}[SCDH]')
     
     @staticmethod
