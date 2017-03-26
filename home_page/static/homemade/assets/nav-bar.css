@@ -1,14 +1,16 @@
-#nav-bar {
-    list-style-type: none;
-    margin-top: 0;
-    margin-bottom: 10;
-    padding: 0;
-    overflow: hidden;
-    background-color: blue;
+div {
+    margin-left: 25%;
 }
 
-#nav-bar li {
-    float: left;
+#nav-bar {
+	list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 20%;
+    background-color: blue;
+    position: fixed;
+    height: 100%;
+    overflow: auto;
 }
 
 #nav-bar li a {
@@ -19,11 +21,6 @@
     text-decoration: none;
 	font-family: Calibri, sans-serif;
 	font-weight: bold;
-}
-
-#nav-bar li.play-game {
-    float: right;
-    background-color: purple;
 }
 
 /* Change the link color to #111 (black) on hover */

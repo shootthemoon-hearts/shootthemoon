@@ -178,7 +178,7 @@ function cardClicked(sprite) {
 
 function createGame() {
 
-	var game = new Phaser.Game(board_length, board_height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+	var game = new Phaser.Game(board_length, board_height, Phaser.AUTO, 'game_board', { preload: preload, create: create, update: update });
 //	game.scale.setGameSize(board_length, board_height);
 	/**
 	 * Load images and such to be used in the game
