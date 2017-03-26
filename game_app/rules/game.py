@@ -15,6 +15,7 @@ def setup(g,players):
     g.save()
     for player in players:
         add_player(g,player,g.group_channel)
+    send_group_the_phase(g,'BEFORE_GAME')
 
 def add_player(g, player,group):
     game_transmit(Channel(player.channel),{'id':str(g.id)})
@@ -28,7 +29,6 @@ def add_player(g, player,group):
 def start(g):
     g.active = True
     g.save()
-    send_group_the_phase(g,'BEFORE_GAME')
     add_round(g)
     
 def send_group_the_phase(g,phase):
