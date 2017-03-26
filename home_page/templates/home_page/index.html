@@ -4,10 +4,16 @@
 	<meta charset="UTF-8"/>
 	<title>Yay!</title>
     {% load staticfiles %}
-	<style type="text/css" src="{% static 'homemade/assets/home_page.css' %}"></style>
+	<link rel="stylesheet" href="{% static 'homemade/assets/home_page.css' %}"></link>
 
 </head>
-	<FORM>
-		<INPUT TYPE="button" VALUE="Quit Playing Games with my Hearts" ONCLICK="window.location.href='{% url 'game_app:index' %}'">
-	</FORM>
+<body>
+<div>
+    {% include "home_page/nav-bar.html" %}
+    <h1> Shoot The Moon! </h1>
+    <p>
+        Welcome to Shoot the Moon - your destination for all things Hearts! 
+    </p>
+</div>
+</body>
 </html>

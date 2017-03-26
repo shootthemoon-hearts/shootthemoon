@@ -1,0 +1,8 @@
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'homemade/assets/nav-bar.css' %}"></link>
+<ul id=nav-bar>
+	<li><a href="{% url 'home_page:index' %}">Home</a></li>
+	<li><a>Stats</a></li>
+	<li><a>About</a></li>
+	<li class='play-game'><a href="{% url 'game_app:index' %}">Play Game!</a></li>
+</ul>
