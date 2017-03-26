@@ -8,7 +8,7 @@ from game_app.multiplex_transmit import game_transmit
 from . import game_round as grrz
 from . import pass_round as prrz
 from . import trick_turn as ttrz
-from . import ranking
+from . import ranking as rrz
     
 def setup(g,players):
     g.group_channel = "game_%s" % g.id
@@ -90,8 +90,8 @@ def how_people_placed(g):
 
 def self_jihad(g):
     place_list = how_people_placed(g)
-    ranking.elo_calculation(g,place_list)
-    ranking.rank_calculation(g,place_list)
+    rrz.elo_calculation(g,place_list)
+    rrz.rank_calculation(g,place_list)
     g.active = False
     g.save()
 
