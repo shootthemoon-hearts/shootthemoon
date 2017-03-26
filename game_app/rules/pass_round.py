@@ -35,14 +35,15 @@ def set_hands_to_new_hands(pr):
         to_seat = (from_seat+pr.direction)%4
         
         start_index = from_seat*3
-        end_index = from_seat*3+2
+        end_index = from_seat*3+3
+        cards_to_pass = pr.passed_cards[start_index:end_index]
         
         from_player = pr.game_round.game.player_set.get(position=from_seat)
-        from_player.hand = sorted(list(set(from_player.hand) - set(pr.passed_cards[start_index:end_index])))
+        from_player.hand = sorted(list(set(from_player.hand) - set(cards_to_pass)))
         from_player.save()
         
         to_player = pr.game_round.game.player_set.get(position=to_seat)
-        to_player.hand = sorted(to_player.hand + pr.passed_cards[start_index:end_index])
+        to_player.hand = sorted(to_player.hand + cards_to_pass)
         to_player.save()
         
 def self_jihad(pr):
