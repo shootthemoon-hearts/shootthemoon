@@ -123,10 +123,12 @@ def send_players_discard(tt, player, discard):
         
 def self_jihad(tt):
     tt.active = False
+    tt.save()
     if tt.hearts_broken == False:
         tt.game_round.hearts_broken = are_hearts_now_broken(tt)
         tt.game_round.save()
     winning_player = get_winning_player(tt)
     winning_player.hand_points += get_trick_points(tt)
     winning_player.save()
+    grrz.send_players_their_cards(tt.game_round)
     grrz.add_trick_phase(tt.game_round,winning_player.position)

@@ -28,7 +28,11 @@ def add_player(g, player,group):
 def start(g):
     g.active = True
     g.save()
+    send_group_the_phase(g,'BEFORE_GAME')
     add_round(g)
+    
+def send_group_the_phase(g,phase):
+    game_transmit(Group(g.group_channel),{"game_phase": phase})
         
 def add_round(g):
     send_players_score(g)

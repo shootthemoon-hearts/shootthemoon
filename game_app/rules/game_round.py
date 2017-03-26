@@ -96,13 +96,13 @@ def bypass_pass_phase(gr):
 def add_first_trick_phase(gr):
     gr.phase = TRICK_PHASE
     gr.save()
-    send_group_the_phase(gr)
     add_trick_phase(gr,what_seat_has_two_of_clubs(gr))
 
 def add_trick_phase(gr,seat_to_go_first):
     if len(gr.trickturn_set.all()) >=13:
         self_jihad(gr)
     else:
+        send_group_the_phase(gr)
         tr = TrickTurn()
         trrz.setup(tr,gr,len(gr.trickturn_set.all()),seat_to_go_first,gr.hearts_broken)
         trrz.start(tr)
@@ -114,7 +114,7 @@ def what_seat_has_two_of_clubs(gr):
             return player.position
 
 def send_group_the_phase(gr):
-    game_transmit(Group(gr.game.group_channel),{"game_phase": gr.phase})
+    grz.send_group_the_phase(gr.game,gr.phase)
     
 def self_jihad(gr):
     gr.active = False
