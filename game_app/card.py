@@ -87,7 +87,12 @@ class Card():
     
     def __lt__(self, other):
         if self.suit != other.suit:
-            return self.suit < other.suit
+            if self.suit == 'Hearts' and other.suit == 'Spades':
+                return False
+            elif self.suit == 'Spades' and other.suit == 'Hearts':
+                return True
+            else:
+                return self.suit < other.suit
         else:
             if self.number == 1 and other.number != 1:
                 return False
@@ -98,7 +103,12 @@ class Card():
         
     def __gt__(self,other):
         if self.suit != other.suit:
-            return self.suit > other.suit
+            if self.suit == 'Hearts' and other.suit == 'Spades':
+                return True
+            elif self.suit == 'Spades' and other.suit == 'Hearts':
+                return False
+            else:
+                return self.suit > other.suit
         else:
             if self.number == 1 and other.number != 1:
                 return True
@@ -115,7 +125,12 @@ class Card():
         
     def __le__(self, other):
         if self.suit != other.suit:
-            return self.suit <= other.suit
+            if self.suit == 'Hearts' and other.suit == 'Spades':
+                return False
+            elif self.suit == 'Spades' and other.suit == 'Hearts':
+                return True
+            else:
+                return self.suit <= other.suit
         else:
             if self.number == 1 and other.number != 1:
                 return False
@@ -126,7 +141,12 @@ class Card():
         
     def __ge__(self, other):
         if self.suit != other.suit:
-            return self.suit >= other.suit
+            if self.suit == 'Hearts' and other.suit == 'Spades':
+                return True
+            elif self.suit == 'Spades' and other.suit == 'Hearts':
+                return False
+            else:
+                return self.suit >= other.suit
         else:
             if self.number == 1 and other.number != 1:
                 return True
