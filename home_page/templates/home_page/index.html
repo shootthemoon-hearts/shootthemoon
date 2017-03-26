@@ -4,16 +4,17 @@
 	<meta charset="UTF-8"/>
 	<title>Yay!</title>
     {% load staticfiles %}
+    <link rel="shortcut icon" type="image/png" href="{% static 'homemade/assets/favicon.png' %}"/>
 	<link rel="stylesheet" href="{% static 'homemade/assets/home_page.css' %}"></link>
 
 </head>
 <body>
+{% include "home_page/nav-bar.html" %}
 <div>
-    {% include "home_page/nav-bar.html" %}
-    <h1> Shoot The Moon! </h1>
-    <p>
-        Welcome to Shoot the Moon - your destination for all things Hearts! 
-    </p>
+	<h1> Shoot The Moon! </h1>
+	<p>
+		Welcome to Shoot the Moon - your destination for all things Hearts! 
+	</p>
 </div>
 </body>
 </html>
