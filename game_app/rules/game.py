@@ -8,6 +8,7 @@ from game_app.multiplex_transmit import game_transmit
 from . import game_round as grrz
 from . import pass_round as prrz
 from . import trick_turn as ttrz
+from . import ranking
     
 def setup(g,players):
     g.group_channel = "game_%s" % g.id
@@ -53,7 +54,7 @@ def send_players_score(g):
     updates after each hand'''
     score_list = []
     for player in g.player_set.all():
-        score_list.append(player.game_points)
+        score_list.append(str(player.game_points))
     game_transmit(Group(g.group_channel),{"scores": {"player": player.position, "score_list": score_list}})
 
     
@@ -65,8 +66,32 @@ def check_winning_conditions(g):
         if player.game_points >= 100:
             self_jihad(g)
             
+def how_people_placed(g):
+        ''' gets scores for all players, sorts them, returns a list where
+        the first element of the list is the position of the player who got first,
+        the second element of the list is the position of the player who got second,
+        etc. '''
+        ''' also now saves the place each player got in each players' place_this_game
+        attribute. '''
+        final_scores_list = []
+        for i in range(0,len(g.player_set.all())):
+            final_scores_list.append(int(str(g.player_set.all()[i].game_points) + str(i)))
+        final_scores_list.sort()
+        place_list = []
+        for i in range(0,len(g.player_set.all())):
+            place_list.append(int(str(final_scores_list[i])[-1]))
+        #####
+        for i in range(0,len(g.player_set.all())):
+            g.player_set.all()[place_list[i]].place_this_game = i
+        #####
+        return place_list
+    
+            
 
 def self_jihad(g):
+    place_list = how_people_placed(g)
+    ranking.elo_calculation(g,place_list)
+    ranking.rank_calculation(g,place_list)
     g.active = False
     g.save()
 

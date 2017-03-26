@@ -29,13 +29,19 @@ function init_game() {
 	tx_multiplexed_packet('matchmake',{'join':'hanyuu'});
 };
 
-function got_scores(score_list){
-	console.log(score_list);
+function got_scores(score_list_dict){
+	console.log(score_list_dict);
+	destroy_discards_after_hand();
+	score_textbox_p0.text = score_list_dict["score_list"][0];
+	score_textbox_p1.text = score_list_dict["score_list"][1];
+	score_textbox_p2.text = score_list_dict["score_list"][2];
+	score_textbox_p3.text = score_list_dict["score_list"][3];
 }
 
 function got_discard(card_player_dict){
 	//console.log(card_player_dict);
 	createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
+
 }
 
 function got_valid_cards(card_str){

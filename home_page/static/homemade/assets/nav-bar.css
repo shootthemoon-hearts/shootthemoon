@@ -1,0 +1,32 @@
+#nav-bar {
+    list-style-type: none;
+    margin-top: 0;
+    margin-bottom: 10;
+    padding: 0;
+    overflow: hidden;
+    background-color: blue;
+}
+
+#nav-bar li {
+    float: left;
+}
+
+#nav-bar li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+	font-family: Calibri, sans-serif;
+	font-weight: bold;
+}
+
+#nav-bar li.play-game {
+    float: right;
+    background-color: purple;
+}
+
+/* Change the link color to #111 (black) on hover */
+#nav-bar li a:hover {
+    background-color: #111;
+}

@@ -83,17 +83,23 @@ def are_hearts_now_broken(tt):
 def valid_cards_follower(tt, hand):
     valid_cards = []
     lead_suit = leading_suit(tt)
-    counter = 0
+    in_suit_cards = 0
     for card in hand:
         if card.suit == lead_suit:
-            counter += 1
-    if counter != 0:
+            in_suit_cards += 1
+    if in_suit_cards != 0:
         for card in hand:
             if card.suit == lead_suit:
                 valid_cards.append(card)
     else:
-        for card in hand:
-            valid_cards.append(card)
+        if tt.hearts_broken:
+            valid_cards = hand
+        else:
+            for card in hand:
+                if card.suit != Card.HEARTS and card != Card(12,'Spades'):
+                    valid_cards.append(card)
+            if len(valid_cards)==0:
+                valid_cards = hand
     return valid_cards 
     
 def valid_cards_leader(tt, hand):
