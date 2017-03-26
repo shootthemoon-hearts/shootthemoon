@@ -82,6 +82,8 @@ class TrickTurn():
         for discard in discards:
             if discard.suit == Card.HEARTS:
                 counter += 1
+            if discard.suit == Card.SPADES and discard.number == 12:
+                counter += 1
         if counter != 0:
             return True
         else:
@@ -114,6 +116,15 @@ class TrickTurn():
                     for card in hand:
                         if card.suit != Card.HEARTS and card != Card(12,'Spades'):
                             valid_cards.append(card)
+        counter = 0
+        for card in hand:
+            if card.suit == Card.HEARTS:
+                counter += 1
+            if card.suit == Card.SPADES and card.number == 12:
+                counter += 1
+        if counter == 13:
+            for card in hand:
+                valid_cards.append(card)
         return valid_cards 
         
     def valid_cards_leader(self, hand):
