@@ -155,7 +155,7 @@ function cardClicked(sprite) {
 			} else {
 				sprite.tint = 0xFFFFFF;
 				sprite.clicked = false;
-				selected_cards.remove(sprite.card);
+				selected_cards.pop(sprite.card);
 			} 
 			
 		}
