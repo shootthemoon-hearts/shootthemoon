@@ -30,13 +30,13 @@ function show_facedown_cards(game_board, player_cards) {
     total_hor_space_of_cards = 300;
     hor_start_x = board_length/2 - (total_hor_space_of_cards/2);
     hor_end_x = board_length/2 + (total_hor_space_of_cards/2 - 60);
-    ver_start_x = board_height/2 - (total_hor_space_of_cards/2);
-    ver_end_x = board_height/2 + (total_hor_space_of_cards/2 - 60);
+    ver_start_x = board_height/2 - (total_hor_space_of_cards/2) + 70;
+    ver_end_x = board_height/2 + (total_hor_space_of_cards/2 - 60) + 80;
 
     createHorizontalCards([], 50, hor_start_x, hor_end_x, game_board);
     createHorizontalCards(player_cards, board_height - 50 - 130, hor_start_x, hor_end_x, game_board);
     createVerticalCards(50, ver_start_x, ver_end_x, game_board);
-    createVerticalCards(board_length - 50 - 60, ver_start_x, ver_end_x, game_board);
+    createVerticalCards(board_length - 50 - 60 - 40, ver_start_x, ver_end_x, game_board);
 }
 
 /**
@@ -77,6 +77,7 @@ function createVerticalCards(x, start_y, end_y, game_board) {
 
 		var sprite = create_facedown_card(game_board, x, y);
 		sprite_group.add(sprite);
+		sprite.angle -= 90;
 	}
 }
 
