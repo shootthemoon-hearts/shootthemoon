@@ -119,17 +119,19 @@ def send_group_the_phase(gr):
 def self_jihad(gr):
     gr.active = False
     gr.save()
-    for i in gr.game.player_set.all():
+    players =  list(gr.game.player_set.all())
+    for i in players:
         #checking if player shot the moon and if so applying exception#
         if i.hand_points == 26:
-            for j in gr.game.player_set.all():
+            for j in players:
                 j.hand_points = 27
             i.hand_points = 0
-    for i in gr.game.player_set.all():
+    for i in players:
         if i.hand_points == 27:
             i.hand_points -= 1
-    for i in gr.game.player_set.all():
+    for i in players:
         i.game_points += i.hand_points
+        i.save()
     grz.add_round(gr.game)
 
         
