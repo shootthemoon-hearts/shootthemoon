@@ -20,8 +20,8 @@ def start(tt):
     send_turn_notification(tt)
     
     
-def card_discarded(tt, player, discard):
-    if player.position == tt.expected_seat:
+def card_discarded(tt, player, discard, turn_id):
+    if player.position == tt.expected_seat  and tt.id == turn_id:
         tt.discards.append(discard)
         tt.save()
         
@@ -45,7 +45,7 @@ def send_turn_notification(tt):
     else:
         valid_cards = valid_cards_follower(tt,player.hand)
         
-    game_transmit(Channel(player.channel),{"your_turn": "true"})
+    game_transmit(Channel(player.channel),{"your_turn": tt.id})
     grrz.send_player_valid_cards(tt.game_round,player, valid_cards)
             
 def get_next_expected_seat(tt):

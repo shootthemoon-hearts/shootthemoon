@@ -7,11 +7,15 @@ from game_app.models.game import Game
 from game_app.models.player import Player
 from game_app.rules import game as game_rules
 
-def receive_pass_cards(content,game,channel):
-    game_rules.pass_cards_selected(game,content,channel)
+def receive_pass_cards(content,game,player):
+    cards = content['received_cards']
+    turn_id = content['turn_id']
+    game_rules.pass_cards_selected(game, cards, player, turn_id)
     
-def receive_trick_discard(content,game,channel):
-    game_rules.trick_cards_selected(game,content,channel)
+def receive_trick_discard(content,game,player):
+    cards = content['received_cards']
+    turn_id = content['turn_id']
+    game_rules.trick_cards_selected(game, cards, player, turn_id)
     
 def start_game(content):
     game = Game.objects.get(id=content)
@@ -29,7 +33,7 @@ class GamePlayerEventConsumer(JsonWebsocketConsumer):
     http_user = True    
     def receive(self, content, multiplexer, **kwargs):
         player = Player.objects.get(channel=multiplexer.reply_channel.name)
-        player_event_manager.act_on(content,player.enrolled_game,multiplexer.reply_channel)    
+        player_event_manager.act_on(content,player.enrolled_game, player)    
 
 
 class GameCommandEventConsumer(BaseConsumer):

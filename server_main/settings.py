@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'game_app',
     'home_page',
-    'channels'
+    'channels',
+    'channels.delay'
 ]
 
 CHANNEL_LAYERS = {

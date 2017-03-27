@@ -1,4 +1,6 @@
 from . import game_round as grrz
+from channels import Group, Channel
+from game_app.multiplex_transmit import game_transmit
 
 def setup(pr,parent_round,direction):
     pr.direction = direction
@@ -8,11 +10,16 @@ def setup(pr,parent_round,direction):
 def start(pr):
     pr.active = True
     pr.save()
+    send_turn_notification(pr)
     
-def received_passed_cards(pr, player, passed_cards):
+def send_delay_message(pr):
+    delay_message = {'channel':"game_command",'content':"0",'delay':2000}
+    Channel('asgi.delay').send(delay_message, immediately = True)
+    
+def received_passed_cards(pr, player, passed_cards, turn_id):
     passed_cards_sorted = sorted(passed_cards)
     from_seat = player.position
-    if not from_seat in pr.seats_received:
+    if not from_seat in pr.seats_received and pr.id == turn_id:
         pr.seats_received.append(from_seat)
         seats_received_sorted = sorted(pr.seats_received)
         seat_index_in_sort = seats_received_sorted.index(from_seat)
@@ -29,6 +36,9 @@ def has_everyone_passed(pr):
         if not player.position in pr.seats_received:
             return False
     return True
+
+def send_turn_notification(pr):   
+    game_transmit(Group(pr.game_round.game.group_channel),{"your_turn": pr.id})
 
 def set_hands_to_new_hands(pr):
     for from_seat in sorted(pr.seats_received):
@@ -52,7 +62,6 @@ def self_jihad(pr):
     grrz.send_players_their_cards(pr.game_round)
     grrz.add_first_trick_phase(pr.game_round)
     
-        
         
         
         

@@ -31,7 +31,6 @@ def start(gr):
     deck.populate_and_randomize()
     deal_cards(gr,deck)
     send_players_their_cards(gr)
-    send_players_initial_valid_cards(gr)
     
     pass_direction = determine_passing(gr)
     if pass_direction != 0:
@@ -88,6 +87,7 @@ def add_pass_phase(gr,pass_direction):
     send_group_the_phase(gr)
     pr = PassRound()
     prrz.setup(pr,gr,pass_direction)
+    send_players_initial_valid_cards(gr)
     prrz.start(pr)
     
 def bypass_pass_phase(gr):
