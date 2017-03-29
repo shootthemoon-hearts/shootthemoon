@@ -1,6 +1,7 @@
 from . import game_round as grrz
 from channels import Group, Channel
 from game_app.multiplex_transmit import game_transmit
+import random as rn
 
 def setup(pr,parent_round,direction):
     pr.direction = direction
@@ -11,9 +12,16 @@ def start(pr):
     pr.active = True
     pr.save()
     send_turn_notification(pr)
+    for i in pr.game_round.game.player_set.all():
+        send_delay_message(pr, i, pr.id)
     
-def send_delay_message(pr):
-    delay_message = {'channel':"game_command",'content':"0",'delay':2000}
+def send_delay_message(pr, player, turn_id):
+    received_cards = []
+    random_numbers = rn.sample(range(0,13),3)
+    for i in range(0,2):
+        received_cards.append(player.hand[random_numbers[i]])
+    received_cards.sort()
+    delay_message = {'channel':"game_command",'content':{'pass_cards_selected': {'received_cards': received_cards, 'turn_id': turn_id, 'player_id': player.id}},'delay':2000}
     Channel('asgi.delay').send(delay_message, immediately = True)
     
 def received_passed_cards(pr, player, passed_cards, turn_id):
