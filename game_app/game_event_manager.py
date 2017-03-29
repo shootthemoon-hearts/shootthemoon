@@ -18,14 +18,14 @@ def receive_trick_discard(content,game,player):
     game_rules.trick_cards_selected(game, cards, player, turn_id)
     
 def start_game(content):
-    game = Game.objects.get(id=content)
+    game = Game.objects.get(id=content['game_id'])
     game_rules.start(game)
 
 player_event_manager = key_is_key_event_handler()
 player_event_manager.register_handler('pass_cards_selected', receive_pass_cards)
 player_event_manager.register_handler('trick_card_selected', receive_trick_discard)
 
-command_event_manager = value_is_key_event_handler('command','game_id')
+command_event_manager = value_is_key_event_handler('command','command_args')
 command_event_manager.register_handler('start_game', start_game)
 
 
