@@ -21,8 +21,22 @@ def send_delay_message(pr, player, turn_id):
     for i in range(0,2):
         received_cards.append(player.hand[random_numbers[i]])
     received_cards.sort()
-    delay_message = {'channel':"game_command",'content':{'command':'pass_cards_selected', 'command_args':{'received_cards': received_cards, 'turn_id': turn_id, 'player_id': player.id}},'delay':2000}
-    Channel('asgi.delay').send(delay_message, immediately = True)
+    received_cards_str = ""
+    for card in received_cards:
+        received_cards_str += card.to_json()
+    delay_message = {
+        'channel':'game_command',
+        'delay':2000,
+        'content':{
+            'command':'pass_cards_selected',
+            'command_args':{
+                'received_cards': received_cards_str,
+                'turn_id': turn_id,
+                'player_id': player.id
+            }
+        }
+    }
+    Channel('asgi.delay').send(delay_message)
     
 def received_passed_cards(pr, player, passed_cards, turn_id):
     passed_cards_sorted = sorted(passed_cards)

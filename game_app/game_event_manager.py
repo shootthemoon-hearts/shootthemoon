@@ -49,7 +49,7 @@ class GamePlayerEventConsumer(JsonWebsocketConsumer):
 class GameCommandEventConsumer(BaseConsumer):
         
     method_mapping = {
-        "game_command": "act_on_command",
+        'game_command': 'act_on_command',
     }
     
     def act_on_command(self, message, **kwargs):
