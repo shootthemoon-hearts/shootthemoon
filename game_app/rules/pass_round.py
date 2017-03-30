@@ -1,6 +1,7 @@
 from . import game_round as grrz
 from channels import Group, Channel
 from game_app.multiplex_transmit import game_transmit
+from game_app.card import Card
 import random as rn
 
 def setup(pr,parent_round,direction):
@@ -18,19 +19,16 @@ def start(pr):
 def send_delay_message(pr, player, turn_id):
     received_cards = []
     random_numbers = rn.sample(range(0,13),3)
-    for i in range(0,2):
-        received_cards.append(player.hand[random_numbers[i]])
+    for random_number in random_numbers:
+        received_cards.append(player.hand[random_number])
     received_cards.sort()
-    received_cards_str = ""
-    for card in received_cards:
-        received_cards_str += card.to_json()
     delay_message = {
         'channel':'game_command',
         'delay':2000,
         'content':{
             'command':'pass_cards_selected',
             'command_args':{
-                'received_cards': received_cards_str,
+                'received_cards': Card.list_to_str_list(received_cards),
                 'turn_id': turn_id,
                 'player_id': player.id
             }

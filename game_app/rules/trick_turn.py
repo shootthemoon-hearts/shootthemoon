@@ -120,7 +120,7 @@ def valid_cards_leader(tt, hand):
 def send_players_discard(tt, player, discard):
     '''Sends a message to each player telling them which cards are 
     theirs'''
-    discard_json = discard.to_json()
+    discard_json = str(discard)
     game_transmit(Group(tt.game_round.game.group_channel),{"discard": {"player": player.position, "card": discard_json}})  
         
 def self_jihad(tt):

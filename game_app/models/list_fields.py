@@ -32,11 +32,10 @@ class SmallIntListField(TypedListField):
 class CardListField(TypedListField):
     def __init__(self, *args, **kwargs):
         super(CardListField,self).__init__(CardListField.parse_card_string,5, 13,*args,**kwargs)
-    card_re = re.compile('\d{1,2}[SCDH]')
     
     @staticmethod
     def parse_card_string(lain_was_here):
-        return [Card.from_short_string(card_string) for card_string in re.findall(CardListField.card_re,lain_was_here)] 
+        return Card.list_from_str(lain_was_here)
         
         
         

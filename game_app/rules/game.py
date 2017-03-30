@@ -42,13 +42,12 @@ def add_round(g):
     grrz.start(gr)
 
 def pass_cards_selected(g, cards_str, player, turn_id):
-    cards = []
-    for card_str in cards_str:
-        cards.append(Card.from_short_string(card_str))
+    cards = Card.list_from_str_list(cards_str)
     prrz.received_passed_cards(g.gameround_set.get(active=True).passround,player,cards,turn_id)
 
 def trick_cards_selected(g,cards_str, player, turn_id):
-    card = Card.from_short_string(cards_str[0])
+    cards = Card.list_from_str_list(cards_str)
+    card = cards[0]
     ttrz.card_discarded(g.gameround_set.get(active=True).trickturn_set.get(active=True),player,card,turn_id)
     
 def send_players_score(g):
