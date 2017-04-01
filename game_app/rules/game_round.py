@@ -100,7 +100,7 @@ def add_first_trick_phase(gr):
 
 def add_trick_phase(gr,seat_to_go_first):
     if len(gr.trickturn_set.all()) >=13:
-        self_jihad(gr)
+        finish(gr)
     else:
         send_group_the_phase(gr)
         tr = TrickTurn()
@@ -116,7 +116,7 @@ def what_seat_has_two_of_clubs(gr):
 def send_group_the_phase(gr):
     grz.send_group_the_phase(gr.game,gr.phase)
     
-def self_jihad(gr):
+def finish(gr):
     gr.active = False
     gr.save()
     players =  list(gr.game.player_set.all())

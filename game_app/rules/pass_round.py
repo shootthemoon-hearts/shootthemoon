@@ -22,7 +22,7 @@ def received_passed_cards(pr, player, passed_cards):
         pr.save()
         if has_everyone_passed(pr):
             set_hands_to_new_hands(pr)
-            self_jihad(pr)
+            finish(pr)
     
 def has_everyone_passed(pr):
     for player in pr.game_round.game.player_set.all():
@@ -46,7 +46,7 @@ def set_hands_to_new_hands(pr):
         to_player.hand = sorted(to_player.hand + cards_to_pass)
         to_player.save()
         
-def self_jihad(pr):
+def finish(pr):
     pr.active = False
     pr.save()
     grrz.send_players_their_cards(pr.game_round)
