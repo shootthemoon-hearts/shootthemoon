@@ -17,8 +17,8 @@ var turn_id = 0;
 
 var game_state = BEFORE_GAME;
 
-
-function init_game() {
+function register_handlers() {
+	game_event_handler.register_handler("enter_room", init_game);
 	game_event_handler.register_handler("Cards", got_cards);
 	game_event_handler.register_handler("player_pos", got_player_pos);
 	game_event_handler.register_handler("game_phase", new_game_phase);
@@ -26,8 +26,10 @@ function init_game() {
 	game_event_handler.register_handler("valid_cards", got_valid_cards);
 	game_event_handler.register_handler("discard", got_discard);
 	game_event_handler.register_handler("scores", got_scores);
+}
+
+function init_game() {
 	game_board = createGame();
-	tx_multiplexed_packet('matchmake',{'join':'hanyuu'});
 };
 
 function got_scores(score_list_dict){

@@ -28,6 +28,7 @@ def add_player(g, player,group):
 
 def start(g):
     g.active = True
+    game_transmit(Group(g.group_channel),{"enter_room": None})
     g.save()
     add_round(g)
     
