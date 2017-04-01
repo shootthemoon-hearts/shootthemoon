@@ -38,6 +38,7 @@ def send_delay_message(pr, player, turn_id):
     
 def received_passed_cards(pr, player, passed_cards, turn_id):
     passed_cards_sorted = sorted(passed_cards)
+    #print(len(passed_cards))
     from_seat = player.position
     if not from_seat in pr.seats_received and pr.id == turn_id:
         pr.seats_received.append(from_seat)
