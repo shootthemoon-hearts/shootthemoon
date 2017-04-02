@@ -93,8 +93,8 @@ class Card():
         for match in re.finditer(single_card_regex,in_str):
             if match:
                 card_list.append(cls(
-                    int(match[1],16),#16 is because number is hexidecimal
-                    Card.SUITS[Card.SHORT_SUITS.index(match[2])]))
+                    int(match.group(1),16),#16 is because number is hexidecimal
+                    Card.SUITS[Card.SHORT_SUITS.index(match.group(2))]))
         return card_list
 
     def __repr__(self):
