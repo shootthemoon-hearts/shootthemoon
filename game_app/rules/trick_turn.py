@@ -5,6 +5,8 @@ from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
 
 from . import game_round as grrz
+
+import random as rn
     
 def setup(tt,parent_round,number,first_seat,hearts_broken):
     tt.game_round = parent_round
@@ -19,9 +21,8 @@ def start(tt):
     tt.save()
     send_turn_notification(tt)
     
-    
-def card_discarded(tt, player, discard):
-    if player.position == tt.expected_seat:
+def card_discarded(tt, player, discard, turn_id):
+    if player.position == tt.expected_seat  and tt.id == turn_id:
         tt.discards.append(discard)
         tt.save()
         
@@ -45,8 +46,27 @@ def send_turn_notification(tt):
     else:
         valid_cards = valid_cards_follower(tt,player.hand)
         
-    game_transmit(Channel(player.channel),{"your_turn": "true"})
+    game_transmit(Channel(player.channel),{"your_turn": tt.id})
     grrz.send_player_valid_cards(tt.game_round,player, valid_cards)
+    send_delay_message(tt, player, tt.id, valid_cards)
+    
+def send_delay_message(tt, player, turn_id, valid_cards):
+    received_cards = []
+    random_number = rn.randint(0,len(valid_cards)-1)
+    received_cards.append(valid_cards[random_number])
+    delay_message = {
+        'channel':'game_command',
+        'delay':500,
+        'content':{
+            'command':'trick_card_selected',
+            'command_args':{
+                'received_cards': Card.list_to_str_list(received_cards),
+                'turn_id': turn_id,
+                'player_id': player.id
+            }
+        }
+    }
+    Channel('asgi.delay').send(delay_message)
             
 def get_next_expected_seat(tt):
     return (tt.expected_seat+1)%4
@@ -120,7 +140,7 @@ def valid_cards_leader(tt, hand):
 def send_players_discard(tt, player, discard):
     '''Sends a message to each player telling them which cards are 
     theirs'''
-    discard_json = discard.to_json()
+    discard_json = str(discard)
     game_transmit(Group(tt.game_round.game.group_channel),{"discard": {"player": player.position, "card": discard_json}})  
         
 def self_jihad(tt):

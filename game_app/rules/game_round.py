@@ -31,7 +31,6 @@ def start(gr):
     deck.populate_and_randomize()
     deal_cards(gr,deck)
     send_players_their_cards(gr)
-    send_players_initial_valid_cards(gr)
     
     pass_direction = determine_passing(gr)
     if pass_direction != 0:
@@ -55,9 +54,7 @@ def send_players_their_cards(gr):
     '''Sends a message to each player telling them which cards are 
     theirs'''
     for player in gr.game.player_set.all():
-        cards_str = ''
-        for card in player.hand:
-            cards_str += card.to_json()
+        cards_str = Card.list_to_str(player.hand)
         game_transmit(Channel(player.channel),{"Cards":cards_str})
         
 def send_players_initial_valid_cards(gr):
@@ -66,9 +63,7 @@ def send_players_initial_valid_cards(gr):
         send_player_valid_cards(gr,player, valid_cards)
         
 def send_player_valid_cards(gr, player, valid_cards):
-    cards_str = ''
-    for card in valid_cards:
-            cards_str += card.to_json()
+    cards_str = Card.list_to_str(valid_cards)
     game_transmit(Channel(player.channel),{"valid_cards":cards_str})
         
 def determine_passing(gr):
@@ -88,6 +83,7 @@ def add_pass_phase(gr,pass_direction):
     send_group_the_phase(gr)
     pr = PassRound()
     prrz.setup(pr,gr,pass_direction)
+    send_players_initial_valid_cards(gr)
     prrz.start(pr)
     
 def bypass_pass_phase(gr):

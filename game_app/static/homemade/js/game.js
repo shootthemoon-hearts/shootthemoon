@@ -11,13 +11,14 @@ var player_pos = null;
 var selected_cards = [];
 var my_turn = true;
 var cards_to_select = 3;
+var turn_id = 0;
 
 
 
 var game_state = BEFORE_GAME;
 
-
-function init_game() {
+function register_handlers() {
+	game_event_handler.register_handler("enter_room", init_game);
 	game_event_handler.register_handler("Cards", got_cards);
 	game_event_handler.register_handler("player_pos", got_player_pos);
 	game_event_handler.register_handler("game_phase", new_game_phase);
@@ -25,8 +26,10 @@ function init_game() {
 	game_event_handler.register_handler("valid_cards", got_valid_cards);
 	game_event_handler.register_handler("discard", got_discard);
 	game_event_handler.register_handler("scores", got_scores);
+}
+
+function init_game() {
 	game_board = createGame();
-	tx_multiplexed_packet('matchmake',{'join':'hanyuu'});
 };
 
 function got_scores(score_list_dict){
@@ -71,7 +74,7 @@ function got_player_pos(player) {
 function new_game_phase(phase) {
 	game_state = phase;
 	if (game_state == PASS_PHASE ){
-		my_turn = true;
+		my_turn = false;
 		cards_to_select = 3;
 		selected_cards = [];
 	}
@@ -82,8 +85,9 @@ function new_game_phase(phase) {
 	}
 }
 
-function now_my_turn(is_my_turn) {
-	my_turn = is_my_turn;
+function now_my_turn(my_turn_id) {
+	turn_id = my_turn_id
+	my_turn = true;
 }
 
 function all_cards_selected() {
@@ -94,9 +98,9 @@ function all_cards_selected() {
 	}
 	my_turn = false;
 	if (game_state == PASS_PHASE) {
-		tx_multiplexed_packet("game",{'pass_cards_selected': short_cards});
+		tx_multiplexed_packet("game",{'pass_cards_selected': {'received_cards':short_cards, 'turn_id':turn_id}});
 	}
 	if (game_state == IN_TRICK) {
-		tx_multiplexed_packet("game",{'trick_card_selected': short_cards});
+		tx_multiplexed_packet("game",{'trick_card_selected': {'received_cards':short_cards, 'turn_id':turn_id}});
 	}
 }

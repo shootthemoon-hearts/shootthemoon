@@ -39,12 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'game_app',
     'home_page',
-    'channels'
+    'channels',
+    'channels.delay'
 ]
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
+        "BACKEND": "asgi_ipc.IPCChannelLayer",#"BACKEND": "asgiref.inmemory.ChannelLayer",
         "ROUTING": "server_main.routing.channel_routing"
     },
 }
