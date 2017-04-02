@@ -37,7 +37,7 @@ def send_delay_message(pr, player, turn_id):
         }
     }
     Channel('asgi.delay').send(delay_message)
-    
+
 def received_passed_cards(pr, player, passed_cards, turn_id):
     passed_cards_sorted = sorted(passed_cards)
     from_seat = player.position
