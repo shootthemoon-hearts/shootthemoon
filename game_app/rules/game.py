@@ -62,7 +62,7 @@ def send_players_score(g):
 def check_winning_conditions(g):
     for player in g.player_set.all():
         if player.game_points >= 100:
-            self_jihad(g)
+            finish(g)
             
 def how_people_placed(g):
         ''' gets scores for all players, sorts them, returns a list where
@@ -86,7 +86,7 @@ def how_people_placed(g):
     
             
 
-def self_jihad(g):
+def finish(g):
     place_list = how_people_placed(g)
     rrz.elo_calculation(g,place_list)
     rrz.rank_calculation(g,place_list)

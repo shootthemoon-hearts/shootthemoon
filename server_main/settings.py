@@ -37,10 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'game_app',
-    'home_page',
     'channels',
-    'channels.delay'
+    'channels.delay',
+    'home_page',
+    'game_app',
+    'accounts',
 ]
 
 CHANNEL_LAYERS = {

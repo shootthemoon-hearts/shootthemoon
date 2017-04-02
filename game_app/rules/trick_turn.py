@@ -37,7 +37,7 @@ def card_discarded(tt, player, discard, turn_id):
         send_players_discard(tt,player,discard)
          
         if tt.expected_seat == tt.first_seat:
-            self_jihad(tt)
+            finish(tt)
         else:
             send_turn_notification(tt)
     
@@ -145,7 +145,7 @@ def send_players_discard(tt, player, discard):
     discard_json = str(discard)
     game_transmit(Group(tt.game_round.game.group_channel),{"discard": {"player": player.position, "card": discard_json}})  
         
-def self_jihad(tt):
+def finish(tt):
     tt.active = False
     tt.save()
     if tt.hearts_broken == False:

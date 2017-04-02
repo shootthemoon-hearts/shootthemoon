@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html ng-app>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Yay!</title>
+    {% load staticfiles %}
+    <link rel="shortcut icon" type="image/png" href="{% static 'homemade/assets/favicon.png' %}"/>
+	<link rel="stylesheet" href="{% static 'homemade/assets/home_page.css' %}"></link>
+    <script type="text/javascript" src="{% static 'third_party/js/angular.min.js' %}"></script>
+
+</head>
+<body>
+{% include "home_page/nav-bar.html" %}
+<div>
+    <p>Log in!</p>
+	<form action="/accounts/login/" method="post">
+		{% csrf_token %}
+		{{ form.as_p }}
+		<input type="submit" value="Submit" />
+	</form>
+	{{ user.username }}
+</div>
+</body>
+</html>
