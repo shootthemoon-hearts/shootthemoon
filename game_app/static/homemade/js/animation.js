@@ -1,11 +1,7 @@
 
-function display_with_height(game,sprite,shadow_sprite,x,y,z,rotation){
-	
-}
+function MaterializeToCardGrouping(card,fromPos,toGroup){}
 
-function animate_throw(){}
-function animate_in_parralel(){}
-function animate_in_series(){}
+function DematerializeFromCardGrouping(card,fromGroup,toPos){}
 
+function ThrowToCardGrouping(card,fromGroup,toGroup){}
 
-'pass':{'cards':"" , 'id':id}
