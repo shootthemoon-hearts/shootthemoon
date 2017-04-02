@@ -26,20 +26,20 @@ def start(tt):
 def card_discarded(tt, player, discard, turn_id):
     if player.position == tt.expected_seat  and tt.id == turn_id:
         with transaction.atomic():
-            tt_update = TrickTurn.objects.select_for_update().get(id=tt.id)
-            tt_update.discards.append(discard)
-            tt_update.expected_seat = get_next_expected_seat(tt)
-            tt_update.save()
+            tt = TrickTurn.objects.select_for_update().get(id=tt.id)
+            tt.discards.append(discard)
+            tt.expected_seat = get_next_expected_seat(tt)
+            tt.save()
         
         player.hand = sorted(list(set(player.hand) - set([discard])))
         player.save()
         
         send_players_discard(tt,player,discard)
          
-        if tt_update.expected_seat == tt_update.first_seat:
-            self_jihad(tt_update)
+        if tt.expected_seat == tt.first_seat:
+            self_jihad(tt)
         else:
-            send_turn_notification(tt_update)
+            send_turn_notification(tt)
     
 def send_turn_notification(tt):
     player = tt.game_round.game.player_set.get(position=tt.expected_seat)
