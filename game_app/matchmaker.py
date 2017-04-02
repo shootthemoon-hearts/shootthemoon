@@ -21,7 +21,7 @@ def join_queue(queue_name,player):
         new_game = Game()
         new_game.save()
         game_rules.setup(new_game,players_to_join_game)     
-        Channel('game_command').send({'command':'start_game','game_id':new_game.id})
+        Channel('game_command').send({'command':'start_game','command_args':{'game_id':new_game.id}})
     
         
 def multiple_leave_queue_with_trust(queue_name,players):

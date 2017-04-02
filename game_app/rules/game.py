@@ -28,6 +28,7 @@ def add_player(g, player,group):
 
 def start(g):
     g.active = True
+    game_transmit(Group(g.group_channel),{"enter_room": None})
     g.save()
     add_round(g)
     
@@ -41,17 +42,14 @@ def add_round(g):
     grrz.setup(gr,g,len(g.gameround_set.all()))
     grrz.start(gr)
 
-def pass_cards_selected(g, cards_str, channel):
-    cards = []
-    for card_str in cards_str:
-        cards.append(Card.from_short_string(card_str))
-    player = get_player_with_channel(g,channel)
-    prrz.received_passed_cards(g.gameround_set.get(active=True).passround,player,cards)
+def pass_cards_selected(g, cards_str, player, turn_id):
+    cards = Card.list_from_str_list(cards_str)
+    prrz.received_passed_cards(g.gameround_set.get(active=True).passround,player,cards,turn_id)
 
-def trick_cards_selected(g,cards_str,channel):
-    card = Card.from_short_string(cards_str[0])
-    player = get_player_with_channel(g,channel)
-    ttrz.card_discarded(g.gameround_set.get(active=True).trickturn_set.get(active=True),player,card)
+def trick_cards_selected(g,cards_str, player, turn_id):
+    cards = Card.list_from_str_list(cards_str)
+    card = cards[0]
+    ttrz.card_discarded(g.gameround_set.get(active=True).trickturn_set.get(active=True),player,card,turn_id)
     
 def send_players_score(g):
     '''Sends a message to each player telling them the scores -- only
@@ -60,10 +58,6 @@ def send_players_score(g):
     for player in g.player_set.all():
         score_list.append(str(player.game_points))
     game_transmit(Group(g.group_channel),{"scores": {"player": player.position, "score_list": score_list}})
-
-    
-def get_player_with_channel(g,channel):
-    return g.player_set.get(channel=channel.name)
 
 def check_winning_conditions(g):
     for player in g.player_set.all():
