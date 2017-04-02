@@ -3,6 +3,8 @@ from channels import Group, Channel
 from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
 import random as rn
+from game_app.models.pass_round import PassRound
+from django.db import transaction
 
 def setup(pr,parent_round,direction):
     pr.direction = direction
@@ -10,6 +12,7 @@ def setup(pr,parent_round,direction):
     pr.save()
 
 def start(pr):
+    print('pass starting')
     pr.active = True
     pr.save()
     send_turn_notification(pr)
@@ -24,7 +27,7 @@ def send_delay_message(pr, player, turn_id):
     received_cards.sort()
     delay_message = {
         'channel':'game_command',
-        'delay':2000,
+        'delay':250,
         'content':{
             'command':'pass_cards_selected',
             'command_args':{
@@ -34,23 +37,27 @@ def send_delay_message(pr, player, turn_id):
             }
         }
     }
+    print('sending delay message')
     Channel('asgi.delay').send(delay_message)
     
 def received_passed_cards(pr, player, passed_cards, turn_id):
     passed_cards_sorted = sorted(passed_cards)
-    #print(len(passed_cards))
     from_seat = player.position
+    print(from_seat)
     if not from_seat in pr.seats_received and pr.id == turn_id:
-        pr.seats_received.append(from_seat)
-        seats_received_sorted = sorted(pr.seats_received)
-        seat_index_in_sort = seats_received_sorted.index(from_seat)
-        starting_index = seat_index_in_sort*3
-        for index_offset in range(0,3):
-            pr.passed_cards.insert(starting_index+index_offset, passed_cards_sorted[index_offset])
-        pr.save()
-        if has_everyone_passed(pr):
-            set_hands_to_new_hands(pr)
-            self_jihad(pr)
+        with transaction.atomic():
+            pr_update = PassRound.objects.select_for_update().get(id=pr.id)
+            pr_update.seats_received.append(from_seat)
+            seats_received_sorted = sorted(pr_update.seats_received)
+            seat_index_in_sort = seats_received_sorted.index(from_seat)
+            starting_index = seat_index_in_sort*3
+            for index_offset in range(0,3):
+                pr_update.passed_cards.insert(starting_index+index_offset, passed_cards_sorted[index_offset])
+            pr_update.save()
+        print(pr_update.seats_received)
+        if has_everyone_passed(pr_update):
+            set_hands_to_new_hands(pr_update)
+            self_jihad(pr_update)
     
 def has_everyone_passed(pr):
     for player in pr.game_round.game.player_set.all():

@@ -65,7 +65,7 @@ Card.CardsFromJSON = function(str) {
         card_str = cards_str[i];
         regex = /[1-9a-d]/;
         number = card_str.match(regex).toString();
-        number = parseInt(number,16); //16 is radix for hexidecimal
+        number = parseInt(number,16);
         regex = /[DCSH]/;
         short_suit = card_str.match(regex).toString();
         cards.push(Card.CardFromShortSuit(number, short_suit));
@@ -76,7 +76,7 @@ Card.CardsFromJSON = function(str) {
 Card.prototype.toJSON = function() {
 	var i = Card.SUITS.indexOf(this.suit);
 	var short_suit = Card.SHORT_SUITS[i];
-	return this.number.toString() + short_suit;
+	return this.number.toString(16) + short_suit;
 }
 
 Card.prototype.equals = function(other) {

@@ -1,8 +1,10 @@
 from channels import Group
 from channels import Channel
+from django.db import transaction
 
 from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
+from game_app.models.trick_turn import TrickTurn
 
 from . import game_round as grrz
 
@@ -23,21 +25,21 @@ def start(tt):
     
 def card_discarded(tt, player, discard, turn_id):
     if player.position == tt.expected_seat  and tt.id == turn_id:
-        tt.discards.append(discard)
-        tt.save()
+        with transaction.atomic():
+            tt_update = TrickTurn.objects.select_for_update().get(id=tt.id)
+            tt_update.discards.append(discard)
+            tt_update.expected_seat = get_next_expected_seat(tt)
+            tt_update.save()
         
         player.hand = sorted(list(set(player.hand) - set([discard])))
         player.save()
         
         send_players_discard(tt,player,discard)
-        
-        tt.expected_seat = get_next_expected_seat(tt)
-        tt.save()
          
-        if tt.expected_seat == tt.first_seat:
-            self_jihad(tt)
+        if tt_update.expected_seat == tt_update.first_seat:
+            self_jihad(tt_update)
         else:
-            send_turn_notification(tt)
+            send_turn_notification(tt_update)
     
 def send_turn_notification(tt):
     player = tt.game_round.game.player_set.get(position=tt.expected_seat)
@@ -56,7 +58,7 @@ def send_delay_message(tt, player, turn_id, valid_cards):
     received_cards.append(valid_cards[random_number])
     delay_message = {
         'channel':'game_command',
-        'delay':500,
+        'delay':250,
         'content':{
             'command':'trick_card_selected',
             'command_args':{
