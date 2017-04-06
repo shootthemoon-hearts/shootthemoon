@@ -1,5 +1,6 @@
 from channels import Group
 from channels import Channel
+from django.db import transaction
 
 from game_app.card import Card
 from game_app.models.game_round import GameRound
@@ -9,7 +10,9 @@ from . import game_round as grrz
 from . import pass_round as prrz
 from . import trick_turn as ttrz
 from . import ranking as rrz
-    
+
+POINTS_TO_WIN = 1
+
 def setup(g,players):
     g.group_channel = "game_%s" % g.id
     g.save()
@@ -61,35 +64,25 @@ def send_players_score(g):
 
 def check_winning_conditions(g):
     for player in g.player_set.all():
-        if player.game_points >= 100:
+        if player.game_points >= POINTS_TO_WIN:
             finish(g)
             
 def how_people_placed(g):
-        ''' gets scores for all players, sorts them, returns a list where
-        the first element of the list is the position of the player who got first,
-        the second element of the list is the position of the player who got second,
-        etc. '''
-        ''' also now saves the place each player got in each players' place_this_game
+        ''' saves the place each player got in each players' place_this_game
         attribute. '''
-        final_scores_list = []
-        for i in range(0,len(g.player_set.all())):
-            final_scores_list.append(int(str(g.player_set.all()[i].game_points) + str(i)))
-        final_scores_list.sort()
-        place_list = []
-        for i in range(0,len(g.player_set.all())):
-            place_list.append(int(str(final_scores_list[i])[-1]))
-        #####
-        for i in range(0,len(g.player_set.all())):
-            g.player_set.all()[place_list[i]].place_this_game = i
-        #####
-        return place_list
+        player_list = [player for player in g.player_set.all()]
+        player_list.sort(key=lambda player: (player.game_points + player.position))
+
+        for i, player in enumerate(player_list):
+            player.place_this_game = i
+            player.save()
     
             
 
 def finish(g):
-    place_list = how_people_placed(g)
-    rrz.elo_calculation(g,place_list)
-    rrz.rank_calculation(g,place_list)
+    how_people_placed(g)
+    rrz.elo_calculation(g)
+#         rrz.rank_calculation(g)
     g.active = False
     g.save()
 

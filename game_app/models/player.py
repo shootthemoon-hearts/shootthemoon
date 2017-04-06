@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 from .game import Game
 from .match_making_queue import MatchMakingQueue
@@ -14,6 +15,7 @@ class Player(models.Model):
     hand = CardListField(default=[])
     game_points = models.IntegerField(default=0)
     hand_points = models.IntegerField(default=0)
+    user = models.ForeignKey(User, null=True)
     
     #self.accounts = None
         

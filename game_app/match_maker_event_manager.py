@@ -20,6 +20,7 @@ class MatchmakePlayerEventConsumer(JsonWebsocketConsumer):
     def receive(self, content, multiplexer, **kwargs):
         #we should get player specific game object here and pass it into act_on
         player =  Player()
+        player.user = self.message.user
         player.channel = multiplexer.reply_channel.name
                 
         player_event_manager.act_on(content,player)

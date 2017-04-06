@@ -6,6 +6,8 @@ from django.http import HttpResponseRedirect
 from accounts.forms import LogInForm
 from accounts.forms import SignUpForm
 
+from game_app.models.account import Account
+
 def log_in(request):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -32,7 +34,8 @@ def sign_up(request):
         form = SignUpForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            User.objects.create_user(form.data['user_name'], None, form.data['password'])
+            user = User.objects.create_user(form.data['user_name'], None, form.data['password'])
+            Account.objects.create(user=user)
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
