@@ -1,3 +1,5 @@
+import datetime
+
 from channels import Group
 from channels import Channel
 from django.db import transaction
@@ -11,7 +13,7 @@ from . import pass_round as prrz
 from . import trick_turn as ttrz
 from . import ranking as rrz
 
-POINTS_TO_WIN = 1
+POINTS_TO_WIN = 100
 
 def setup(g,players):
     g.group_channel = "game_%s" % g.id
@@ -19,6 +21,7 @@ def setup(g,players):
     for player in players:
         add_player(g,player,g.group_channel)
     send_group_the_phase(g,'BEFORE_GAME')
+    g.date = datetime.datetime.now()
 
 def add_player(g, player,group):
     game_transmit(Channel(player.channel),{'id':str(g.id)})
@@ -40,10 +43,11 @@ def send_group_the_phase(g,phase):
         
 def add_round(g):
     send_players_score(g)
-    check_winning_conditions(g)
-    gr = GameRound()
-    grrz.setup(gr,g,len(g.gameround_set.all()))
-    grrz.start(gr)
+    game_over = check_winning_conditions(g)
+    if not game_over:
+        gr = GameRound()
+        grrz.setup(gr,g,len(g.gameround_set.all()))
+        grrz.start(gr)
 
 def pass_cards_selected(g, cards_str, player, turn_id):
     cards = Card.list_from_str_list(cards_str)
@@ -66,6 +70,10 @@ def check_winning_conditions(g):
     for player in g.player_set.all():
         if player.game_points >= POINTS_TO_WIN:
             finish(g)
+            return True
+    
+    return False
+
             
 def how_people_placed(g):
         ''' saves the place each player got in each players' place_this_game
