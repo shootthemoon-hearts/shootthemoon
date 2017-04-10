@@ -32,11 +32,19 @@ var across_location_y = (board_height/30);
 var right_location_x = (board_length/1.04);
 var right_location_y = (board_height/2);
 
+//hand.update_card_list([new Card(0,'Clubs')])
+
+
 function show_facedown_cards(game_board, player_cards) {
+	
+	var hand = new Hand(game_board);
+	hand.createMultiple(12,'Clubs',5,true);
+	hand.create(0,0,'Spades',7,true,0);
+	hand.dematerialize([12,10,4],150,150);
+	/**
 	if(sprite_group != null){
 		sprite_group.destroy();
 	}
-	
 	sprite_group = game_board.add.group();
 	
     total_hor_space_of_cards = 300;
@@ -49,6 +57,7 @@ function show_facedown_cards(game_board, player_cards) {
     createHorizontalCards(player_cards, board_height - 50 - 130, hor_start_x, hor_end_x, game_board);
     createVerticalCards(50, ver_start_x, ver_end_x, game_board);
     createVerticalCards(board_length - 50 - 60 - 40, ver_start_x, ver_end_x, game_board);
+    */
 }
 
 /**

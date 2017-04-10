@@ -1,4 +1,6 @@
 
+function FlipCard(card,toCard){}
+
 function MaterializeToCardGrouping(card,fromPos,toGroup){}
 
 function DematerializeFromCardGrouping(card,fromGroup,toPos){}
