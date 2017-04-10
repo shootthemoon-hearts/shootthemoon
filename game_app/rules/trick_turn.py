@@ -118,7 +118,7 @@ def valid_cards_follower(tt, hand):
             valid_cards = hand
         else:
             for card in hand:
-                if card.suit != Card.HEARTS and card != Card(12,'Spades'):
+                if card.suit != Card.HEARTS and not (card.suit == Card.SPADES and card.number == 12):
                     valid_cards.append(card)
             if len(valid_cards)==0:
                 valid_cards = hand
@@ -133,7 +133,7 @@ def valid_cards_leader(tt, hand):
             valid_cards = hand
         else:
             for card in hand:
-                if card.suit != Card.HEARTS and card != Card(12,'Spades'):
+                if card.suit != Card.HEARTS:
                     valid_cards.append(card)
             if len(valid_cards)==0:
                 valid_cards = hand
