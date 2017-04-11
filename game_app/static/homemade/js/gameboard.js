@@ -38,9 +38,15 @@ var right_location_y = (board_height/2);
 function show_facedown_cards(game_board, player_cards) {
 	
 	var hand = new Hand(game_board);
-	hand.createMultiple(12,'Clubs',5,true);
-	hand.create(0,0,'Spades',7,true,0);
-	hand.dematerialize([12,10,4],150,150);
+	hand.x = 150;
+	hand.y = 150;
+	//hand.createMultiple(12,'Clubs',5,true);
+	//hand.create(0,0,'Spades',7,true,0);
+	sp = new CardSprite(game_board,0,0,'Spades',1);
+	hand.add(sp);
+	//hand.create(0,0,'Spades',7,true,0);
+	hand.children[0].flipTo('Hearts',9);
+	//hand.dematerialize([0],150,150);
 	/**
 	if(sprite_group != null){
 		sprite_group.destroy();
