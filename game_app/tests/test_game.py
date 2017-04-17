@@ -21,7 +21,7 @@ class GameTestCase(TestCase):
         self.players[2].game_points = 121
         self.players[3].game_points = 13
         
-        listExpected = self.game.how_people_placed()
+        listExpected = self.game.save_how_people_placed()
         listActual = [3,1,2,0]
         
         self.assertListEqual(listExpected, listActual)
@@ -37,7 +37,7 @@ class GameTestCase(TestCase):
         self.players[2].game_points = 121
         self.players[3].game_points = 13
         
-        listExpected = self.game.how_people_placed()
+        listExpected = self.game.save_how_people_placed()
         listActual = [1,3,2,0]
         
         self.assertListEqual(listExpected, listActual)
