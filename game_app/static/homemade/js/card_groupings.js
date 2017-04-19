@@ -6,7 +6,7 @@ CardGrouping.prototype = Object.create(Phaser.Group.prototype);
 CardGrouping.prototype.constructor = CardGrouping;
 CardGrouping.prototype.classType = CardSprite;
 
-CardGrouping.prototype.materialize = function(card_sprites,x,y,relativeFlag=true,forward=true){
+CardGrouping.prototype.materialize = function(card_sprites,x,y,duration,relativeFlag=true,forward=true){
 	var card_sprite, move_tween, vis_tween, destPoint;
 	for (i=0;i<card_sprites.length;i++){
 		card_sprite = card_sprites[i];
@@ -20,12 +20,12 @@ CardGrouping.prototype.materialize = function(card_sprites,x,y,relativeFlag=true
 		}
 		
 		if (forward){
-			move_tween.from({x:destPoint.x,y:destPoint.y}, 1000, Phaser.Easing.Cubic.Out);
-			vis_tween.from({alpha:0} , 1000, Phaser.Easing.Linear.None);
+			move_tween.from({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out);
+			vis_tween.from({alpha:0} , duration, Phaser.Easing.Linear.None);
 			card_sprite.visible = true;
 		}else{
-			move_tween.to({x:destPoint.x,y:destPoint.y}, 1000, Phaser.Easing.Cubic.Out);
-			vis_tween.to({alpha:0} , 1000, Phaser.Easing.Linear.None);
+			move_tween.to({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out);
+			vis_tween.to({alpha:0} , duration, Phaser.Easing.Linear.None);
 			vis_tween.onComplete.add(function(sprite,tween){sprite.destroy},sprite);
 		}
 		move_tween.start();
@@ -33,9 +33,9 @@ CardGrouping.prototype.materialize = function(card_sprites,x,y,relativeFlag=true
 	}
 }
 
-CardGrouping.prototype.dematerialize = function(card_sprites,x,y,relativeFlag=true){
+CardGrouping.prototype.dematerialize = function(card_sprites,x,y,duration,relativeFlag=true){
 	var forward = false;
-	this.materialize(card_sprites,x,y,relativeFlag,forward);
+	this.materialize(card_sprites,x,y,duration,relativeFlag,forward);
 }
 
 CardGrouping.prototype.getPoints = function(number_of_cards){
@@ -65,11 +65,11 @@ CardGrouping.prototype.applyPositions = function(card_sprites){
 	}
 }
 
-CardGrouping.prototype.slideToPositions = function(card_sprites){
+CardGrouping.prototype.slideToPositions = function(card_sprites,duration){
 	var destPoints = this.getPointsByCardSprite(card_sprites);
 	for (i=0;i<card_sprites.length;i++){
 		var move_tween = this.game.add.tween(card_sprites[i]);
-		move_tween.to({x:destPoints[i].x,y:destPoints[i].y}, 1000, Phaser.Easing.Cubic.Out);
+		move_tween.to({x:destPoints[i].x,y:destPoints[i].y}, duration, Phaser.Easing.Cubic.Out);
 		move_tween.start();
 	}
 }
@@ -84,7 +84,7 @@ CardGrouping.prototype.ghostAddCards = function(cards){
 	return created_sprites;
 }
 
-CardGrouping.prototype.updateCardState = function(cards){
+CardGrouping.prototype.updateCardState = function(cards,duration){
 	var cards_to_create = [];
 	this.setAll('alive',false);
 	for (i=0;i<cards.length;i++){
@@ -109,22 +109,22 @@ CardGrouping.prototype.updateCardState = function(cards){
 	cards_to_create = this.ghostAddCards(cards_to_create);
 	this.sort('wat',Phaser.Group.SORT_ASCENDING);
 	this.applyPositions(cards_to_create);
-	this.materialize(cards_to_create,0,-10);
+	this.materialize(cards_to_create,0,-10,duration);
 	
-	this.dematerialize(cards_to_delete,0,10);
+	this.dematerialize(cards_to_delete,0,10,duration);
 
-	this.slideToPositions(cards_to_slide);
+	this.slideToPositions(cards_to_slide,duration);
 }
 
-CardGrouping.prototype.revealAll = function(){
-	this.callAll('reveal',null);
+CardGrouping.prototype.revealAll = function(duration=400){
+	this.callAll('reveal',null,duration);
 }
 
-CardGrouping.prototype.hideAll = function(){
-	this.callAll('flipToShallow',null,'Back',0);
+CardGrouping.prototype.hideAll = function(duration=400){
+	this.callAll('flipToShallow',null,'Back',0,duration);
 }
 
-CardGrouping.prototype.deepHideAll = function(){
-	this.callAll('flipTo',null,'Back',0);
+CardGrouping.prototype.deepHideAll = function(duration=400){
+	this.callAll('flipTo',null,'Back',0,duration);
 }
 
