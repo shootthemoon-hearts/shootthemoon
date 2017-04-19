@@ -6,7 +6,10 @@ var CardSprite = function(game,x,y,suit,number) {
 	this.card = new Card(number,suit);
 }
 
-var flipTo = function(suit,number){
+CardSprite.prototype = Object.create(Phaser.Group.prototype);
+CardSprite.prototype.constructor = CardSprite;
+
+CardSprite.prototype.flipToShallow = function(suit,number){
 	child = this.children[0];//card should be only child
 	tmp_width = this.width;
 	
@@ -15,18 +18,20 @@ var flipTo = function(suit,number){
 	half_flip_b = this.game.add.tween(child).to( { width: tmp_width, x:0}, 200, Phaser.Easing.Circular.easeIn);
 	half_flip_a.chain(half_flip_b);
 	half_flip_a.start();
+}
+
+CardSprite.prototype.flipTo = function(suit,number){
+	this.flipToShallow(suit,number);
 	this.card = new Card(suit,number);
 }
 
-var flip = function(){
+CardSprite.prototype.reveal = function(){
 	if (this.key != this.card.suit && this.frame != this.card.number){
-		this.flipTo(this.card);
+		this.flipToShallow(this.card.suit,this.card.number);
 	}
 }
 
-CardSprite.prototype = Object.create(Phaser.Group.prototype);
-CardSprite.prototype.constructor = CardSprite;
-CardSprite.prototype.flipTo = flipTo;
+
 
 
 

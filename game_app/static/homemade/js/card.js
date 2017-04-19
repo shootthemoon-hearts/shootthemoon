@@ -9,6 +9,7 @@ Card.SPADES = 'Spades';
 Card.CLUBS = 'Clubs';
 Card.HEARTS = 'Hearts';
 Card.DIAMONDS = 'Diamonds';
+Card.BACK = 'Back';
 Card.SUITS = [Card.SPADES, Card.CLUBS, Card.HEARTS, Card.DIAMONDS];
 
 Card.JACK = 'Jack';

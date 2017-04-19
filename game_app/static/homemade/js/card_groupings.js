@@ -107,7 +107,7 @@ CardGrouping.prototype.updateCardState = function(cards){
 	var cards_to_delete = this.filter(function(child,ind,all){return !child.alive},true).list;
 	
 	cards_to_create = this.ghostAddCards(cards_to_create);
-	this.sort('card.number',Phaser.Group.SORT_ASCENDING);
+	this.sort('wat',Phaser.Group.SORT_ASCENDING);
 	this.applyPositions(cards_to_create);
 	this.materialize(cards_to_create,0,-10);
 	
@@ -117,14 +117,14 @@ CardGrouping.prototype.updateCardState = function(cards){
 }
 
 CardGrouping.prototype.revealAll = function(){
-	//this.forEachAlive(flip,this);
+	this.callAll('reveal',null);
 }
 
 CardGrouping.prototype.hideAll = function(){
-	//this.forEachAlive(flip,this);
+	this.callAll('flipToShallow',null,'Back',0);
 }
 
 CardGrouping.prototype.deepHideAll = function(){
-	//this.forEachAlive(flip,this);
+	this.callAll('flipTo',null,'Back',0);
 }
 

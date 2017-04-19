@@ -10,8 +10,8 @@
 var board_length = 800;
 var board_height = 600;
 
-var card_length = 198;
-var card_height = 260;
+var card_length = 146;
+var card_height = 220;
 var sprite_group = null;
 var sprite_discard_group = null;
 
@@ -61,6 +61,8 @@ function show_facedown_cards(game_board, player_cards) {
 	
 	var timer = game_board.time.create(true);
 	timer.add(2000,temp_card_func,this,handA);
+	timer.add(4000,handA.hideAll,handA);
+	timer.add(6000,handA.revealAll,handA);
 	timer.start();
 	/**
 	if(sprite_group != null){
@@ -215,10 +217,11 @@ function createGame() {
 	 */
 	function preload() {
 
-		game.load.spritesheet(Card.CLUBS, '../static/third_party/assets/card_images/clubs/different_playing_card_vector_graphic.jpg', card_length, card_height);
-		game.load.spritesheet(Card.DIAMONDS, '../static/third_party/assets/card_images/diamonds/different_playing_card_vector_graphic.jpg', card_length, card_height);
-		game.load.spritesheet(Card.HEARTS, '../static/third_party/assets/card_images/hearts/different_playing_card_vector_graphic.jpg', card_length, card_height);
-		game.load.spritesheet(Card.SPADES, '../static/third_party/assets/card_images/spades/different_playing_card_vector_graphic.jpg', card_length, card_height);
+		game.load.spritesheet(Card.CLUBS, '../static/third_party/assets/card_images/clubs/Atlasnye_playing_cards_deck_2.svg.png', card_length, card_height);
+		game.load.spritesheet(Card.DIAMONDS, '../static/third_party/assets/card_images/diamonds/Atlasnye_playing_cards_deck_2.svg.png', card_length, card_height);
+		game.load.spritesheet(Card.HEARTS, '../static/third_party/assets/card_images/hearts/Atlasnye_playing_cards_deck_2.svg.png', card_length, card_height);
+		game.load.spritesheet(Card.SPADES, '../static/third_party/assets/card_images/spades/Atlasnye_playing_cards_deck_2.svg.png', card_length, card_height);
+		game.load.spritesheet(Card.BACK, '../static/third_party/assets/card_images/back/akiyama.png', card_length, card_height);
 		
 		game.load.image("turn_no", "../static/homemade/assets/turn_no.png");
 		game.load.image("turn_yes", "../static/homemade/assets/turn_yes.png");
