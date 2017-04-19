@@ -34,17 +34,34 @@ var right_location_y = (board_height/2);
 
 //hand.update_card_list([new Card(0,'Clubs')])
 
+function temp_card_func(hand){
+	var card_list = [
+		new Card(1,'Clubs'),
+		new Card(2,'Clubs'),
+		new Card(3,'Clubs'),
+		new Card(4,'Clubs'),		
+		new Card(5,'Clubs'),	
+	];
+	hand.updateCardState(card_list);
+}
 
 function show_facedown_cards(game_board, player_cards) {
 	
-	var hand = new Hand(game_board,20,50);
-	hand.x = 150;
-	hand.y = 150;
-	hand.createMultiple(11,'Clubs',0,true);
-	hand.create(0,0,'Spades',12,true);
-	hand.applyPositions();
-	hand.children[11].flipTo('Hearts',0);
-	hand.dematerialize([1,3,5,7,11],150,150);
+	var handA = new Hand(game_board,20,50);
+	handA.x=150;
+	handA.y=150;
+	var card_list = [
+		new Card(1,'Clubs'),
+		new Card(2,'Clubs'),
+		new Card(8,'Clubs'),
+		new Card(3,'Clubs'),		
+		new Card(4,'Clubs'),	
+	];
+	handA.updateCardState(card_list);
+	
+	var timer = game_board.time.create(true);
+	timer.add(2000,temp_card_func,this,handA);
+	timer.start();
 	/**
 	if(sprite_group != null){
 		sprite_group.destroy();

@@ -3,7 +3,7 @@ var CardSprite = function(game,x,y,suit,number) {
 	this.x = x;
 	this.y = y;
 	this.addChild(new Phaser.Sprite(game,0,0,suit,number));
-	this.card = Card(suit,number);
+	this.card = new Card(number,suit);
 }
 
 var flipTo = function(suit,number){
@@ -16,6 +16,12 @@ var flipTo = function(suit,number){
 	half_flip_a.chain(half_flip_b);
 	half_flip_a.start();
 	this.card = new Card(suit,number);
+}
+
+var flip = function(){
+	if (this.key != this.card.suit && this.frame != this.card.number){
+		this.flipTo(this.card);
+	}
 }
 
 CardSprite.prototype = Object.create(Phaser.Group.prototype);
