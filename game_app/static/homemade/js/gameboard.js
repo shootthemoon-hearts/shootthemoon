@@ -45,7 +45,7 @@ function show_facedown_cards(game_board, player_cards) {
 	var handA = new Hand(game_board,20,50);
 	var handB = new Hand(game_board,20,50);
 	handA.x=150;handA.y=80;
-	handB.x=300;handB.y=300;handB.angle=-90;
+	handB.x=300;handB.y=300;handB.angle=-60;
 	var cardsA = [
 		new Card(0,'Clubs'),
 		new Card(1,'Clubs'),

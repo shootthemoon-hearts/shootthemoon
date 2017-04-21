@@ -9,7 +9,7 @@ TweenCapsule.prototype.constructor = TweenCapsule;
 
 TweenCapsule.prototype.relativeGeometry = function(object,object_base=this){
 	return {
-		'position':Phaser.Point.subtract(object.worldPosition,object_base.worldPosition),
+		'position':Phaser.Point.subtract(object.worldPosition,object_base.worldPosition).rotate(0,0,-object_base.worldRotation),
 		'rotation':object.worldRotation - object_base.worldRotation,
 		'scale':   Phaser.Point.divide(object.worldScale,object_base.worldScale),
 	}
