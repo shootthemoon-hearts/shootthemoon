@@ -12,11 +12,6 @@ var board_height = 600;
 
 var card_length = 146;
 var card_height = 220;
-var sprite_group = null;
-var sprite_discard_group = null;
-
-var sprite_discard_counter = 0;
-var sprite_discard_trick_counter = 0;
 
 var score_textbox = null;
 
@@ -50,7 +45,7 @@ function show_facedown_cards(game_board, player_cards) {
 	var handA = new Hand(game_board,20,50);
 	var handB = new Hand(game_board,20,50);
 	handA.x=150;handA.y=80;
-	handB.x=150;handB.y=300;
+	handB.x=300;handB.y=300;handB.angle=-90;
 	var cardsA = [
 		new Card(0,'Clubs'),
 		new Card(1,'Clubs'),
@@ -58,15 +53,8 @@ function show_facedown_cards(game_board, player_cards) {
 		new Card(3,'Clubs'),		
 		new Card(4,'Clubs'),	
 	];
-	var cardsB = [
-		new Card(0,'Hearts'),
-		new Card(1,'Hearts'),
-		new Card(2,'Hearts'),
-		new Card(3,'Hearts'),		
-		new Card(4,'Hearts'),	
-	];
 	handA.updateCardState(cardsA);
-	handB.updateCardState(cardsB);
+	handB.fillWithFaceDowns(5);
 	
 	var timer = game_board.time.create(true);
 	timer.add(2000,temp_card_func,this,handA);
@@ -92,54 +80,6 @@ function show_facedown_cards(game_board, player_cards) {
     createVerticalCards(50, ver_start_x, ver_end_x, game_board);
     createVerticalCards(board_length - 50 - 60 - 40, ver_start_x, ver_end_x, game_board);
     */
-}
-
-/**
- * This function is bad. Make it better. :)
- */
-function createHorizontalCards(cards, y, start_x, end_x, game_board) {
-    var use_fd = false;
-    var len = cards.length;
-    if (len == 0) {
-        use_fd = true; 
-        len = 13;
-    } else {
-        len = cards.length;
-    }
-	for (var i = 0; i < len; i++) {
-		var x = ((end_x - start_x) / len * i) + start_x;
-
-        var sprint = null;
-        if (use_fd) {
-		    sprite = create_facedown_card(game_board, x, y);
-        } else {
-            sprite = create_card_sprite(game_board, x, y, cards[i]);
-            sprite.card = cards[i];
-            sprite.inputEnabled = true;
-            sprite.clicked = false;
-            sprite.events.onInputOver.add(mouseOn, game_board);
-            sprite.events.onInputOut.add(mouseOff, game_board);
-            sprite.events.onInputUp.add(cardClicked, game_board);
-        }
-        sprite_group.add(sprite);
-	}
-}
-
-function createVerticalCards(x, start_y, end_y, game_board) {
-    var len = 13;
-	for (var i = 0; i < len; i++) {
-		var y = ((end_y - start_y) / len * i) + start_y;
-
-		var sprite = create_facedown_card(game_board, x, y);
-		sprite_group.add(sprite);
-		sprite.angle -= 90;
-	}
-}
-
-function destroy_discards_after_hand(){
-	sprite_discard_group.destroy();
-	sprite_discard_counter = 0;
-	sprite_discard_group = null;
 }
 
 function createHorizontalDiscards(card, discard_player_position){
