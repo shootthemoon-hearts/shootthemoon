@@ -6,23 +6,22 @@ CardGrouping.prototype = Object.create(Phaser.Group.prototype);
 CardGrouping.prototype.constructor = CardGrouping;
 CardGrouping.prototype.classType = CardSprite;
 
-CardGrouping.prototype.materialize = function(card_sprites,x,y,duration,relativeFlag=true,forward=true){
+CardGrouping.prototype.materialize = function(card_sprites,position,duration,relativeFlag=true,forward=true){
 	var card_sprite, move_tween, vis_tween, destPoint;
-	for (i=0;i<card_sprites.length;i++){
+	for (var i=0;i<card_sprites.length;i++){
 		card_sprite = card_sprites[i];
 		move_tween = this.game.add.tween(card_sprite);
 		vis_tween = this.game.add.tween(card_sprite);
 			
 		if (relativeFlag){
-			destPoint = Phaser.Point.add(new Phaser.Point(x,y),new Phaser.Point(card_sprite.x,card_sprite.y));
+			destPoint = Phaser.Point.add(position,card_sprite.position);
 		}else{
-			destPoint = new Phaser.Point(x,y);
+			destPoint = position;
 		}
 		
 		if (forward){
 			move_tween.from({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out);
-			vis_tween.from({alpha:0} , duration, Phaser.Easing.Linear.None);
-			card_sprite.visible = true;
+			vis_tween.to({alpha:1} , duration, Phaser.Easing.Linear.None);
 		}else{
 			move_tween.to({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out);
 			vis_tween.to({alpha:0} , duration, Phaser.Easing.Linear.None);
@@ -33,14 +32,14 @@ CardGrouping.prototype.materialize = function(card_sprites,x,y,duration,relative
 	}
 }
 
-CardGrouping.prototype.dematerialize = function(card_sprites,x,y,duration,relativeFlag=true){
+CardGrouping.prototype.dematerialize = function(card_sprites,position,duration,relativeFlag=true){
 	var forward = false;
-	this.materialize(card_sprites,x,y,duration,relativeFlag,forward);
+	this.materialize(card_sprites,position,duration,relativeFlag,forward);
 }
 
 CardGrouping.prototype.getPoints = function(number_of_cards){
 	var result = new Array();
-	for (i=0;i<number_of_cards;i++){
+	for (var i=0;i<number_of_cards;i++){
 		result.push(new Phaser.Point(0,0));
 	}
 	return result;
@@ -49,7 +48,7 @@ CardGrouping.prototype.getPoints = function(number_of_cards){
 CardGrouping.prototype.getPointsByCardSprite = function(card_sprites){
 	var all_points = this.getPoints(this.countLiving());
 	var result = [];
-	for (i=0;i<card_sprites.length;i++){
+	for (var i=0;i<card_sprites.length;i++){
 		var dead_sprites_below = this.filter(function(child,ind,all){return !child.alive && child.z<card_sprites[i].z}).list;
 		result.push(all_points[card_sprites[i].z-dead_sprites_below.length]);
 	}
@@ -59,7 +58,7 @@ CardGrouping.prototype.getPointsByCardSprite = function(card_sprites){
 
 CardGrouping.prototype.applyPositions = function(card_sprites){
 	var destPoints = this.getPointsByCardSprite(card_sprites);
-	for (i=0;i<card_sprites.length;i++){
+	for (var i=0;i<card_sprites.length;i++){
 		card_sprites[i].x = destPoints[i].x;
 		card_sprites[i].y = destPoints[i].y;
 	}
@@ -67,53 +66,102 @@ CardGrouping.prototype.applyPositions = function(card_sprites){
 
 CardGrouping.prototype.slideToPositions = function(card_sprites,duration){
 	var destPoints = this.getPointsByCardSprite(card_sprites);
-	for (i=0;i<card_sprites.length;i++){
+	for (var i=0;i<card_sprites.length;i++){
 		var move_tween = this.game.add.tween(card_sprites[i]);
 		move_tween.to({x:destPoints[i].x,y:destPoints[i].y}, duration, Phaser.Easing.Cubic.Out);
 		move_tween.start();
 	}
 }
 
+CardGrouping.prototype.slideToPositionCopies = function(card_sprites,card_sprites_to_copy,duration){
+	var num_pairs = card_sprites.length;
+	var capsules = [];
+	for (var i=0;i<num_pairs;i++){	
+		capsules.push(this.add(new TweenCapsule(this.game,card_sprites[i])));
+	}
+	this.game.stage.updateTransform();
+	for (var i=0;i<num_pairs;i++){
+		
+		var target = capsules[i].relativeGeometry(card_sprites_to_copy[i]);
+		var move_tween = this.game.add.tween(card_sprites[i]);
+		var rotation_tween = this.game.add.tween(card_sprites[i]);
+		move_tween.to({'x':target['position'].x,'y':target['position'].y}, duration, Phaser.Easing.Cubic.Out);
+		rotation_tween.to({'rotation':target['rotation']}, duration, Phaser.Easing.Cubic.Out);
+		
+		capsules[i].listenToTweens([move_tween,rotation_tween]);
+		move_tween.start();
+		rotation_tween.start();
+	}
+	return capsules;
+}
+
 CardGrouping.prototype.ghostAddCards = function(cards){
 	var created_sprites = [];
 	for (i=0;i<cards.length;i++){
 		var new_sprite = this.create(0,0,cards[i].suit,cards[i].number);
-		new_sprite.visible = false;
+		new_sprite.alpha = 0;
 		created_sprites.push(new_sprite);
 	}
 	return created_sprites;
 }
 
-CardGrouping.prototype.updateCardState = function(cards,duration){
-	var cards_to_create = [];
-	this.setAll('alive',false);
+CardGrouping.prototype.findCardSprites = function(cards,first=true){
+	var unmatched_cards = [];
+	var matched_card_sprites = [];
+	var unused_card_sprites = [];
+	var available_card_sprites = this.getCardSpriteList();
+	if (available_card_sprites == null){
+		return {'unmatched':cards,'matched':[],'unused':[]};
+	}
+	
+	var used = Array(available_card_sprites.length).fill(false);
+	
 	for (i=0;i<cards.length;i++){
 		var match_found = false;
-		var available_cards = this.children; //could use this.filter instead for shorter list
-		for (j=0;j<available_cards.length;j++){
-			if (!available_cards[j].alive && 
-					cards[i].suit == available_cards[j].card.suit && 
-					cards[i].number == available_cards[j].card.number ){
+		for (j=0;j<available_card_sprites.length;j++){
+			if (first){
+				var k = j;
+			}else{
+				var k = available_card_sprites.length -j -1;
+			}
+			if (!used[k] && 
+					cards[i].suit == available_card_sprites[k].card.suit && 
+					cards[i].number == available_card_sprites[k].card.number ){
 				match_found = true;
-				available_cards[j].alive = true;
+				matched_card_sprites.push(available_card_sprites[k]);
+				used[k] = true;
 			}
 		}
 		if (!match_found){
-			cards_to_create.push(cards[i]);
+			unmatched_cards.push(cards[i]);
 		}
 	}
-	
-	var cards_to_slide  = this.filter(function(child,ind,all){return  child.alive},true).list;
-	var cards_to_delete = this.filter(function(child,ind,all){return !child.alive},true).list;
-	
-	cards_to_create = this.ghostAddCards(cards_to_create);
-	this.sort('wat',Phaser.Group.SORT_ASCENDING);
-	this.applyPositions(cards_to_create);
-	this.materialize(cards_to_create,0,-10,duration);
-	
-	this.dematerialize(cards_to_delete,0,10,duration);
+	for (i=0;i<available_card_sprites.length;i++){
+		if (!used[i]){
+			unused_card_sprites.push(available_card_sprites[i]);
+		}
+	}
+	return {'unmatched':unmatched_cards,'matched':matched_card_sprites,'unused':unused_card_sprites};
+}
 
-	this.slideToPositions(cards_to_slide,duration);
+CardGrouping.prototype.setAlive = function(card_sprites,setting=true){
+	for (i=0;i<card_sprites.length;i++){
+		card_sprites[i].alive = setting;
+	}
+}
+
+CardGrouping.prototype.updateCardState = function(cards,duration){
+	var groups = this.findCardSprites(cards);
+	
+	var card_sprites_to_slide  = groups['matched'];
+	var card_sprites_to_delete = groups['unused'];
+	var card_sprites_to_create = this.ghostAddCards(groups['unmatched']);
+	
+	this.setAlive(card_sprites_to_delete,false);
+	this.applyPositions(card_sprites_to_create);
+	this.materialize(card_sprites_to_create,new Phaser.Point(0,-10),duration);
+	this.dematerialize(card_sprites_to_delete,new Phaser.Point(0,10),duration);
+	this.slideToPositions(card_sprites_to_slide,duration);
 }
 
 CardGrouping.prototype.revealAll = function(duration=400){
@@ -126,5 +174,60 @@ CardGrouping.prototype.hideAll = function(duration=400){
 
 CardGrouping.prototype.deepHideAll = function(duration=400){
 	this.callAll('flipTo',null,'Back',0,duration);
+}
+
+CardGrouping.prototype.getCardSpriteList = function(){
+	return this.filter(function(child,ind,all){return child instanceof CardSprite}).list;
+}
+
+CardGrouping.prototype.getCardList = function(){
+	var card_sprites = getCardSpriteList();
+	var cards = [];
+	for (i=0;i<card_sprites.length;i++){
+		cards.push(card_sprites[i].card);
+	}
+	return cards;
+}
+
+
+
+CardGrouping.prototype.passToCardGroup = function(cards,cardGrouping,duration=1000){
+	var groups = this.findCardSprites(cards);
+	if (groups['unmatched'].length > 1){
+		var current_cards = this.getCardList();
+		this.updateCardState(current_cards.concat(groups['unmatched']));
+		groups = this.findCardSprites(cards);
+	}
+	
+	var substitute_card_sprites = cardGrouping.prepareToReceivePass(cards);
+	
+	this.setAlive(groups['matched'],false);
+	this.slideToPositions(groups['unused']);
+	
+	var tween_capsules = this.slideToPositionCopies(groups['matched'],substitute_card_sprites);
+	
+	this.completePassToCardGroup(tween_capsules,substitute_card_sprites,cardGrouping);
+
+}
+
+CardGrouping.prototype.completePassToCardGroup = function(card_sprites,substitute_card_sprites,cardGrouping){
+	
+	cardGrouping.completeReceivePass(card_sprites,substitute_card_sprites);
+}
+
+CardGrouping.prototype.prepareToReceivePass = function(cards,cardGrouping){
+	var card_sprites_to_slide  = this.filter(function(child,ind,all){return child.alive},true).list;
+	var substitute_card_sprites = this.ghostAddCards(cards);
+	this.applyPositions(substitute_card_sprites);
+	return substitute_card_sprites;
+}
+
+CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_card_sprites){
+	this.slideToPositions(this.getCardSpriteList());
+	var num_pairs = tween_capsules.length;
+	for (i=0;i<num_pairs;i++){
+		tween_capsules[i].switchToParent(this,substitute_card_sprites[i].z);
+		this.remove(substitute_card_sprites[i],true,true);
+	}
 }
 

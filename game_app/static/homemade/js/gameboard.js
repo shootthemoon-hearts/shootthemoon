@@ -35,34 +35,45 @@ var right_location_y = (board_height/2);
 //hand.update_card_list([new Card(0,'Clubs')])
 
 function temp_card_func(hand){
-	var card_list = [
+	var cards = [
+		new Card(0,'Clubs'),
 		new Card(1,'Clubs'),
-		new Card(2,'Clubs'),
-		new Card(3,'Clubs'),
+		new Card(12,'Clubs'),
 		new Card(4,'Clubs'),		
-		new Card(5,'Clubs'),	
+		new Card(11,'Clubs'),	
 	];
-	hand.updateCardState(card_list);
+	hand.updateCardState(cards);
 }
 
 function show_facedown_cards(game_board, player_cards) {
 	
 	var handA = new Hand(game_board,20,50);
-	handA.x=150;
-	handA.y=150;
-	var card_list = [
+	var handB = new Hand(game_board,20,50);
+	handA.x=150;handA.y=80;
+	handB.x=150;handB.y=300;
+	var cardsA = [
+		new Card(0,'Clubs'),
 		new Card(1,'Clubs'),
 		new Card(2,'Clubs'),
-		new Card(8,'Clubs'),
 		new Card(3,'Clubs'),		
 		new Card(4,'Clubs'),	
 	];
-	handA.updateCardState(card_list);
+	var cardsB = [
+		new Card(0,'Hearts'),
+		new Card(1,'Hearts'),
+		new Card(2,'Hearts'),
+		new Card(3,'Hearts'),		
+		new Card(4,'Hearts'),	
+	];
+	handA.updateCardState(cardsA);
+	handB.updateCardState(cardsB);
 	
 	var timer = game_board.time.create(true);
 	timer.add(2000,temp_card_func,this,handA);
 	timer.add(4000,handA.hideAll,handA);
 	timer.add(6000,handA.revealAll,handA);
+	timer.add(7000,handA.passToCardGroup,handA,[new Card(0,'Clubs'),new Card(4,'Clubs'),new Card(12,'Clubs')],handB);
+	
 	timer.start();
 	/**
 	if(sprite_group != null){
