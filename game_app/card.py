@@ -65,24 +65,41 @@ class Card():
         self.suit = suit
         self.number = number
         
+    @staticmethod
+    def list_to_str_list(list_of_cards):
+        out_str_list = []
+        for card in list_of_cards:
+            out_str_list.append(str(card))
+        return out_str_list
+        
+    @staticmethod
+    def list_to_str(list_of_cards):
+        out_str = ""
+        for card in list_of_cards:
+            out_str += str(card)
+        return out_str
+    
+    @classmethod
+    def list_from_str_list(cls,in_str_list):
+        card_list = []
+        for in_str in in_str_list:
+            card_list.extend(Card.list_from_str(in_str))
+        return card_list
+        
     @classmethod    
-    def from_short_string(cls, short):
-        regex = r"[0-9]{1,2}"
-        number = re.match(regex, short).group()
-        number = int(number)
-        regex = r"[DCSH]"
-        short_suit = re.search(regex, short).group()
-        return cls(number, Card.SUITS[Card.SHORT_SUITS.index(short_suit)])
+    def list_from_str(cls, in_str):
+        single_card_regex = re.compile("([1-9a-d])([DCSH])")
+        card_list = []
+        for match in re.finditer(single_card_regex,in_str):
+            if match:
+                card_list.append(cls(
+                    int(match.group(1),16),#16 is because number is hexidecimal
+                    Card.SUITS[Card.SHORT_SUITS.index(match.group(2))]))
+        return card_list
 
     def __repr__(self):
-        '''Returns a string representation of the card to help with 
-        debugging'''
-        return self.to_json()
-
-    def to_json(self):
-        '''Returns a json representation of this card'''
         short_suit = Card.SUIT_TO_SHORT_SUIT_DICT[self.suit]
-        return '%s%s' % (self.number, short_suit)
+        return '%x%c' % (self.number, short_suit)
     
     def __lt__(self, other):
         if self.suit != other.suit:

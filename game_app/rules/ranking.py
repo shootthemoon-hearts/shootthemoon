@@ -1,4 +1,6 @@
-
+from game_app.models.account import Account
+from game_app.models.game import Game
+from django.db import transaction
 
 
 def rank_calculation(game, place_list):
@@ -108,9 +110,7 @@ def rank_calculation(game, place_list):
         game.player_set.all()[placings[i]].new_rank_progress = player_rank_progress[i]
         game.player_set.all()[placings[i]].save()
   
-def elo_calculation(game, place_list):
-    
-    placings = place_list
+def elo_calculation(game):
     
     #games_played, #get the number of games that player has played, and this
     #should be set to one after their first game cus u don't wanna divide by 0
@@ -130,67 +130,72 @@ def elo_calculation(game, place_list):
     shifter = []
     elo_change = 0
     elo_change_final = []
+    accounts = []
+    
+    player_list = [player for player in game.player_set.all()]
+    player_list.sort(key=lambda player: player.place_this_game)
 
-    for i in range(0,len(game.player_set.all())):
-        player_elo.append(game.player_set.all()[placings[i]].accounts.elo)
-        games_played.append(game.player_set.all()[placings[i]].accounts.games_played)
+    with transaction.atomic():
+        for player in player_list:
+            # Assume only one account
+            account = Account.objects.select_for_update().filter(user__id = player.user.id).get()
+            player_elo.append(account.elo)
+            accounts.append(account)
+            
+        for i in range(0,len(player_list)):
+            elsa = (float((player_elo[(i+1)%4] + player_elo[(i+2)%4] + player_elo[(i+3)%4]))/3)
+            average_other_elo.append(elsa)
         
-    for i in range(0,len(game.player_set.all())):
-        elsa = (float((player_elo[(i+1)%4] + player_elo[(i+2)%4] + player_elo[(i+3)%4]))/3)
-        average_other_elo.append(elsa)
-    
-    for i in range(0,len(game.player_set.all())):
-        difference.append(player_elo[i] - average_other_elo[i])
-    
-    # the more games played, the less elo change
-    for i in range(0,len(game.player_set.all())):
-        if games_played[i] >= 200:
-            divisor.append(3)
-        elif games_played[i] == 0:
-            divisor.append(1)
-        else:
-            divisor.append(1 + (float(games_played[i])/100))
-    
-    #dealing with how much better/worse the player is
-    for i in range(0,len(game.player_set.all())):
-        shifter.append(1 + (float(abs(difference[i]))/1000))
-    
+        for i in range(0,len(player_list)):
+            difference.append(player_elo[i] - average_other_elo[i])
+        
+        # the more games played, the less elo change
+        for player in player_list:
+            games_played = Game.objects.filter(player__user=player.user, active=False).distinct().count()
+            if games_played >= 200:
+                divisor.append(3)
+            elif games_played == 0:
+                divisor.append(1)
+            else:
+                divisor.append(1 + (float(games_played)/100))
+        
+        #dealing with how much better/worse the player is
+        for i in range(0,len(player_list)):
+            shifter.append(1 + (float(abs(difference[i]))/1000))
+        
 
-    for i in range(0,len(game.player_set.all())):
-        if difference[i] == 0:
-            if win_vs_other_player[i] == 1:
-                elo_change = 10
-            else:
-                elo_change = -10       
-        elif difference[i] >= 500:
-            if win_vs_other_player[i] == 1:
-                elo_change = 5
-            else:
-                elo_change = -15
-        elif difference[i] <= -500:
-            if win_vs_other_player[i] == 1:
-                elo_change = 15
-            else:
-                elo_change = -5
-        else:
-            if difference[i] < 0:
+        for i in range(0,len(player_list)):
+            if difference[i] == 0:
                 if win_vs_other_player[i] == 1:
-                    elo_change = float(10)*shifter[i]
+                    elo_change = 10
                 else:
-                    elo_change = -(float(10)/shifter[i])
-            else:
+                    elo_change = -10       
+            elif difference[i] >= 500:
                 if win_vs_other_player[i] == 1:
-                    elo_change = float(10)/shifter[i]
+                    elo_change = 5
                 else:
-                    elo_change = -(float(10)*shifter[i])
-        elo_change = (float(elo_change)/divisor[i]) * multiplier[i]
-        elo_change = round(elo_change, 1)
-        elo_change_final.append(elo_change)
+                    elo_change = -15
+            elif difference[i] <= -500:
+                if win_vs_other_player[i] == 1:
+                    elo_change = 15
+                else:
+                    elo_change = -5
+            else:
+                if difference[i] < 0:
+                    if win_vs_other_player[i] == 1:
+                        elo_change = float(10)*shifter[i]
+                    else:
+                        elo_change = -(float(10)/shifter[i])
+                else:
+                    if win_vs_other_player[i] == 1:
+                        elo_change = float(10)/shifter[i]
+                    else:
+                        elo_change = -(float(10)*shifter[i])
+            elo_change = (float(elo_change)/divisor[i]) * multiplier[i]
+            elo_change = round(elo_change, 1)
+            elo_change_final.append(elo_change)
 
-        for i in range(0,len(game.player_set.all())):
-            game.player_set.all()[placings[i]].new_elo = game.player_set.all()[placings[i]].accounts.elo + elo_change_final[i]
-            game.player_set.all()[placings[i]].save()
-        
-        
-        
+        for i in range(0, len(player_list)):
+            accounts[i].elo = player_elo[i] + elo_change_final[i]
+            accounts[i].save()
         

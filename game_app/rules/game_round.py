@@ -1,5 +1,5 @@
-from channels import Group
 from channels import Channel
+from django.db import transaction
 
 from game_app.multiplex_transmit import game_transmit
 from game_app.deck import Deck
@@ -12,17 +12,27 @@ from . import pass_round as prrz
 from game_app.models.pass_round import PassRound
 from game_app.models.trick_turn import TrickTurn
 
-TRICK_PHASE = 'IN_TRICK'
-PASS_PHASE = 'PASS_PHASE'
+PHASE_TRICK = 'IN_TRICK'
+PHASE_PASS = 'PHASE_PASS'
 
 
-def setup(gr,parent_game,number):
-    gr.game = parent_game
-    gr.number = number
-    gr.save()
-    for player in gr.game.player_set.all():
-        player.hand_points = 0
-        player.save()
+def setup(game_round, game, number):
+    '''Sets up the given GameRound object and adds it to the given game.
+    
+    This function guarentees a save of the GameRound object.
+    
+    Arguments:
+        game_round: the GameRound database entry
+        game: the Game database entry
+        number: the 0 index number of the game round
+    '''
+    game_round.game = game
+    game_round.number = number
+    game_round.save()
+    with transaction.atomic():
+        for player in game_round.game.player_set.select_for_update().all():
+            player.hand_points = 0
+            player.save()
 
 def start(gr):
     gr.active = True
@@ -31,7 +41,6 @@ def start(gr):
     deck.populate_and_randomize()
     deal_cards(gr,deck)
     send_players_their_cards(gr)
-    send_players_initial_valid_cards(gr)
     
     pass_direction = determine_passing(gr)
     if pass_direction != 0:
@@ -55,9 +64,7 @@ def send_players_their_cards(gr):
     '''Sends a message to each player telling them which cards are 
     theirs'''
     for player in gr.game.player_set.all():
-        cards_str = ''
-        for card in player.hand:
-            cards_str += card.to_json()
+        cards_str = Card.list_to_str(player.hand)
         game_transmit(Channel(player.channel),{"Cards":cards_str})
         
 def send_players_initial_valid_cards(gr):
@@ -66,9 +73,7 @@ def send_players_initial_valid_cards(gr):
         send_player_valid_cards(gr,player, valid_cards)
         
 def send_player_valid_cards(gr, player, valid_cards):
-    cards_str = ''
-    for card in valid_cards:
-            cards_str += card.to_json()
+    cards_str = Card.list_to_str(valid_cards)
     game_transmit(Channel(player.channel),{"valid_cards":cards_str})
         
 def determine_passing(gr):
@@ -83,24 +88,25 @@ def determine_passing(gr):
     return direction
 
 def add_pass_phase(gr,pass_direction):
-    gr.phase = PASS_PHASE
+    gr.phase = PHASE_PASS
     gr.save()
     send_group_the_phase(gr)
     pr = PassRound()
     prrz.setup(pr,gr,pass_direction)
+    send_players_initial_valid_cards(gr)
     prrz.start(pr)
     
 def bypass_pass_phase(gr):
     add_first_trick_phase(gr)
     
 def add_first_trick_phase(gr):
-    gr.phase = TRICK_PHASE
+    gr.phase = PHASE_TRICK
     gr.save()
     add_trick_phase(gr,what_seat_has_two_of_clubs(gr))
 
 def add_trick_phase(gr,seat_to_go_first):
     if len(gr.trickturn_set.all()) >=13:
-        self_jihad(gr)
+        finish(gr)
     else:
         send_group_the_phase(gr)
         tr = TrickTurn()
@@ -116,7 +122,7 @@ def what_seat_has_two_of_clubs(gr):
 def send_group_the_phase(gr):
     grz.send_group_the_phase(gr.game,gr.phase)
     
-def self_jihad(gr):
+def finish(gr):
     gr.active = False
     gr.save()
     players =  list(gr.game.player_set.all())

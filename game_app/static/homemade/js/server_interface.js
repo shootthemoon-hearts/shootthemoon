@@ -4,7 +4,7 @@ var multiplexed_event_handler= new value_is_key_event_handler("stream","payload"
 
 function init_ws_connection() {
     socket = new WebSocket("ws://" + window.location.host);
-    socket.onopen = init_game;
+    socket.onopen = function(){tx_multiplexed_packet('matchmake',{'join':'hanyuu'});};
     socket.onmessage = rx_multiplexed_packet;
 }
 

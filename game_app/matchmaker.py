@@ -1,7 +1,10 @@
+from channels import Channel
+from django.db import transaction
 from game_app.models import Game
 from game_app.models import MatchMakingQueue
-from channels import Channel
 from game_app.rules import game as game_rules
+
+MAX_PLAYER_COUNT = 4
 
 def join_queue(queue_name,player):
     
@@ -15,13 +18,13 @@ def join_queue(queue_name,player):
     player.enrolled_queue = queue
     player.save()
     
-    if queue.total_players >= 4:
-        players_to_join_game = list(queue.player_set.all()[0:4])
-        multiple_leave_queue_with_trust(queue_name,players_to_join_game)
-        new_game = Game()
-        new_game.save()
-        game_rules.setup(new_game,players_to_join_game)     
-        Channel('game_command').send({'command':'start_game','game_id':new_game.id})
+    if queue.total_players >= MAX_PLAYER_COUNT:
+        with transaction.atomic():
+            players_to_join_game = list(queue.player_set.select_for_update().all()[0:MAX_PLAYER_COUNT])
+            multiple_leave_queue_with_trust(queue_name, players_to_join_game)
+            new_game = Game()
+            game_rules.setup(new_game, players_to_join_game)
+        Channel('game_command').send({'command':'start_game','command_args':{'game_id':new_game.id}})
     
         
 def multiple_leave_queue_with_trust(queue_name,players):

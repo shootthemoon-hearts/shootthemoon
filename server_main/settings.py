@@ -37,14 +37,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'game_app',
+    'channels',
+    'channels.delay',
     'home_page',
-    'channels'
+    'game_app',
+    'accounts',
+    'stats'
 ]
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
+        "BACKEND": "asgi_ipc.IPCChannelLayer",#"BACKEND": "asgiref.inmemory.ChannelLayer",
         "ROUTING": "server_main.routing.channel_routing"
     },
 }
@@ -85,8 +88,12 @@ WSGI_APPLICATION = 'server_main.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'shootthemoon',
+        'USER': 'stmdbuser',
+        'PASSWORD': 'michaeljacksondidnothingwrong',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
