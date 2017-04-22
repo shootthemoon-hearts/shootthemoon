@@ -27,8 +27,6 @@ var across_location_y = (board_height/30);
 var right_location_x = (board_length/1.04);
 var right_location_y = (board_height/2);
 
-//hand.update_card_list([new Card(0,'Clubs')])
-
 function temp_card_func(hand){
 	var cards = [
 		new Card(0,'Clubs'),
@@ -192,13 +190,21 @@ function createGame() {
 	function create () {
 		background = game.add.tileSprite(0, 0, 800, 600, "background");
 		
+		hand_group = game_board.add.group();
+		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(my_location_x,my_location_y-210);
+		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(my_location_x,my_location_y-210);
+		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(across_location_x,my_location_y+30);
+		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(my_location_x,my_location_y-210);
+		
+		trick_group = game_board.add.group();
+		
 		/// creating the not someone's turn indicators at near-player-card locations  ///
 		create_turn_indicator(game_board, my_location_x + 33, my_location_y,"turn_no");
 		create_turn_indicator(game_board, left_location_x, left_location_y + 30,"turn_no");
 		create_turn_indicator(game_board, across_location_x + 30, across_location_y,"turn_no");
 		create_turn_indicator(game_board, right_location_x, right_location_y + 30,"turn_no");
 		
-        show_facedown_cards(this, player_cards);
+        //show_facedown_cards(this, player_cards);
         ///super terrible lazy code, going to be deleted anyways later cus temporary///
         score_textbox_p0 = game.add.text((board_length/1.25), (board_height/7), "0");
         score_textbox_p0.fill = "blue";

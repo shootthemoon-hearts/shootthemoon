@@ -2,7 +2,7 @@ var CardSprite = function(game,x,y,suit,number) {
 	Phaser.Group.call(this, game);
 	this.x = x;
 	this.y = y;
-	this.addChild(new Phaser.Sprite(game,0,0,suit,number));
+	this.addChild(new Phaser.Sprite(game,0,0,suit,number-1));
 	this.card = new Card(number,suit);
 	this.value = this.card.value();
 }

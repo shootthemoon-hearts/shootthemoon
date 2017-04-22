@@ -23,8 +23,8 @@ def join_queue(queue_name,player):
             players_to_join_game = list(queue.player_set.select_for_update().all()[0:MAX_PLAYER_COUNT])
             multiple_leave_queue_with_trust(queue_name, players_to_join_game)
             new_game = Game()
-            game_rules.setup(new_game, players_to_join_game)
-        Channel('game_command').send({'command':'start_game','command_args':{'game_id':new_game.id}})
+            delay = 1000
+            game_rules.setup(new_game, players_to_join_game,delay)
     
         
 def multiple_leave_queue_with_trust(queue_name,players):

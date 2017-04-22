@@ -19,7 +19,7 @@ GAME_GROUP_CHANNEL_PREFIX= 'game_'
 
 PHASE_BEFORE_GAME = 'BEFORE_GAME' 
 
-def setup(game, players):
+def setup(game, players, delay):
     '''Sets up the game and player database objects. 
     
     This function guarantees a save of the game and player database entries.
@@ -36,6 +36,18 @@ def setup(game, players):
     for player in players:
         add_player(game, player, game.group_channel)
     send_group_the_phase(game, PHASE_BEFORE_GAME)
+    
+    delay_message = {
+        'channel':'game_command',
+        'delay':delay,
+        'content':{
+            'command':'start_game',
+            'command_args':{
+                'game_id': game.id
+            }
+        }
+    }
+    Channel('asgi.delay').send(delay_message)
 
 def add_player(game, player, group):
     '''Adds the given player to the given game and group

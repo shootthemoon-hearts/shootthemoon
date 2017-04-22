@@ -12,6 +12,9 @@ var selected_cards = [];
 var my_turn = true;
 var cards_to_select = 3;
 var turn_id = 0;
+var hand_group = null;
+var trick_group = null;
+
 
 
 
@@ -42,9 +45,7 @@ function got_scores(score_list_dict){
 }
 
 function got_discard(card_player_dict){
-	//console.log(card_player_dict);
 	createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
-
 }
 
 function got_valid_cards(card_str){
@@ -64,12 +65,14 @@ function is_card_valid(card){
 function got_cards(card_str) {
     cards = Card.CardsFromJSON(card_str);
     player_cards = cards;
-    show_facedown_cards(game_board, player_cards);
-};
+    if (hand_group!=null){
+    	hand_group.children[0].updateCardState(player_cards);
+    }
+}
 
 function got_player_pos(player) {
     player_pos = player;
-};
+}
 
 function new_game_phase(phase) {
 	game_state = phase;
@@ -86,7 +89,7 @@ function new_game_phase(phase) {
 }
 
 function now_my_turn(my_turn_id) {
-	turn_id = my_turn_id
+	turn_id = my_turn_id;
 	my_turn = true;
 }
 

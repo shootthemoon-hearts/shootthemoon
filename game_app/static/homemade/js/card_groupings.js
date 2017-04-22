@@ -248,7 +248,7 @@ CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_
 CardGrouping.prototype.fillWithFaceDowns = function(count,duration){
 	var cards = [];
 	for (var i=0;i<count;i++){
-		cards.push(new Card(0,'Back'));
+		cards.push(new Card(1,'Back'));
 	}
 	this.updateCardState(cards);
 }
