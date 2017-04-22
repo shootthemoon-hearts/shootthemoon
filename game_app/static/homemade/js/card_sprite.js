@@ -4,6 +4,7 @@ var CardSprite = function(game,x,y,suit,number) {
 	this.y = y;
 	this.addChild(new Phaser.Sprite(game,0,0,suit,number));
 	this.card = new Card(number,suit);
+	this.value = this.card.value();
 }
 
 CardSprite.prototype = Object.create(Phaser.Group.prototype);
@@ -26,7 +27,7 @@ CardSprite.prototype.flipTo = function(suit,number, duration){
 }
 
 CardSprite.prototype.reveal = function(duration){
-	if (this.key != this.card.suit && this.frame != this.card.number){
+	if (this.children[0].key != this.card.suit || this.children[0].frame != this.card.number){
 		this.flipToShallow(this.card.suit,this.card.number,duration);
 	}
 }

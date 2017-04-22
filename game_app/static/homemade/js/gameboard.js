@@ -40,6 +40,11 @@ function temp_card_func(hand){
 	hand.updateCardState(cards);
 }
 
+function temp_temp(a){
+	var x = 1;
+	x++;
+}
+
 function show_facedown_cards(game_board, player_cards) {
 	
 	var handA = new Hand(game_board,20,50);
@@ -60,8 +65,9 @@ function show_facedown_cards(game_board, player_cards) {
 	timer.add(2000,temp_card_func,this,handA);
 	timer.add(4000,handA.hideAll,handA);
 	timer.add(6000,handA.revealAll,handA);
-	timer.add(7000,handA.passToCardGroup,handA,[new Card(0,'Clubs'),new Card(4,'Clubs'),new Card(12,'Clubs')],handB);
-	
+	timer.add(7000,handB.passToCardGroup,handB,[new Card(0,'Hearts'),new Card(4,'Hearts'),new Card(12,'Hearts')],handA);
+	timer.add(9000,handA.passToCardGroup,handA,[new Card(0,'Clubs'),new Card(4,'Clubs'),new Card(12,'Clubs')],handB);
+	timer.add(11000,handB.passToCardGroup,handB,[new Card(0,'Hearts'),new Card(4,'Hearts')],handA);
 	timer.start();
 	/**
 	if(sprite_group != null){

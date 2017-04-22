@@ -10,7 +10,7 @@ Card.CLUBS = 'Clubs';
 Card.HEARTS = 'Hearts';
 Card.DIAMONDS = 'Diamonds';
 Card.BACK = 'Back';
-Card.SUITS = [Card.SPADES, Card.CLUBS, Card.HEARTS, Card.DIAMONDS];
+Card.SUITS = [Card.BACK, Card.SPADES, Card.CLUBS, Card.HEARTS, Card.DIAMONDS];
 
 Card.JACK = 'Jack';
 Card.QUEEN = 'Queen';
@@ -82,4 +82,8 @@ Card.prototype.toJSON = function() {
 
 Card.prototype.equals = function(other) {
 	return this.number == other.number && this.suit == other.suit;
+}
+
+Card.prototype.value = function(){
+	return Card.SUITS.indexOf(this.suit)*100 + this.number;
 }

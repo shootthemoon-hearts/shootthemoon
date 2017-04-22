@@ -25,7 +25,7 @@ CardGrouping.prototype.materialize = function(card_sprites,position,duration,rel
 		}else{
 			move_tween.to({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out);
 			vis_tween.to({alpha:0} , duration, Phaser.Easing.Linear.None);
-			vis_tween.onComplete.add(function(sprite,tween){sprite.destroy},sprite);
+			vis_tween.onComplete.add(function(sprite,tween){this.remove(sprite,true,true)},this);
 		}
 		move_tween.start();
 		vis_tween.start();
@@ -46,11 +46,14 @@ CardGrouping.prototype.getPoints = function(number_of_cards){
 }
 
 CardGrouping.prototype.getPointsByCardSprite = function(card_sprites){
+	this.sort('value',Phaser.Group.SORT_ASCENDING);
 	var all_points = this.getPoints(this.countLiving());
 	var result = [];
-	for (var i=0;i<card_sprites.length;i++){
-		var dead_sprites_below = this.filter(function(child,ind,all){return !child.alive && child.z<card_sprites[i].z}).list;
-		result.push(all_points[card_sprites[i].z-dead_sprites_below.length]);
+	for (var j=0;j<card_sprites.length;j++){
+		var card_sprite = card_sprites[j];
+		var dead_sprites_below = this.filter(function(child,ind,all){return !child.alive && child.z<card_sprite.z}).list;
+		var point = all_points[card_sprite.z-dead_sprites_below.length];
+		result.push(point);
 	}
 	return result;
 }
@@ -91,6 +94,7 @@ CardGrouping.prototype.slideToPositionCopies = function(card_sprites,card_sprite
 		capsules[i].listenToTweens([move_tween,rotation_tween]);
 		move_tween.start();
 		rotation_tween.start();
+		card_sprites[i].reveal(600);
 	}
 	return capsules;
 }
@@ -105,7 +109,7 @@ CardGrouping.prototype.ghostAddCards = function(cards){
 	return created_sprites;
 }
 
-CardGrouping.prototype.findCardSprites = function(cards,first=true){
+CardGrouping.prototype.findCardSprites = function(cards,forward=true){
 	var unmatched_cards = [];
 	var matched_card_sprites = [];
 	var unused_card_sprites = [];
@@ -118,21 +122,31 @@ CardGrouping.prototype.findCardSprites = function(cards,first=true){
 	
 	for (i=0;i<cards.length;i++){
 		var match_found = false;
+		var face_down = new Card(0,Card.BACK);
+		var available_face_down_index = null;
 		for (j=0;j<available_card_sprites.length;j++){
-			if (first){
+			if (forward){
 				var k = j;
 			}else{
 				var k = available_card_sprites.length -j -1;
 			}
-			if (!used[k] && 
-					cards[i].suit == available_card_sprites[k].card.suit && 
-					cards[i].number == available_card_sprites[k].card.number ){
-				match_found = true;
-				matched_card_sprites.push(available_card_sprites[k]);
-				used[k] = true;
+			if (!used[k]){
+				if(	cards[i].equals(available_card_sprites[k].card)){
+					match_found = true;
+					matched_card_sprites.push(available_card_sprites[k]);
+					used[k] = true;
+					break;
+				}else if(	available_face_down_index == null &&
+							available_card_sprites[k].card.equals(face_down)){
+					available_face_down_index = k;
+				}
 			}
 		}
-		if (!match_found){
+		if (!match_found && available_face_down_index != null){
+			matched_card_sprites.push(available_card_sprites[available_face_down_index]);
+			available_card_sprites[available_face_down_index].card = new Card(cards[i].number,cards[i].suit);
+			used[available_face_down_index] = true;
+		}else if (!match_found){
 			unmatched_cards.push(cards[i]);
 		}
 	}
@@ -144,9 +158,9 @@ CardGrouping.prototype.findCardSprites = function(cards,first=true){
 	return {'unmatched':unmatched_cards,'matched':matched_card_sprites,'unused':unused_card_sprites};
 }
 
-CardGrouping.prototype.setAlive = function(card_sprites,setting=true){
-	for (i=0;i<card_sprites.length;i++){
-		card_sprites[i].alive = setting;
+CardGrouping.prototype.setAlive = function(display_objects,setting=true){
+	for (i=0;i<display_objects.length;i++){
+		display_objects[i].alive = setting;
 	}
 }
 
@@ -157,11 +171,12 @@ CardGrouping.prototype.updateCardState = function(cards,duration){
 	var card_sprites_to_delete = groups['unused'];
 	var card_sprites_to_create = this.ghostAddCards(groups['unmatched']);
 	
+	
 	this.setAlive(card_sprites_to_delete,false);
 	this.applyPositions(card_sprites_to_create);
+	this.slideToPositions(card_sprites_to_slide,duration);
 	this.materialize(card_sprites_to_create,new Phaser.Point(0,-10),duration);
 	this.dematerialize(card_sprites_to_delete,new Phaser.Point(0,10),duration);
-	this.slideToPositions(card_sprites_to_slide,duration);
 }
 
 CardGrouping.prototype.revealAll = function(duration=400){
@@ -181,7 +196,7 @@ CardGrouping.prototype.getCardSpriteList = function(){
 }
 
 CardGrouping.prototype.getCardList = function(){
-	var card_sprites = getCardSpriteList();
+	var card_sprites = this.getCardSpriteList();
 	var cards = [];
 	for (i=0;i<card_sprites.length;i++){
 		cards.push(card_sprites[i].card);
@@ -203,7 +218,7 @@ CardGrouping.prototype.passToCardGroup = function(cards,cardGrouping,duration=10
 	
 	this.setAlive(groups['matched'],false);
 	this.slideToPositions(groups['unused']);
-	
+	this.setAlive(groups['matched'],true);
 	var tween_capsules = this.slideToPositionCopies(groups['matched'],substitute_card_sprites);
 	
 	this.completePassToCardGroup(tween_capsules,substitute_card_sprites,cardGrouping);
@@ -211,7 +226,6 @@ CardGrouping.prototype.passToCardGroup = function(cards,cardGrouping,duration=10
 }
 
 CardGrouping.prototype.completePassToCardGroup = function(card_sprites,substitute_card_sprites,cardGrouping){
-	
 	cardGrouping.completeReceivePass(card_sprites,substitute_card_sprites);
 }
 
@@ -223,7 +237,7 @@ CardGrouping.prototype.prepareToReceivePass = function(cards,cardGrouping){
 }
 
 CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_card_sprites){
-	this.slideToPositions(this.getCardSpriteList());
+	this.slideToPositions(this.getCardSpriteList(),1000);
 	var num_pairs = tween_capsules.length;
 	for (i=0;i<num_pairs;i++){
 		tween_capsules[i].switchToParent(this,substitute_card_sprites[i].z);
