@@ -12,12 +12,11 @@ from game_app.rules import game_round
 from game_app.rules import pass_round
 from game_app.rules import trick_turn
 from game_app.rules import ranking
+from game_app.rules.game_phases import GamePhases
 
 POINTS_TO_WIN = 100
 
 GAME_GROUP_CHANNEL_PREFIX= 'game_'
-
-PHASE_BEFORE_GAME = 'BEFORE_GAME' 
 
 def setup(game, players):
     '''Sets up the game and player database objects. 
@@ -35,7 +34,7 @@ def setup(game, players):
     # the game needs to get saved before the players get added
     for player in players:
         add_player(game, player, game.group_channel)
-    send_group_the_phase(game, PHASE_BEFORE_GAME)
+    send_group_the_phase(game, GamePhases.BEFORE_GAME)
 
 def add_player(game, player, group):
     '''Adds the given player to the given game and group
