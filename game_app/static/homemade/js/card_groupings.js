@@ -250,6 +250,6 @@ CardGrouping.prototype.fillWithFaceDowns = function(count,duration){
 	for (var i=0;i<count;i++){
 		cards.push(new Card(1,'Back'));
 	}
-	this.updateCardState(cards);
+	this.updateCardState(cards,duration);
 }
 

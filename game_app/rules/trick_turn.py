@@ -143,7 +143,8 @@ def send_players_discard(tt, player, discard):
     '''Sends a message to each player telling them which cards are 
     theirs'''
     discard_json = str(discard)
-    game_transmit(Group(tt.game_round.game.group_channel),{"discard": {"player": player.position, "card": discard_json}})  
+    n_remaining = len(player.hand)
+    game_transmit(Group(tt.game_round.game.group_channel),{"discard": {"player": player.position, "card": discard_json, "remaining": n_remaining}})  
         
 def finish(tt):
     tt.active = False

@@ -86,37 +86,6 @@ function show_facedown_cards(game_board, player_cards) {
     */
 }
 
-function createHorizontalDiscards(card, discard_player_position){
-	sprite_discard_counter += 1;
-	if(sprite_discard_counter == 5){
-		sprite_discard_counter = 1;
-		sprite_discard_group.destroy();
-		sprite_discard_group = null;
-	}
-	if(sprite_discard_group == null){
-		sprite_discard_group = game_board.add.group();
-	}
-	// if you discarded
-	if(discard_player_position == player_pos){
-		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
-	}
-	// player to the right
-	if((discard_player_position + 3)%4 == player_pos){
-		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
-		sprite.angle = 90;
-	}
-	// across
-	if((discard_player_position + 2)%4 == player_pos){
-		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
-		sprite.angle = 180;
-	}
-	// left
-	if((discard_player_position + 1)%4 == player_pos){
-		sprite = create_card_sprite(game_board, (board_length/2), (board_height/2), card);
-		sprite.angle = -90;
-	} 
-	sprite_discard_group.add(sprite)
-}
 
 function mouseOn(sprite) {
 	if (my_turn && is_card_valid(sprite.card)) {
@@ -192,9 +161,17 @@ function createGame() {
 		
 		hand_group = game_board.add.group();
 		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(my_location_x,my_location_y-210);
-		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(my_location_x,my_location_y-210);
-		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(across_location_x,my_location_y+30);
-		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(my_location_x,my_location_y-210);
+		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(left_location_x+210,left_location_y);
+		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(across_location_x,across_location_y+210);
+		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(right_location_x-210,right_location_y);
+		
+		hand_group.children[1].angle =  90;
+		hand_group.children[2].angle = 180;
+		hand_group.children[3].angle = 270;
+		
+		hand_group.children[1].fillWithFaceDowns(12,500);
+		hand_group.children[2].fillWithFaceDowns(12,500);
+		hand_group.children[3].fillWithFaceDowns(12,500);
 		
 		trick_group = game_board.add.group();
 		

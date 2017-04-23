@@ -37,6 +37,8 @@ def setup(game, players, delay):
         add_player(game, player, game.group_channel)
     send_group_the_phase(game, PHASE_BEFORE_GAME)
     
+    game_transmit(Group(game.group_channel), {"enter_room": None})
+    
     delay_message = {
         'channel':'game_command',
         'delay':delay,
@@ -73,7 +75,6 @@ def start(game):
         game: the game database entry
     '''
     game.active = True
-    game_transmit(Group(game.group_channel), {"enter_room": None})
     game.save()
     add_round(game)
     

@@ -33,11 +33,10 @@ function register_handlers() {
 
 function init_game() {
 	game_board = createGame();
-};
+}
 
 function got_scores(score_list_dict){
-	console.log(score_list_dict);
-	destroy_discards_after_hand();
+	//destroy_discards_after_hand();
 	score_textbox_p0.text = score_list_dict["score_list"][0];
 	score_textbox_p1.text = score_list_dict["score_list"][1];
 	score_textbox_p2.text = score_list_dict["score_list"][2];
@@ -45,7 +44,13 @@ function got_scores(score_list_dict){
 }
 
 function got_discard(card_player_dict){
-	createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
+	var card = Card.CardsFromJSON(card_player_dict["card"])[0];
+	var relative_player_seat = (card_player_dict["player"]-player_pos)%4;
+	var hand_length = card_player_dict["n_remaining"];
+	if(relative_player_seat!=0 && hand_group!=null){
+		hand_group.children[relative_player_seat].fillWithFaceDowns(hand_length,500);
+	}
+	//createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
 }
 
 function got_valid_cards(card_str){
@@ -66,7 +71,7 @@ function got_cards(card_str) {
     cards = Card.CardsFromJSON(card_str);
     player_cards = cards;
     if (hand_group!=null){
-    	hand_group.children[0].updateCardState(player_cards);
+    	hand_group.children[0].updateCardState(player_cards,500);
     }
 }
 
