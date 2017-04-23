@@ -1,16 +1,79 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'homemade/assets/nav-bar.css' %}"></link>
 <ul id=nav-bar>
-	<li><a href="{% url 'home_page:index' %}">Home</a></li>
-	<li><a href="{% url 'game_app:index' %}">Play Game!</a></li>
-	<li><a href="{% url 'stats:index' %}">Stats</a></li>
-	<li><a>About</a></li>
+
+	<li>
+	   <div class="image_container">
+		   <a href="{% url 'home_page:index' %}">
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">Home</h2>
+		   </a>
+	   </div>
+	</li>
+
+	<li>
+	   <div class="image_container">
+		   <a href="{% url 'game_app:index' %}">
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">Play Game!</h2>
+		   </a>
+	   </div>
+	</li>
+
+	<li>
+	   <div class="image_container">
+		   <a href="{% url 'stats:index' %}">
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">Stats</h2>
+		   </a>
+	   </div>
+	</li>
+
+	<li>
+	   <div class="image_container">
+	       <a>
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">About</h2>
+           </a>
+	   </div>
+	</li>
 
 	{% if user.is_authenticated %}
-		<li><a>Logged in as: {{ user.username }}</a></li>
-		<li><a href="{% url 'accounts:logout' %}">Log Out</a></li>
+	<li>
+	   <div class="image_container">
+	       <a>
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">Logged in as: {{ user.username }}</h2>
+           </a>
+	   </div>
+	</li>
+
+	<li>
+	   <div class="image_container">
+		   <a href="{% url 'accounts:logout' %}">
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">Log Out</h2>
+		   </a>
+	   </div>
+	</li>
     {% else %}
-		<li><a href="{% url 'accounts:login' %}">Log In</a></li>
-		<li><a href="{% url 'accounts:signup' %}">Sign Up</a></li>
+	<li>
+	   <div class="image_container">
+		   <a href="{% url 'accounts:login' %}">
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">Log In</h2>
+		   </a>
+	   </div>
+	</li>
+
+	<li>
+	   <div class="image_container">
+		   <a href="{% url 'accounts:signup' %}">
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">Sign Up</h2>
+		   </a>
+	   </div>
+	</li>
 	{% endif %}
+	
 </ul>
