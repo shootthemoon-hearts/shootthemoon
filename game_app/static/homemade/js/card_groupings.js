@@ -37,7 +37,7 @@ CardGrouping.prototype.dematerialize = function(card_sprites,position,duration,r
 	this.materialize(card_sprites,position,duration,relativeFlag,forward);
 }
 
-CardGrouping.prototype.getPoints = function(number_of_cards){
+CardGrouping.prototype.getPositions = function(number_of_cards){
 	var result = new Array();
 	for (var i=0;i<number_of_cards;i++){
 		result.push(new Phaser.Point(0,0));
@@ -45,33 +45,44 @@ CardGrouping.prototype.getPoints = function(number_of_cards){
 	return result;
 }
 
-CardGrouping.prototype.getPointsByCardSprite = function(card_sprites){
+CardGrouping.prototype.getAngles = function(number_of_cards){
+	return Array(number_of_cards).fill(0);
+}
+
+CardGrouping.prototype.sortCards = function(){
 	this.sort('value',Phaser.Group.SORT_ASCENDING);
-	var all_points = this.getPoints(this.countLiving());
-	var result = [];
+}
+
+CardGrouping.prototype.getGeometryByCardSprite = function(card_sprites){
+	this.sortCards();
+	var all_positions = this.getPositions(this.countLiving());
+	var all_angles = this.getAngles(this.countLiving());
+	var result = {'position':[],'angle':[]};
 	for (var j=0;j<card_sprites.length;j++){
 		var card_sprite = card_sprites[j];
 		var dead_sprites_below = this.filter(function(child,ind,all){return !child.alive && child.z<card_sprite.z}).list;
-		var point = all_points[card_sprite.z-dead_sprites_below.length];
-		result.push(point);
+		result['position'].push(all_positions[card_sprite.z-dead_sprites_below.length]);
+		result['angle'].push(all_angles[card_sprite.z-dead_sprites_below.length]);
 	}
 	return result;
 }
 
 
 CardGrouping.prototype.applyPositions = function(card_sprites){
-	var destPoints = this.getPointsByCardSprite(card_sprites);
+	var geometry = this.getGeometryByCardSprite(card_sprites);
 	for (var i=0;i<card_sprites.length;i++){
-		card_sprites[i].x = destPoints[i].x;
-		card_sprites[i].y = destPoints[i].y;
+		geometry['position'][i].copyTo(card_sprites[i]);
+		card_sprites[i].angle = geometry['angle'][i];
 	}
 }
 
 CardGrouping.prototype.slideToPositions = function(card_sprites,duration){
-	var destPoints = this.getPointsByCardSprite(card_sprites);
+	var geometry = this.getGeometryByCardSprite(card_sprites);
 	for (var i=0;i<card_sprites.length;i++){
 		var move_tween = this.game.add.tween(card_sprites[i]);
-		move_tween.to({x:destPoints[i].x,y:destPoints[i].y}, duration, Phaser.Easing.Cubic.Out);
+		move_tween.to(
+				{'x':geometry['position'][i].x,'y':geometry['position'][i].y,'angle':geometry['angle'][i]},
+				duration, Phaser.Easing.Cubic.Out);
 		move_tween.start();
 	}
 }
@@ -225,8 +236,8 @@ CardGrouping.prototype.passToCardGroup = function(cards,cardGrouping,duration=10
 
 }
 
-CardGrouping.prototype.completePassToCardGroup = function(card_sprites,substitute_card_sprites,cardGrouping){
-	cardGrouping.completeReceivePass(card_sprites,substitute_card_sprites);
+CardGrouping.prototype.completePassToCardGroup = function(card_sprites,substitute_card_sprites,cardGrouping,duration){
+	cardGrouping.completeReceivePass(card_sprites,substitute_card_sprites,duration);
 }
 
 CardGrouping.prototype.prepareToReceivePass = function(cards,cardGrouping){
@@ -236,8 +247,8 @@ CardGrouping.prototype.prepareToReceivePass = function(cards,cardGrouping){
 	return substitute_card_sprites;
 }
 
-CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_card_sprites){
-	this.slideToPositions(this.getCardSpriteList(),1000);
+CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_card_sprites,duration){
+	this.slideToPositions(this.getCardSpriteList(),duration);
 	var num_pairs = tween_capsules.length;
 	for (i=0;i<num_pairs;i++){
 		tween_capsules[i].switchToParent(this,substitute_card_sprites[i].z);
