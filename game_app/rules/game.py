@@ -37,8 +37,6 @@ def setup(game, players, delay):
         add_player(game, player, game.group_channel)
     send_group_the_phase(game, PHASE_BEFORE_GAME)
     
-    game_transmit(Group(game.group_channel), {"enter_room": None})
-    
     delay_message = {
         'channel':'game_command',
         'delay':delay,
@@ -59,13 +57,12 @@ def add_player(game, player, group):
         player: the player database entry
         group: the group channel to add the player to
     '''
-    game_transmit(Channel(player.channel), {'id':str(game.id)})
     player.enrolled_game = game
     player.position = len(game.player_set.all()) #no -1 because didn't save yet
-    game_transmit(Channel(player.channel), {"player_pos":player.position})
-
     player.save()
     Group(group).add(Channel(player.channel))
+    game_transmit(Channel(player.channel), {'enter_room':
+        {'id':str(game.id),'player_pos':player.position}})
     logging.info('Game %s has %s players', game.id, 'has', game.player_set.all().count(), 'players')
 
 def start(game):

@@ -31,7 +31,8 @@ function register_handlers() {
 	game_event_handler.register_handler("scores", got_scores);
 }
 
-function init_game() {
+function init_game(game_info_dict) {
+	player_pos = game_info_dict['player_pos'];
 	game_board = createGame();
 }
 

@@ -1,12 +1,13 @@
-var DiscardPile = function(game,radius_mean,radius_std_dev,position_angle_std_dev,facing_angle_offset_std_dev) {
+var DiscardPile = function(game,initial_relative_seat,radius_mean,radius_std_dev,position_angle_std_dev,facing_angle_offset_std_dev) {
 	CardGrouping.call(this, game);
 	this.relative_seat_discard_positions = [];
 	this.relative_seat_discard_angles = [];
+	this.initial_relative_seat = initial_relative_seat;
 	
 	var unit_vector = Phaser.Point(1,0);
 	
 	for (var position_ind=0; position_ind<4; position_ind++){
-		var current_base_angle = position_ind * 90;
+		var current_base_angle = ((position_ind+initial_relative_seat)%4) * 90;
 		
 		var current_facing_angle = DiscardPile.UniformRandom(current_base_angle,facing_angle_offset_std_dev);
 		this.relative_seat_discard_angles.push(current_angle);
@@ -33,8 +34,11 @@ DiscardPile.prototype.getAngles = function(numberOfCards){
 	return this.relative_seat_discard_angles;
 }
 
-CardGrouping.prototype.sortCards = function(){
-	//do nothing, cards always retain original order in a discard pile
+DiscardPile.prototype.sortCards = function(){}	//do nothing, cards always retain original order in a discard pile
+
+DiscardPile.prototype.dematerializeTowards = function(angle){
+	this.parent.remove(this,true,true);
 }
+
 
 
