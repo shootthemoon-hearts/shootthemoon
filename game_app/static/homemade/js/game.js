@@ -45,12 +45,11 @@ function got_scores(score_list_dict){
 
 function got_discard(card_player_dict){
 	var card = Card.CardsFromJSON(card_player_dict["card"])[0];
-	var relative_player_seat = (card_player_dict["player"]-player_pos)%4;
-	var hand_length = card_player_dict["n_remaining"];
+	var relative_player_seat = (card_player_dict["player"]-player_pos+4)%4;
+	var hand_length = card_player_dict["remaining"];
 	if(relative_player_seat!=0 && hand_group!=null){
 		hand_group.children[relative_player_seat].fillWithFaceDowns(hand_length,500);
 	}
-	//createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
 }
 
 function got_valid_cards(card_str){

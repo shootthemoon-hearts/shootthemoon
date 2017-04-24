@@ -169,10 +169,6 @@ function createGame() {
 		hand_group.children[2].angle = 180;
 		hand_group.children[3].angle = 270;
 		
-		hand_group.children[1].fillWithFaceDowns(12,500);
-		hand_group.children[2].fillWithFaceDowns(12,500);
-		hand_group.children[3].fillWithFaceDowns(12,500);
-		
 		trick_group = game_board.add.group();
 		
 		/// creating the not someone's turn indicators at near-player-card locations  ///
