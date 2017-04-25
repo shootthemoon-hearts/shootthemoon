@@ -1,12 +1,26 @@
-from channels import Channel
 from django.db import transaction
+from game_app.models import Player
 from game_app.models import Game
 from game_app.models import MatchMakingQueue
 from game_app.rules import game as game_rules
 
 MAX_PLAYER_COUNT = 4
 
-def join_queue(queue_name,player):
+def makeDummyPlayer():
+    dummy = Player()
+    dummy.channel = "null";
+    return dummy
+
+def join_hanyuu(player):
+    players_to_join_game = [player,makeDummyPlayer(),makeDummyPlayer(),makeDummyPlayer()]
+    new_game = Game()
+    delay = 5000
+    game_rules.setup(new_game, players_to_join_game,delay)
+
+def join_queue(queue_name,player):   
+    if queue_name == 'hanyuu':
+        join_hanyuu(player)
+        return
     
     if player.enrolled_queue != None:
         multiple_leave_queue_with_trust(player.enrolled_queue,[player])
