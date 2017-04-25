@@ -5,10 +5,15 @@ from django.db import transaction
 from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
 from game_app.models.trick_turn import TrickTurn
+from game_app.rules import game
+
+from game_app import game_sched
 
 from . import game_round as grrz
 
 import random as rn
+
+TIME_TO_SELECT_TRICK_CARD = 1
     
 def setup(tt,parent_round,number,first_seat,hearts_broken):
     tt.game_round = parent_round
@@ -50,25 +55,15 @@ def send_turn_notification(tt):
         
     game_transmit(Channel(player.channel),{"your_turn": tt.id})
     grrz.send_player_valid_cards(tt.game_round,player, valid_cards)
-    send_delay_message(tt, player, tt.id, valid_cards)
+    start_trick_timer(tt, player, tt.id, valid_cards)
     
-def send_delay_message(tt, player, turn_id, valid_cards):
+def start_trick_timer(tt, player, turn_id, valid_cards):
     received_cards = []
     random_number = rn.randint(0,len(valid_cards)-1)
     received_cards.append(valid_cards[random_number])
-    delay_message = {
-        'channel':'game_command',
-        'delay':250,
-        'content':{
-            'command':'trick_card_selected',
-            'command_args':{
-                'received_cards': Card.list_to_str_list(received_cards),
-                'turn_id': turn_id,
-                'player_id': player.id
-            }
-        }
-    }
-    Channel('asgi.delay').send(delay_message)
+
+    game_sched.scheduler.enter(TIME_TO_SELECT_TRICK_CARD, 1, game.trick_cards_selected,
+                               (tt.game_round.game, Card.list_to_str_list(received_cards), player, turn_id))
             
 def get_next_expected_seat(tt):
     return (tt.expected_seat+1)%4

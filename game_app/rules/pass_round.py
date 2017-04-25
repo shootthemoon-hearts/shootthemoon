@@ -4,7 +4,11 @@ from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
 import random as rn
 from game_app.models.pass_round import PassRound
+from game_app import game_sched
 from django.db import transaction
+from game_app.rules import game
+
+TIME_TO_SELECT_PASS_CARDS = 1
 
 def setup(pr,parent_round,direction):
     pr.direction = direction
@@ -16,27 +20,16 @@ def start(pr):
     pr.save()
     send_turn_notification(pr)
     for i in pr.game_round.game.player_set.all():
-        send_delay_message(pr, i, pr.id)
+        start_pass_timer(pr, i, pr.id)
     
-def send_delay_message(pr, player, turn_id):
+def start_pass_timer(pr, player, turn_id):
     received_cards = []
     random_numbers = rn.sample(range(0,13),3)
     for random_number in random_numbers:
         received_cards.append(player.hand[random_number])
     received_cards.sort()
-    delay_message = {
-        'channel':'game_command',
-        'delay':250,
-        'content':{
-            'command':'pass_cards_selected',
-            'command_args':{
-                'received_cards': Card.list_to_str_list(received_cards),
-                'turn_id': turn_id,
-                'player_id': player.id
-            }
-        }
-    }
-    Channel('asgi.delay').send(delay_message)
+
+    game_sched.scheduler.enter(TIME_TO_SELECT_PASS_CARDS, 1, game.pass_cards_selected, (pr.game_round.game, Card.list_to_str_list(received_cards), player, turn_id))
 
 def received_passed_cards(pr, player, passed_cards, turn_id):
     passed_cards_sorted = sorted(passed_cards)
