@@ -23,7 +23,6 @@ var game_state = BEFORE_GAME;
 function register_handlers() {
 	game_event_handler.register_handler("enter_room", init_game);
 	game_event_handler.register_handler("Cards", got_cards);
-	game_event_handler.register_handler("player_pos", got_player_pos);
 	game_event_handler.register_handler("game_phase", new_game_phase);
 	game_event_handler.register_handler("your_turn", now_my_turn);
 	game_event_handler.register_handler("valid_cards", got_valid_cards);
@@ -48,9 +47,11 @@ function got_discard(card_player_dict){
 	var card = Card.CardsFromJSON(card_player_dict["card"])[0];
 	var relative_player_seat = (card_player_dict["player"]-player_pos+4)%4;
 	var hand_length = card_player_dict["remaining"];
-	if(relative_player_seat!=0 && hand_group!=null){
-		hand_group.children[relative_player_seat].fillWithFaceDowns(hand_length,500);
-	}
+	
+	hand_group.children[relative_player_seat].passToCardGroup([card],trick_group.children[0]);
+	//if(relative_player_seat!=0 && hand_group!=null){
+	//	hand_group.children[relative_player_seat].fillWithFaceDowns(hand_length,500);
+	//}
 }
 
 function got_valid_cards(card_str){
@@ -70,13 +71,13 @@ function is_card_valid(card){
 function got_cards(card_str) {
     cards = Card.CardsFromJSON(card_str);
     player_cards = cards;
-    if (hand_group!=null){
-    	hand_group.children[0].updateCardState(player_cards,500);
+    hand_group.children[0].updateCardState(player_cards,500);
+    if (cards.length == 13){
+    	hand_group.children[1].fillWithFaceDowns(13,500);
+    	hand_group.children[2].fillWithFaceDowns(13,500);
+    	hand_group.children[3].fillWithFaceDowns(13,500);
     }
-}
-
-function got_player_pos(player) {
-    player_pos = player;
+    
 }
 
 function new_game_phase(phase) {
@@ -90,6 +91,11 @@ function new_game_phase(phase) {
 		my_turn = false;
 		cards_to_select = 1;
 		selected_cards = [];
+		if (trick_group.children.length>0){
+			trick_group.children[0].dematerializeTowards(0);
+		}
+		var pile = trick_group.addChild(new DiscardPile(game_board,0,100,20,5,30));
+		pile.x = 300; pile.y = 200;
 	}
 }
 

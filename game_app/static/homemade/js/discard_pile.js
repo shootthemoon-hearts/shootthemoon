@@ -4,15 +4,15 @@ var DiscardPile = function(game,initial_relative_seat,radius_mean,radius_std_dev
 	this.relative_seat_discard_angles = [];
 	this.initial_relative_seat = initial_relative_seat;
 	
-	var unit_vector = Phaser.Point(1,0);
+	var unit_vector = new Phaser.Point(1,0);
 	
 	for (var position_ind=0; position_ind<4; position_ind++){
 		var current_base_angle = ((position_ind+initial_relative_seat)%4) * 90;
 		
 		var current_facing_angle = DiscardPile.UniformRandom(current_base_angle,facing_angle_offset_std_dev);
-		this.relative_seat_discard_angles.push(current_angle);
+		this.relative_seat_discard_angles.push(current_facing_angle);
 		
-		var current_radius = DiscardPile.UniformRandom(radius,radius_std_dev);
+		var current_radius = DiscardPile.UniformRandom(radius_mean,radius_std_dev);
 		var current_position_angle = DiscardPile.UniformRandom(-current_base_angle,position_angle_std_dev);
 		var current_position = Phaser.Point.rotate(unit_vector,0,0,current_position_angle,true,current_radius);
 		this.relative_seat_discard_positions.push(current_position);
