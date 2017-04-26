@@ -47,8 +47,8 @@ def send_turn_notification(tt):
         valid_cards = valid_cards_leader(tt,player.hand)
     else:
         valid_cards = valid_cards_follower(tt,player.hand)
-        
-    game_transmit(Channel(player.channel),{"your_turn": tt.id})
+    game_transmit(Group(tt.game_round.game.group_channel),
+                  {'trick':{'id':tt.id,'player':player.position}})
     grrz.send_player_valid_cards(tt.game_round,player, valid_cards)
     send_delay_message(tt, player, tt.id, valid_cards)
     
@@ -58,7 +58,7 @@ def send_delay_message(tt, player, turn_id, valid_cards):
     received_cards.append(valid_cards[random_number])
     delay_message = {
         'channel':'game_command',
-        'delay':250,
+        'delay':2000,
         'content':{
             'command':'trick_card_selected',
             'command_args':{
@@ -143,8 +143,8 @@ def send_players_discard(tt, player, discard):
     '''Sends a message to each player telling them which cards are 
     theirs'''
     discard_json = str(discard)
-    n_remaining = len(player.hand)
-    game_transmit(Group(tt.game_round.game.group_channel),{"discard": {"player": player.position, "card": discard_json, "remaining": n_remaining}})  
+    game_transmit(Group(tt.game_round.game.group_channel),
+                  {"discard": {"id":tt.id, "player": player.position, "card": discard_json}})  
         
 def finish(tt):
     tt.active = False

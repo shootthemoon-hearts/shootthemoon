@@ -14,7 +14,7 @@ def makeDummyPlayer():
 def join_hanyuu(player):
     players_to_join_game = [player,makeDummyPlayer(),makeDummyPlayer(),makeDummyPlayer()]
     new_game = Game()
-    delay = 5000
+    delay = 10000
     game_rules.setup(new_game, players_to_join_game,delay)
 
 def join_queue(queue_name,player):   

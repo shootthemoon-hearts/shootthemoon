@@ -87,7 +87,8 @@ CardGrouping.prototype.slideToPositions = function(card_sprites,duration){
 	}
 }
 
-CardGrouping.prototype.slideToPositionCopies = function(card_sprites,card_sprites_to_copy,duration){
+CardGrouping.prototype.slideToPositionCopies = function(card_sprites, card_sprites_to_copy, duration, flip_duration=600,
+		position_easing=Phaser.Easing.Cubic.Out, rotation_easing=Phaser.Easing.Cubic.Out, scale_easing= Phaser.Easing.Cubic.Out){
 	var num_pairs = card_sprites.length;
 	var capsules = [];
 	for (var i=0;i<num_pairs;i++){	
@@ -95,19 +96,15 @@ CardGrouping.prototype.slideToPositionCopies = function(card_sprites,card_sprite
 	}
 	this.game.stage.updateTransform();
 	for (var i=0;i<num_pairs;i++){
-		
-		var target = capsules[i].relativeGeometry(card_sprites_to_copy[i]);
-		var move_tween = this.game.add.tween(card_sprites[i]);
-		var rotation_tween = this.game.add.tween(card_sprites[i]);
-		move_tween.to({'x':target['position'].x,'y':target['position'].y}, duration, Phaser.Easing.Cubic.Out);
-		rotation_tween.to({'rotation':target['rotation']}, duration, Phaser.Easing.Cubic.Out);
-		
-		capsules[i].listenToTweens([move_tween,rotation_tween]);
-		move_tween.start();
-		rotation_tween.start();
-		card_sprites[i].reveal(600);
+		capsules[i].makeTween(card_sprites_to_copy[i],duration,position_easing,rotation_easing,scale_easing);
+		card_sprites[i].reveal(flip_duration);
 	}
 	return capsules;
+}
+
+CardGrouping.prototype.throwToPositionCopies = function(card_sprites,card_sprites_to_copy,duration,flip_duration = 600){
+	return this.slideToPositionCopies(card_sprites,card_sprites_to_copy,duration,flip_duration,
+			Phaser.Easing.Cubic.Out,Phaser.Easing.Cubic.Out,Phaser.Easing.Cubic.Out);
 }
 
 CardGrouping.prototype.ghostAddCards = function(cards){
@@ -259,7 +256,7 @@ CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_
 CardGrouping.prototype.fillWithFaceDowns = function(count,duration){
 	var cards = [];
 	for (var i=0;i<count;i++){
-		cards.push(new Card(1,'Back'));
+		cards.push(new Card(0,'Back'));
 	}
 	this.updateCardState(cards,duration);
 }

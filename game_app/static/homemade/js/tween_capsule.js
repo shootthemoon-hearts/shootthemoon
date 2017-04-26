@@ -7,7 +7,9 @@ var TweenCapsule = function(game,child){
 TweenCapsule.prototype = Object.create(Phaser.Group.prototype);
 TweenCapsule.prototype.constructor = TweenCapsule;
 
-TweenCapsule.prototype.relativeGeometry = function(object,object_base=this){
+
+//static functions =================================
+TweenCapsule.relativeGeometry = function(object,object_base){
 	return {
 		'position':Phaser.Point.subtract(object.worldPosition,object_base.worldPosition).rotate(0,0,-object_base.worldRotation),
 		'rotation':object.worldRotation - object_base.worldRotation,
@@ -15,15 +17,47 @@ TweenCapsule.prototype.relativeGeometry = function(object,object_base=this){
 	}
 }
 
-TweenCapsule.prototype.forceRelativeGeometry = function(object,object_base=this){
+TweenCapsule.forceRelativeGeometry = function(object,object_base){
 	var geometry = this.relativeGeometry(object,object_base);
 	object.position = geometry['position'];
 	object.rotation= geometry['rotation'];
 	object.scale   = geometry['scale'];
 }
 
+TweenCapsule.makeTween = function(game,object,object_to_match,duration,position_easing,rotation_easing,scale_easing,object_base=object.parent){
+	var target = TweenCapsule.relativeGeometry(object_to_match,object_base);
+	var move_tween = game.add.tween(object);
+	var rotation_tween = game.add.tween(object);
+	move_tween.to({'x':target['position'].x,'y':target['position'].y}, duration, position_easing);
+	//doesn't work
+	var equiv_rotation = (target['rotation']-object.rotation + Math.PI)%Phaser.Math.PI2 - Math.PI + object.rotation;
+	rotation_tween.to({'rotation':equiv_rotation}, duration, rotation_easing);
+	
+	move_tween.start();
+	rotation_tween.start();
+	
+	return [move_tween,rotation_tween];
+}
+
+//member functions mirroring static functions===================
+TweenCapsule.prototype.relativeGeometry = function(object){
+	return TweenCapsule.relativeGeometry(object,this);
+}
+
+TweenCapsule.prototype.forceRelativeGeometry = function(object){
+	TweenCapsule.forceRelativeGeometry(object,this);
+}
+
+TweenCapsule.prototype.makeTween = function(object_to_match,duration,position_easing,rotation_easing,scale_easing){
+	var tweens = TweenCapsule.makeTween(this.game,this.children[0],object_to_match,duration,position_easing,rotation_easing,scale_easing,this);
+	this.listenToTweens(tweens);
+	return tweens;
+}
+
+//other member functions =======================================
+
 TweenCapsule.prototype.switchToParent = function(new_parent,index,silent=false){
-	this.forceRelativeGeometry(this,new_parent);
+	TweenCapsule.forceRelativeGeometry(this,new_parent);
 	new_parent.add(this,silent,index);
 }
 
@@ -42,10 +76,11 @@ TweenCapsule.prototype.onTweenEnd = function(tweened_object,tween){
 }
 
 TweenCapsule.prototype.finish = function(silent=false){
-	this.forceRelativeGeometry(this.children[0],this.parent);
+	TweenCapsule.forceRelativeGeometry(this.children[0],this.parent);
 	this.parent.add(this.children[0],silent,this.z);
 	this.parent.remove(this,true,silent);
 }
+
 
 
 

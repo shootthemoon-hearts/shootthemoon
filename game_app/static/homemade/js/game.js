@@ -24,7 +24,7 @@ function register_handlers() {
 	game_event_handler.register_handler("enter_room", init_game);
 	game_event_handler.register_handler("Cards", got_cards);
 	game_event_handler.register_handler("game_phase", new_game_phase);
-	game_event_handler.register_handler("your_turn", now_my_turn);
+	game_event_handler.register_handler("trick", trick_update);
 	game_event_handler.register_handler("valid_cards", got_valid_cards);
 	game_event_handler.register_handler("discard", got_discard);
 	game_event_handler.register_handler("scores", got_scores);
@@ -33,6 +33,10 @@ function register_handlers() {
 function init_game(game_info_dict) {
 	player_pos = game_info_dict['player_pos'];
 	game_board = createGame();
+}
+
+function relative_seat(seat,base_seat){
+	return (seat-base_seat+4)%4;
 }
 
 function got_scores(score_list_dict){
@@ -44,14 +48,11 @@ function got_scores(score_list_dict){
 }
 
 function got_discard(card_player_dict){
+	var trick_id = card_player_dict["id"];
+	var relative_player_seat = relative_seat(card_player_dict["player"],player_pos);
 	var card = Card.CardsFromJSON(card_player_dict["card"])[0];
-	var relative_player_seat = (card_player_dict["player"]-player_pos+4)%4;
-	var hand_length = card_player_dict["remaining"];
-	
-	hand_group.children[relative_player_seat].passToCardGroup([card],trick_group.children[0]);
-	//if(relative_player_seat!=0 && hand_group!=null){
-	//	hand_group.children[relative_player_seat].fillWithFaceDowns(hand_length,500);
-	//}
+	var discard_pile = trick_group.getByName(trick_id.toString());
+	hand_group.children[relative_player_seat].passToCardGroup([card],discard_pile);
 }
 
 function got_valid_cards(card_str){
@@ -88,20 +89,34 @@ function new_game_phase(phase) {
 		selected_cards = [];
 	}
 	if (game_state == IN_TRICK) {
-		my_turn = false;
+		//my_turn = false;
 		cards_to_select = 1;
 		selected_cards = [];
-		if (trick_group.children.length>0){
-			trick_group.children[0].dematerializeTowards(0);
-		}
-		var pile = trick_group.addChild(new DiscardPile(game_board,0,100,20,5,30));
-		pile.x = 300; pile.y = 200;
 	}
 }
 
-function now_my_turn(my_turn_id) {
-	turn_id = my_turn_id;
-	my_turn = true;
+function trick_update(trick_dict) {
+	var trick_id = trick_dict['id'];
+	var relative_player_seat = relative_seat(trick_dict["player"],player_pos);
+	if (trick_group.countLiving() > 1){
+		var to_die = trick_group.countLiving() -1;
+		for (var i=0; i<to_die; i++){
+			trick_group.children[i].alive = false;
+		}
+	}
+	trick_group.forEachDead(trick_group.remove, trick_group, true, true);
+	if (trick_group.getByName(trick_id.toString()) == undefined){
+		//var pile = trick_group.addChild(new DiscardPile(game_board,0,100,20,5,30));
+		var pile = trick_group.addChild(new DiscardPile(game_board,relative_player_seat,100,0,0,0));
+		pile.name = trick_id.toString();
+		pile.x = 300; pile.y = 200;
+	}
+	if (relative_player_seat ==0){
+		turn_id = trick_id;
+		my_turn = true;
+	}else{
+		my_turn = false;
+	}
 }
 
 function all_cards_selected() {
