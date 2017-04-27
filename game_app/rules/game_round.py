@@ -1,28 +1,36 @@
-from channels import Group
 from channels import Channel
+from django.db import transaction
 
 from game_app.multiplex_transmit import game_transmit
 from game_app.deck import Deck
 from game_app.card import Card
 
-from . import game as grz
-from . import trick_turn as trrz
-from . import pass_round as prrz
+from game_app.rules import game
+from game_app.rules import trick_turn
+from game_app.rules import pass_round
+from game_app.rules.game_phases import GamePhases
 
 from game_app.models.pass_round import PassRound
 from game_app.models.trick_turn import TrickTurn
 
-TRICK_PHASE = 'IN_TRICK'
-PASS_PHASE = 'PASS_PHASE'
 
-
-def setup(gr,parent_game,number):
-    gr.game = parent_game
-    gr.number = number
-    gr.save()
-    for player in gr.game.player_set.all():
-        player.hand_points = 0
-        player.save()
+def setup(game_round, game, number):
+    '''Sets up the given GameRound object and adds it to the given game.
+    
+    This function guarantees a save of the GameRound object.
+    
+    Arguments:
+        game_round: the GameRound database entry
+        game: the Game database entry
+        number: the 0 index number of the game round
+    '''
+    game_round.game = game
+    game_round.number = number
+    game_round.save()
+    with transaction.atomic():
+        for player in game_round.game.player_set.select_for_update().all():
+            player.hand_points = 0
+            player.save()
 
 def start(gr):
     gr.active = True
@@ -78,19 +86,19 @@ def determine_passing(gr):
     return direction
 
 def add_pass_phase(gr,pass_direction):
-    gr.phase = PASS_PHASE
+    gr.phase = GamePhases.PASS
     gr.save()
     send_group_the_phase(gr)
     pr = PassRound()
-    prrz.setup(pr,gr,pass_direction)
+    pass_round.setup(pr, gr, pass_direction)
     send_players_initial_valid_cards(gr)
-    prrz.start(pr)
+    pass_round.start(pr)
     
 def bypass_pass_phase(gr):
     add_first_trick_phase(gr)
     
 def add_first_trick_phase(gr):
-    gr.phase = TRICK_PHASE
+    gr.phase = GamePhases.TRICK
     gr.save()
     add_trick_phase(gr,what_seat_has_two_of_clubs(gr))
 
@@ -100,8 +108,8 @@ def add_trick_phase(gr,seat_to_go_first):
     else:
         send_group_the_phase(gr)
         tr = TrickTurn()
-        trrz.setup(tr,gr,len(gr.trickturn_set.all()),seat_to_go_first,gr.hearts_broken)
-        trrz.start(tr)
+        trick_turn.setup(tr, gr, len(gr.trickturn_set.all()), seat_to_go_first, gr.hearts_broken)
+        trick_turn.start(tr)
 
 def what_seat_has_two_of_clubs(gr):
     two_of_clubs = Card(2,'Clubs')
@@ -110,7 +118,7 @@ def what_seat_has_two_of_clubs(gr):
             return player.position
 
 def send_group_the_phase(gr):
-    grz.send_group_the_phase(gr.game,gr.phase)
+    game.send_group_the_phase(gr.game, gr.phase)
     
 def finish(gr):
     gr.active = False
@@ -128,8 +136,7 @@ def finish(gr):
     for i in players:
         i.game_points += i.hand_points
         i.save()
-    grz.add_round(gr.game)
+    game.add_round(gr.game)
 
-        
 
-            
+

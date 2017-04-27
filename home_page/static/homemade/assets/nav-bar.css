@@ -7,17 +7,19 @@ div {
     margin: 0;
     padding: 0;
     width: 20%;
-    background-color: blue;
     position: fixed;
     height: 100%;
     overflow: auto;
+}
+
+#nav-bar li {
+	padding-bottom: 0px;
 }
 
 #nav-bar li a {
     display: block;
     color: white;
     text-align: center;
-    padding: 14px 16px;
     text-decoration: none;
 	font-family: Calibri, sans-serif;
 	font-weight: bold;
@@ -25,5 +27,33 @@ div {
 
 /* Change the link color to #111 (black) on hover */
 #nav-bar li a:hover {
-    background-color: #111;
+    color: #111;
+}
+
+#nav-bar img {
+	width: 100%;
+	height: auto;
+}
+
+#nav-bar .image_container .text_over_image {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left:0;
+    right:0;
+    bottom:0;
+    height: 30%;
+}
+
+#nav-bar .image_container{
+	width: 100%;
+    height:auto;
+    margin: auto;
+    text-align:center;
+    position:relative;
+}
+
+body {
+	background-color: #246;
+	color: #fff;
 }
