@@ -15,6 +15,7 @@ class Player(models.Model):
     hand = CardListField(default=[])
     game_points = models.IntegerField(default=0)
     hand_points = models.IntegerField(default=0)
+    bank_ms = models.IntegerField(default=10000)
     user = models.ForeignKey(User, null=True)
     
     #self.accounts = None

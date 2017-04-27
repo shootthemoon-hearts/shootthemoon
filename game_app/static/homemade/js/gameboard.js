@@ -32,6 +32,8 @@ var across_location_y = (board_height/30);
 var right_location_x = (board_length/1.04);
 var right_location_y = (board_height/2);
 
+
+
 function show_facedown_cards(game_board, player_cards) {
 	if(sprite_group != null){
 		sprite_group.destroy();
@@ -184,7 +186,7 @@ function createGame() {
 	 * Load images and such to be used in the game
 	 */
 	function preload() {
-
+		
 		game.load.spritesheet(Card.CLUBS, '../static/third_party/assets/card_images/clubs/different_playing_card_vector_graphic.jpg', card_length, card_height);
 		game.load.spritesheet(Card.DIAMONDS, '../static/third_party/assets/card_images/diamonds/different_playing_card_vector_graphic.jpg', card_length, card_height);
 		game.load.spritesheet(Card.HEARTS, '../static/third_party/assets/card_images/hearts/different_playing_card_vector_graphic.jpg', card_length, card_height);
@@ -201,6 +203,9 @@ function createGame() {
 	 */
 	function create () {
 		background = game.add.tileSprite(0, 0, 800, 600, "background");
+		
+		myTimer = new Timer(game_board);
+		game_board.stage.addChild(myTimer.textDisplay);
 		
 		/// creating the not someone's turn indicators at near-player-card locations  ///
 		create_turn_indicator(game_board, my_location_x + 33, my_location_y,"turn_no");

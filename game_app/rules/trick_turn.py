@@ -1,6 +1,7 @@
 from channels import Group
 from channels import Channel
 from django.db import transaction
+import datetime
 
 from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
@@ -49,6 +50,9 @@ def send_turn_notification(tt):
         valid_cards = valid_cards_follower(tt,player.hand)
         
     game_transmit(Channel(player.channel),{"your_turn": tt.id})
+    current_time_ms = (datetime.datetime.now() - datetime.datetime.utcfromtimestamp(0)).total_seconds() * 1000
+    time_info = [current_time_ms,5000,player.bank_ms]
+    game_transmit(Channel(player.channel),{"time_info": time_info})
     grrz.send_player_valid_cards(tt.game_round,player, valid_cards)
     send_delay_message(tt, player, tt.id, valid_cards)
     
@@ -58,7 +62,7 @@ def send_delay_message(tt, player, turn_id, valid_cards):
     received_cards.append(valid_cards[random_number])
     delay_message = {
         'channel':'game_command',
-        'delay':250,
+        'delay':1000, #250
         'content':{
             'command':'trick_card_selected',
             'command_args':{

@@ -12,8 +12,7 @@ var selected_cards = [];
 var my_turn = true;
 var cards_to_select = 3;
 var turn_id = 0;
-
-
+var myTimer = null;
 
 var game_state = BEFORE_GAME;
 
@@ -23,6 +22,7 @@ function register_handlers() {
 	game_event_handler.register_handler("player_pos", got_player_pos);
 	game_event_handler.register_handler("game_phase", new_game_phase);
 	game_event_handler.register_handler("your_turn", now_my_turn);
+	game_event_handler.register_handler("time_info", got_time_info);
 	game_event_handler.register_handler("valid_cards", got_valid_cards);
 	game_event_handler.register_handler("discard", got_discard);
 	game_event_handler.register_handler("scores", got_scores);
@@ -31,6 +31,17 @@ function register_handlers() {
 function init_game() {
 	game_board = createGame();
 };
+
+function got_time_info(time_list){
+	start_time = time_list[0];
+	base_time = time_list[1];
+	bank_time = time_list[2];
+	
+	if(myTimer != null){
+		myTimer.startCountdown(start_time,1000,base_time,bank_time);
+	}
+	
+}
 
 function got_scores(score_list_dict){
 	console.log(score_list_dict);
@@ -44,7 +55,7 @@ function got_scores(score_list_dict){
 function got_discard(card_player_dict){
 	//console.log(card_player_dict);
 	createHorizontalDiscards(Card.CardsFromJSON(card_player_dict["card"])[0], card_player_dict["player"]);
-
+	my_turn = false //this will allow the timer to vanish after you discard.
 }
 
 function got_valid_cards(card_str){
@@ -86,9 +97,10 @@ function new_game_phase(phase) {
 }
 
 function now_my_turn(my_turn_id) {
-	turn_id = my_turn_id
+	turn_id = my_turn_id;
 	my_turn = true;
 }
+
 
 function all_cards_selected() {
 	var short_cards = [];
@@ -101,6 +113,7 @@ function all_cards_selected() {
 		tx_multiplexed_packet("game",{'pass_cards_selected': {'received_cards':short_cards, 'turn_id':turn_id}});
 	}
 	if (game_state == IN_TRICK) {
-		tx_multiplexed_packet("game",{'trick_card_selected': {'received_cards':short_cards, 'turn_id':turn_id}});
+		tx_multiplexed_packet("game",{'trick_card_selected': {'received_cards':short_cards, 'turn_id':turn_id}});	
 	}
+	myTimer.stop();
 }

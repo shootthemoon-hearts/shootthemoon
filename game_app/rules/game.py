@@ -90,7 +90,7 @@ def how_people_placed(g):
 def finish(g):
     how_people_placed(g)
     rrz.elo_calculation(g)
-#         rrz.rank_calculation(g)
+    rrz.rank_calculation(g)
     g.active = False
     g.save()
 
