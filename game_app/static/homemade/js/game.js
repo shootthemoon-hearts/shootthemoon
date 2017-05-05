@@ -108,7 +108,7 @@ function trick_update(trick_dict) {
 	if (trick_group.getByName(trick_id.toString()) == undefined){
 		var location = new Phaser.Point(300,200);
 		var scale_factor = new Phaser.Point(0.7,0.7);
-		var pile = trick_group.addChild(new DiscardPile(game_board,relative_player_seat,100,0,0,0));
+		var pile = trick_group.addChild(new DiscardPile(game_board,relative_player_seat,100,5,8,15));
 		pile.name = trick_id.toString();
 		location.copyTo(pile.position);
 		scale_factor.copyTo(pile.scale);
