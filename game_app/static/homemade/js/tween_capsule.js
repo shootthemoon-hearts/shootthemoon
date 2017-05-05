@@ -13,7 +13,8 @@ TweenCapsule.relativeGeometry = function(object,object_base){
 	return {
 		'position':Phaser.Point.subtract(object.worldPosition,object_base.worldPosition).rotate(0,0,-object_base.worldRotation),
 		'rotation':object.worldRotation - object_base.worldRotation,
-		'scale':   Phaser.Point.divide(object.worldScale,object_base.worldScale),
+		'scale':   new Phaser.Point(1,1),
+		//'scale':   Phaser.Point.divide(object.worldScale,object_base.worldScale),
 	}
 }
 

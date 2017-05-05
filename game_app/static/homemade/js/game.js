@@ -106,10 +106,12 @@ function trick_update(trick_dict) {
 	}
 	trick_group.forEachDead(trick_group.remove, trick_group, true, true);
 	if (trick_group.getByName(trick_id.toString()) == undefined){
-		//var pile = trick_group.addChild(new DiscardPile(game_board,0,100,20,5,30));
+		var location = new Phaser.Point(300,200);
+		var scale_factor = new Phaser.Point(0.7,0.7);
 		var pile = trick_group.addChild(new DiscardPile(game_board,relative_player_seat,100,0,0,0));
 		pile.name = trick_id.toString();
-		pile.x = 300; pile.y = 200;
+		location.copyTo(pile.position);
+		scale_factor.copyTo(pile.scale);
 	}
 	if (relative_player_seat ==0){
 		turn_id = trick_id;
