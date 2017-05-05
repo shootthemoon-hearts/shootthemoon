@@ -19,7 +19,7 @@ TweenCapsule.relativeGeometry = function(object,object_base){
 
 TweenCapsule.forceRelativeGeometry = function(object,object_base){
 	var geometry = this.relativeGeometry(object,object_base);
-	object.position = geometry['position'];
+	object.position= geometry['position'];
 	object.rotation= geometry['rotation'];
 	object.scale   = geometry['scale'];
 }
@@ -28,15 +28,19 @@ TweenCapsule.makeTween = function(game,object,object_to_match,duration,position_
 	var target = TweenCapsule.relativeGeometry(object_to_match,object_base);
 	var move_tween = game.add.tween(object);
 	var rotation_tween = game.add.tween(object);
+	var scale_tween = game.add.tween(object.scale);	
+	
 	move_tween.to({'x':target['position'].x,'y':target['position'].y}, duration, position_easing);
 	//doesn't work
 	var equiv_rotation = (target['rotation']-object.rotation + Math.PI)%Phaser.Math.PI2 - Math.PI + object.rotation;
 	rotation_tween.to({'rotation':equiv_rotation}, duration, rotation_easing);
+	scale_tween.to({'x':target['scale'].x,'y':target['scale'].y},duration,scale_easing);
 	
 	move_tween.start();
 	rotation_tween.start();
+	scale_tween.start();
 	
-	return [move_tween,rotation_tween];
+	return [move_tween,rotation_tween,scale_tween];
 }
 
 //member functions mirroring static functions===================

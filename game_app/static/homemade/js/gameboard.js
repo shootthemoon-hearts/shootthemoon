@@ -165,9 +165,13 @@ function createGame() {
 		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(across_location_x,across_location_y+210);
 		hand_group.addChild(new Hand(game,20,50)).position = new Phaser.Point(right_location_x-210,right_location_y);
 		
+		var scale_factor = new Phaser.Point(0.6,0.6);
 		hand_group.children[1].angle =  90;
 		hand_group.children[2].angle = 180;
 		hand_group.children[3].angle = 270;
+		scale_factor.copyTo(hand_group.children[1].scale);
+		scale_factor.copyTo(hand_group.children[2].scale);
+		scale_factor.copyTo(hand_group.children[3].scale);
 		
 		trick_group = game_board.add.group();
 		
