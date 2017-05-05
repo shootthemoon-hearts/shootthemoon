@@ -7,4 +7,4 @@ class Account(models.Model):
     elo = models.IntegerField(default=1500)
     rank = models.IntegerField(default=-9)
     rank_points = models.IntegerField(default=0)
-    rank_promote = models.IntegerField(default=45)
+    #rank_promote = models.IntegerField(default=800)

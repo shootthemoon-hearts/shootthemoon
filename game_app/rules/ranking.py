@@ -116,10 +116,10 @@ def rank_calculation(game):
         for i in range(0,len(accounts)):
             accounts[player_list.index(player_list[i])].rank = player_rank[i]
             accounts[player_list.index(player_list[i])].rank_points = player_rank_progress[i]
-            if accounts[player_list.index(player_list[i])].rank > 0:
-                accounts[player_list.index(player_list[i])].rank_promote = (accounts[player_list.index(player_list[i])].rank)*400
-            else:
-                accounts[player_list.index(player_list[i])].rank_promote = 45
+            #if accounts[player_list.index(player_list[i])].rank > 0:
+                #accounts[player_list.index(player_list[i])].rank_promote = (accounts[player_list.index(player_list[i])].rank)*400
+            #else:
+                #accounts[player_list.index(player_list[i])].rank_promote = 45
             accounts[player_list.index(player_list[i])].save()
   
 def elo_calculation(game):
