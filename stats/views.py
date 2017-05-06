@@ -7,7 +7,7 @@ from game_app.models.account import Account
 
 GAME_STR = 'game_history'
 ELO_STR = 'elo'
-RANK_STR = 'rank'
+#RANK_STR = 'rank'
 PLACEMENT_STR = 'Placement'
 DATE_PLAYED = 'Date Played'
 
@@ -18,9 +18,9 @@ def index(request):
     context[GAME_STR] = game_json
     
     elo = _get_elo_json(request)
-    rank = _get_rank_json(request)
+    #rank = _get_rank_json(request)
     context[ELO_STR] = elo
-    context[RANK_STR] = rank
+    #context[RANK_STR] = rank
     return render(request, 'stats/index.html', context=context)
 
 def _get_game_history_json(request):
@@ -47,8 +47,8 @@ def _get_elo_json(request):
     
     return elo
 
-def _get_rank_json(request):
-    account = Account.objects.get(user=request.user)
-    rank = account.rank
+#def _get_rank_json(request):
+    #account = Account.objects.get(user=request.user)
+    #rank = account.rank
     
-    return rank
+    #return rank

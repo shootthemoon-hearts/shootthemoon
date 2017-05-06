@@ -25,7 +25,16 @@ def start(tt):
     send_turn_notification(tt)
     
 def card_discarded(tt, player, discard, turn_id):
+    validated = False
     if player.position == tt.expected_seat  and tt.id == turn_id:
+        if tt.expected_seat == tt.first_seat:
+            valid_cards = valid_cards_leader(tt,player.hand)
+        else:
+            valid_cards = valid_cards_follower(tt,player.hand)
+        #
+        if discard in valid_cards:
+            validated = True
+    if validated == True:
         with transaction.atomic():
             tt = TrickTurn.objects.select_for_update().get(id=tt.id)
             tt.discards.append(discard)
