@@ -6,8 +6,9 @@ CardGrouping.prototype = Object.create(Phaser.Group.prototype);
 CardGrouping.prototype.constructor = CardGrouping;
 CardGrouping.prototype.classType = CardSprite;
 
-CardGrouping.prototype.materialize = function(card_sprites,position,duration,relativeFlag=true,forward=true){
+CardGrouping.prototype.materialize = function(card_sprites,position,duration,delay,relativeFlag=true,forward=true){
 	var card_sprite, move_tween, vis_tween, destPoint;
+	var autostart = false;
 	for (var i=0;i<card_sprites.length;i++){
 		card_sprite = card_sprites[i];
 		move_tween = this.game.add.tween(card_sprite);
@@ -20,11 +21,11 @@ CardGrouping.prototype.materialize = function(card_sprites,position,duration,rel
 		}
 		
 		if (forward){
-			move_tween.from({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out);
-			vis_tween.to({alpha:1} , duration, Phaser.Easing.Linear.None);
+			move_tween.from({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out,autostart,delay);
+			vis_tween.to({alpha:1} , duration, Phaser.Easing.Linear.None,autostart,delay);
 		}else{
-			move_tween.to({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out);
-			vis_tween.to({alpha:0} , duration, Phaser.Easing.Linear.None);
+			move_tween.to({x:destPoint.x,y:destPoint.y}, duration, Phaser.Easing.Cubic.Out,autostart,delay);
+			vis_tween.to({alpha:0} , duration, Phaser.Easing.Linear.None,autostart,delay);
 			vis_tween.onComplete.add(function(sprite,tween){this.remove(sprite,true,true)},this);
 		}
 		move_tween.start();
@@ -32,9 +33,9 @@ CardGrouping.prototype.materialize = function(card_sprites,position,duration,rel
 	}
 }
 
-CardGrouping.prototype.dematerialize = function(card_sprites,position,duration,relativeFlag=true){
+CardGrouping.prototype.dematerialize = function(card_sprites,position,duration,delay,relativeFlag=true){
 	var forward = false;
-	this.materialize(card_sprites,position,duration,relativeFlag,forward);
+	this.materialize(card_sprites,position,duration,delay,relativeFlag,forward);
 }
 
 CardGrouping.prototype.getPositions = function(number_of_cards){
@@ -76,18 +77,18 @@ CardGrouping.prototype.applyPositions = function(card_sprites){
 	}
 }
 
-CardGrouping.prototype.slideToPositions = function(card_sprites,duration){
+CardGrouping.prototype.slideToPositions = function(card_sprites,duration,delay){
 	var geometry = this.getGeometryByCardSprite(card_sprites);
 	for (var i=0;i<card_sprites.length;i++){
 		var move_tween = this.game.add.tween(card_sprites[i]);
+		var autostart = true;
 		move_tween.to(
 				{'x':geometry['position'][i].x,'y':geometry['position'][i].y,'angle':geometry['angle'][i]},
-				duration, Phaser.Easing.Cubic.Out);
-		move_tween.start();
+				duration, Phaser.Easing.Cubic.Out,autostart,delay);
 	}
 }
 
-CardGrouping.prototype.slideToPositionCopies = function(card_sprites, card_sprites_to_copy, duration, flip_duration=600,
+CardGrouping.prototype.slideToPositionCopies = function(card_sprites, card_sprites_to_copy, duration, flip_duration, delay,
 		position_easing=Phaser.Easing.Cubic.Out, rotation_easing=Phaser.Easing.Cubic.Out, scale_easing= Phaser.Easing.Cubic.Out){
 	var num_pairs = card_sprites.length;
 	var capsules = [];
@@ -96,14 +97,14 @@ CardGrouping.prototype.slideToPositionCopies = function(card_sprites, card_sprit
 	}
 	this.game.stage.updateTransform();
 	for (var i=0;i<num_pairs;i++){
-		capsules[i].makeTween(card_sprites_to_copy[i],duration,position_easing,rotation_easing,scale_easing);
-		card_sprites[i].reveal(flip_duration);
+		capsules[i].makeTween(card_sprites_to_copy[i],duration,delay,position_easing,rotation_easing,scale_easing);
+		card_sprites[i].reveal(flip_duration,delay);
 	}
 	return capsules;
 }
 
-CardGrouping.prototype.throwToPositionCopies = function(card_sprites,card_sprites_to_copy,duration,flip_duration = 600){
-	return this.slideToPositionCopies(card_sprites,card_sprites_to_copy,duration,flip_duration,
+CardGrouping.prototype.throwToPositionCopies = function(card_sprites,card_sprites_to_copy,duration,flip_duration,delay){
+	return this.slideToPositionCopies(card_sprites,card_sprites_to_copy,duration,flip_duration,delay,
 			Phaser.Easing.Cubic.Out,Phaser.Easing.Cubic.Out,Phaser.Easing.Cubic.Out);
 }
 
@@ -172,7 +173,7 @@ CardGrouping.prototype.setAlive = function(display_objects,setting=true){
 	}
 }
 
-CardGrouping.prototype.updateCardState = function(cards,duration){
+CardGrouping.prototype.updateCardState = function(cards,duration,delay){
 	var groups = this.findCardSprites(cards);
 	
 	var card_sprites_to_slide  = groups['matched'];
@@ -182,9 +183,9 @@ CardGrouping.prototype.updateCardState = function(cards,duration){
 	
 	this.setAlive(card_sprites_to_delete,false);
 	this.applyPositions(card_sprites_to_create);
-	this.slideToPositions(card_sprites_to_slide,duration);
-	this.materialize(card_sprites_to_create,new Phaser.Point(0,-10),duration);
-	this.dematerialize(card_sprites_to_delete,new Phaser.Point(0,10),duration);
+	this.slideToPositions(card_sprites_to_slide,duration,delay);
+	this.materialize(card_sprites_to_create,new Phaser.Point(0,-10),duration,delay);
+	this.dematerialize(card_sprites_to_delete,new Phaser.Point(0,10),duration,delay);
 }
 
 CardGrouping.prototype.revealAll = function(duration=400){
@@ -214,38 +215,43 @@ CardGrouping.prototype.getCardList = function(){
 
 
 
-CardGrouping.prototype.passToCardGroup = function(cards,cardGrouping,duration=1000){
+CardGrouping.prototype.passToCardGroup = function(cards,cardGrouping,duration,delay){
 	var groups = this.findCardSprites(cards);
 	if (groups['unmatched'].length > 1){
+		var sub_duration = duration/8;
 		var current_cards = this.getCardList();
-		this.updateCardState(current_cards.concat(groups['unmatched']));
+		this.updateCardState(current_cards.concat(groups['unmatched']),sub_duration,delay);
 		groups = this.findCardSprites(cards);
+		duration -= sub_duration;
+		delay += sub_duration;
 	}
 	
-	var substitute_card_sprites = cardGrouping.prepareToReceivePass(cards);
+	var substitute_card_sprites = cardGrouping.prepareToReceivePass(cards,duration,delay);
 	
 	this.setAlive(groups['matched'],false);
-	this.slideToPositions(groups['unused']);
+	this.slideToPositions(groups['unused'],duration,delay);
 	this.setAlive(groups['matched'],true);
-	var tween_capsules = this.slideToPositionCopies(groups['matched'],substitute_card_sprites);
+	var tween_capsules = this.slideToPositionCopies(groups['matched'],substitute_card_sprites,duration,duration/3,delay);
 	
-	this.completePassToCardGroup(tween_capsules,substitute_card_sprites,cardGrouping);
-
+	var completion_duration = duration/2;
+	var completion_delay = delay+(duration-completion_duration);
+	this.completePassToCardGroup(tween_capsules,substitute_card_sprites,cardGrouping,completion_duration,completion_delay);
 }
 
-CardGrouping.prototype.completePassToCardGroup = function(card_sprites,substitute_card_sprites,cardGrouping,duration){
-	cardGrouping.completeReceivePass(card_sprites,substitute_card_sprites,duration);
+CardGrouping.prototype.completePassToCardGroup = function(card_sprites,substitute_card_sprites,cardGrouping,duration,delay){
+	cardGrouping.completeReceivePass(card_sprites,substitute_card_sprites,duration,delay);
 }
 
-CardGrouping.prototype.prepareToReceivePass = function(cards,cardGrouping){
+CardGrouping.prototype.prepareToReceivePass = function(cards,duration,delay){
+	//duration and delay not used here as there are no animations
 	var card_sprites_to_slide  = this.filter(function(child,ind,all){return child.alive},true).list;
 	var substitute_card_sprites = this.ghostAddCards(cards);
 	this.applyPositions(substitute_card_sprites);
 	return substitute_card_sprites;
 }
 
-CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_card_sprites,duration){
-	this.slideToPositions(this.getCardSpriteList(),duration);
+CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_card_sprites,duration,delay){
+	this.slideToPositions(this.getCardSpriteList(),duration,delay);
 	var num_pairs = tween_capsules.length;
 	for (i=0;i<num_pairs;i++){
 		tween_capsules[i].switchToParent(this,substitute_card_sprites[i].z);
@@ -253,11 +259,11 @@ CardGrouping.prototype.completeReceivePass = function(tween_capsules,substitute_
 	}
 }
 
-CardGrouping.prototype.fillWithFaceDowns = function(count,duration){
+CardGrouping.prototype.fillWithFaceDowns = function(count,duration,delay){
 	var cards = [];
 	for (var i=0;i<count;i++){
 		cards.push(new Card(0,'Back'));
 	}
-	this.updateCardState(cards,duration);
+	this.updateCardState(cards,duration,delay);
 }
 

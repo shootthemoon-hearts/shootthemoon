@@ -12,7 +12,7 @@ var CardSprite = function(game,x,y,suit,number) {
 CardSprite.prototype = Object.create(Phaser.Group.prototype);
 CardSprite.prototype.constructor = CardSprite;
 
-CardSprite.prototype.flipToShallow = function(suit,number,duration){
+CardSprite.prototype.flipToShallow = function(suit,number,duration,delay){
 	frame = CardSprite.convertValueToFrame(number);
 	child = this.children[0];//card should be only child
 	tmp_width = this.width;
@@ -24,15 +24,15 @@ CardSprite.prototype.flipToShallow = function(suit,number,duration){
 	half_flip_a.start();
 }
 
-CardSprite.prototype.flipTo = function(suit,number, duration){
-	this.flipToShallow(suit,number,duration);
+CardSprite.prototype.flipTo = function(suit,number,duration,delay){
+	this.flipToShallow(suit,number,duration,delay);
 	this.card = new Card(suit,number);
 }
 
-CardSprite.prototype.reveal = function(duration){
+CardSprite.prototype.reveal = function(duration,delay){
 	if (this.children[0].key != this.card.suit || 
 			CardSprite.convertValueToFrame(this.children[0].frame,false) != this.card.number){
-		this.flipToShallow(this.card.suit,this.card.number,duration);
+		this.flipToShallow(this.card.suit,this.card.number,duration,delay);
 	}
 }
 

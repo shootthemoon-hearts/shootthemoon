@@ -25,17 +25,18 @@ TweenCapsule.forceRelativeGeometry = function(object,object_base){
 	object.scale   = geometry['scale'];
 }
 
-TweenCapsule.makeTween = function(game,object,object_to_match,duration,position_easing,rotation_easing,scale_easing,object_base=object.parent){
+TweenCapsule.makeTween = function(game,object,object_to_match,duration,delay,position_easing,rotation_easing,scale_easing,object_base=object.parent){
 	var target = TweenCapsule.relativeGeometry(object_to_match,object_base);
 	var move_tween = game.add.tween(object);
 	var rotation_tween = game.add.tween(object);
-	var scale_tween = game.add.tween(object.scale);	
+	var scale_tween = game.add.tween(object.scale);
+	var autostart = false;
 	
-	move_tween.to({'x':target['position'].x,'y':target['position'].y}, duration, position_easing);
+	move_tween.to({'x':target['position'].x,'y':target['position'].y}, duration, position_easing,autostart,delay);
 	//doesn't work
 	var equiv_rotation = (target['rotation']-object.rotation + Math.PI)%Phaser.Math.PI2 - Math.PI + object.rotation;
-	rotation_tween.to({'rotation':equiv_rotation}, duration, rotation_easing);
-	scale_tween.to({'x':target['scale'].x,'y':target['scale'].y},duration,scale_easing);
+	rotation_tween.to({'rotation':equiv_rotation}, duration, rotation_easing,autostart,delay);
+	scale_tween.to({'x':target['scale'].x,'y':target['scale'].y},duration,scale_easing,autostart,delay);
 	
 	move_tween.start();
 	rotation_tween.start();
@@ -53,8 +54,8 @@ TweenCapsule.prototype.forceRelativeGeometry = function(object){
 	TweenCapsule.forceRelativeGeometry(object,this);
 }
 
-TweenCapsule.prototype.makeTween = function(object_to_match,duration,position_easing,rotation_easing,scale_easing){
-	var tweens = TweenCapsule.makeTween(this.game,this.children[0],object_to_match,duration,position_easing,rotation_easing,scale_easing,this);
+TweenCapsule.prototype.makeTween = function(object_to_match,duration,delay,position_easing,rotation_easing,scale_easing){
+	var tweens = TweenCapsule.makeTween(this.game,this.children[0],object_to_match,duration,delay,position_easing,rotation_easing,scale_easing,this);
 	this.listenToTweens(tweens);
 	return tweens;
 }

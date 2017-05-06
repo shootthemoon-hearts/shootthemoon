@@ -57,11 +57,13 @@ function got_scores(score_list_dict){
 }
 
 function got_discard(card_player_dict){
+	var delay = 0;
+	var duration = 2000;
 	var trick_id = card_player_dict["id"];
 	var relative_player_seat = relative_seat(card_player_dict["player"],player_pos);
 	var card = Card.CardsFromJSON(card_player_dict["card"])[0];
 	var discard_pile = trick_group.getByName(trick_id.toString());
-	hand_group.children[relative_player_seat].passToCardGroup([card],discard_pile);
+	hand_group.children[relative_player_seat].passToCardGroup([card],discard_pile,duration,delay);
 }
 
 function got_valid_cards(card_str){
@@ -79,13 +81,15 @@ function is_card_valid(card){
 }
 
 function got_cards(card_str) {
+	var delay = 0;
+	var duration = 500;
     cards = Card.CardsFromJSON(card_str);
     player_cards = cards;
-    hand_group.children[0].updateCardState(player_cards,500);
+    hand_group.children[0].updateCardState(player_cards,duration,delay);
     if (cards.length == 13){
-    	hand_group.children[1].fillWithFaceDowns(13,500);
-    	hand_group.children[2].fillWithFaceDowns(13,500);
-    	hand_group.children[3].fillWithFaceDowns(13,500);
+    	hand_group.children[1].fillWithFaceDowns(13,duration,delay);
+    	hand_group.children[2].fillWithFaceDowns(13,duration,delay);
+    	hand_group.children[3].fillWithFaceDowns(13,duration,delay);
     }
     
 }
@@ -108,14 +112,14 @@ function trick_update(trick_dict) {
 	var trick_id = trick_dict['id'];
 	var relative_player_seat = relative_seat(trick_dict["player"],player_pos);
 	var time_info = trick_dict['time_info'];
-	if (trick_group.countLiving() > 1){
+	if (trick_group.countLiving() > 1){//kill extra tricks still alive
 		var to_die = trick_group.countLiving() -1;
 		for (var i=0; i<to_die; i++){
 			trick_group.children[i].alive = false;
 		}
 	}
-	trick_group.forEachDead(trick_group.remove, trick_group, true, true);
-	if (trick_group.getByName(trick_id.toString()) == undefined){
+	trick_group.forEachDead(trick_group.remove, trick_group, true, true); //remove dead tricks
+	if (trick_group.getByName(trick_id.toString()) == undefined){//didn't find trick named for turn id
 		var location = new Phaser.Point(300,200);
 		var scale_factor = new Phaser.Point(0.7,0.7);
 		var pile = trick_group.addChild(new DiscardPile(game_board,relative_player_seat,100,5,8,15));
