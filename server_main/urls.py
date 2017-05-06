@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^game/', include('game_app.urls', namespace='game_app')),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^stats/', include('stats.urls', namespace='stats')),
+    url(r'^about/', include('about.urls', namespace='about')),
     url(r'', include('home_page.urls', namespace='home_page'))
 ]
