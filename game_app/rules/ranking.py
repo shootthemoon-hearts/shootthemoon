@@ -3,112 +3,124 @@ from game_app.models.game import Game
 from django.db import transaction
 
 
-def rank_calculation(game, place_list):
-    
-    placings = place_list
+def rank_calculation(game):
     
     ################################
     #Rank Points Section
     ################################
     
     player_rank = []
+    accounts = []
     
-    for i in range(0,len(game.player_set.all())):
-        player_rank.append(game.player_set.all()[i].accounts.rank) # -3 new moon iv, -2 new moon iii,
-    # -1 new moon ii, 0 new moon i, (main lobby)
-    ##
-    ## 1 waxing crescent I, 2 waxing crescent II, 3 waxing crescent III
-    ##
-    ## 4 half moon IV, 5 half moon V, 6 half moon VI
-    ##
-    ## 7 waxing gibbous VII, 8 waxing gibbous VIII, 9 waxing gibbous IX,
-    ##
-    ## 10 full moon X, 11 full moon XI, 12 full moon XII, 13 full moon XIII
-    ##
-    ## 14 harvest moon XIV, 15 harvest moon XV, 16 harvest moon XVI,
-    ## 17 harvest moon XVII, 18 harvest moon XVIII
-    ##
-    ## 19 blue moon XIX, 20 blue moon XX
+    player_list = [player for player in game.player_set.all()]
+    player_list.sort(key=lambda player: player.place_this_game)
     
-    #######
-    #player rank progress list of stuff
-    ######
-    # if a player above 1st Dan) falls below zero rank progress they are demoted, ie -25/400  rank progress
-    #getting set to the x/2x default
-    # for the rank they are demoted to.
-    # if a player hits the ceiling, they are promoted, set to the x/2x default, blah blah blah
-    # 1 -- 200/400
-    # 2 -- 400/800
-    # 3 -- 600/1200
-    # 4 -- 800/1600
-    # 5 -- 1000/2000
-    # 6 -- 1200/2400
-    # 7 -- 1400/2800
-    # etc...
-    
-    # the equation is defaults = rank x 200 (out of) rank x 400
-    
-    player_rank_progress = []
-    
-    for i in range(0,len(game.player_set.all())):
-        player_rank_progress.append(game.player_set.all()[i].accounts.rank_points)
-    
-    #rank_floor = less than zero
-    
-    which_lobby = 0 #TODO: CHANGE THIS LATER #### 0 = main lobby (new moon), 1 = waxing crescent
-    # 2 = half moon, 3 = waxing gibbous, 4 = full moon, 5 = harvest moon, 6 = blue moon
-    
-    first_place_reward = [45,60,75,90,120,160,210] #lobby respective
-    
-    second_place_reward = [0,15,30,45,60,80,105] #dhgdshgkhsdjg
-    
-    third_place_reward = [0,0,0,0,0,0,0,0] #nothing for now, but it is here because maybe we
-    # wanna change that later or for some lobby idk
-    
-    rank_based_fourth_punishments = [0,-45,-60,-75,-90,-105,-120,-135,-150,-165,-180,-195,-210,-225,-240,-255,-270,-285,-300,-315,-330, 0, 0, 0]
-    # for -3 through 20
-    
-    reward = []
-    
-    reward.append(first_place_reward[which_lobby])
-    reward.append(second_place_reward[which_lobby])
-    reward.append(third_place_reward[which_lobby])
-    reward.append(rank_based_fourth_punishments[player_rank[3]])
-    
-    player_rank_progress_changed = []
-    
-    for i in range(0, len(game.player_set.all())):
-        player_rank_progress_changed.append(player_rank_progress[i] + reward[i])
-    
-    for i in range(0, len(game.player_set.all())):
-        if player_rank[i] < 0:
-            if player_rank_progress_changed[i] == 0:
-                player_rank_progress[i] = 0
-            else:
-                player_rank_progress[i] = 0
+    '''I think players should actually have to win around 10 games before they can be able to
+    enter the first semi-serious lobby, and so the starting rank should be -9'''
+    with transaction.atomic():
+        account = Account.objects.select_for_update().filter(user__id = player.user.id).get()
+        #player_rank.append(account.rank)
+        accounts.append(account)
+        for i in range(0,len(player_list)):
+            player_rank.append(accounts[i].rank) # -3 new moon iv, -2 new moon iii,
+        # -1 new moon ii, 0 new moon i, (main lobby)
+        ##
+        ## 1 waxing crescent I, 2 waxing crescent II, 3 waxing crescent III
+        ##
+        ## 4 half moon IV, 5 half moon V, 6 half moon VI
+        ##
+        ## 7 waxing gibbous VII, 8 waxing gibbous VIII, 9 waxing gibbous IX,
+        ##
+        ## 10 full moon X, 11 full moon XI, 12 full moon XII, 13 full moon XIII
+        ##
+        ## 14 harvest moon XIV, 15 harvest moon XV, 16 harvest moon XVI,
+        ## 17 harvest moon XVII, 18 harvest moon XVIII
+        ##
+        ## 19 blue moon XIX, 20 blue moon XX
+        
+        #######
+        #player rank progress list of stuff
+        ######
+        # if a player above 1st Dan) falls below zero rank progress they are demoted, ie -25/400  rank progress
+        #getting set to the x/2x default
+        # for the rank they are demoted to.
+        # if a player hits the ceiling, they are promoted, set to the x/2x default, blah blah blah
+        # 1 -- 200/400
+        # 2 -- 400/800
+        # 3 -- 600/1200
+        # 4 -- 800/1600
+        # 5 -- 1000/2000
+        # 6 -- 1200/2400
+        # 7 -- 1400/2800
+        # etc...
+        
+        # the equation is defaults = rank x 200 (out of) rank x 400
+        
+        player_rank_progress = []
+        
+        for i in range(0,len(player_list)):
+            player_rank_progress.append(accounts[i].rank_points)
+        
+        #rank_floor = less than zero
+        
+        which_lobby = 0 #TODO: CHANGE THIS LATER #### 0 = main lobby (new moon), 1 = waxing crescent
+        # 2 = half moon, 3 = waxing gibbous, 4 = full moon, 5 = harvest moon, 6 = blue moon
+        
+        first_place_reward = [45,60,75,90,120,160,210] #lobby respective
+        
+        second_place_reward = [0,15,30,45,60,80,105] #dhgdshgkhsdjg
+        
+        third_place_reward = [0,0,0,0,0,0,0,0] #nothing for now, but it is here because maybe we
+        # wanna change that later or for some lobby idk
+        
+        rank_based_fourth_punishments = [0,-45,-60,-75,-90,-105,-120,-135,-150,-165,-180,-195,-210,-225,-240,-255,-270,-285,-300,-315,-330, 0, 0, 0]
+        # for -3 through 20
+        
+        reward = []
+        
+        reward.append(first_place_reward[which_lobby])
+        reward.append(second_place_reward[which_lobby])
+        reward.append(third_place_reward[which_lobby])
+        reward.append(rank_based_fourth_punishments[player_rank[3]])
+        
+        player_rank_progress_changed = []
+        
+        for i in range(0, len(player_list)):
+            player_rank_progress_changed.append(player_rank_progress[i] + reward[i])
+        
+        for i in range(0, len(player_list)):
+            if player_rank[i] < 0:
+                if player_rank_progress_changed[i] == 0:
+                    player_rank_progress[i] = 0
+                else:
+                    player_rank_progress[i] = 0
+                    player_rank[i] += 1
+            elif player_rank[i] == 0:
+                if player_rank_progress_changed[i] == 0:
+                    player_rank_progress[i] = 0
+                else:
+                    player_rank_progress[i] = 200
+                    player_rank[i] += 1
+            elif player_rank_progress_changed[i] < 0:
+                if player_rank[i] == 1:
+                    player_rank_progress[i] = 0
+                else:
+                    player_rank[i] -= 1
+                    player_rank_progress[i] = 200*player_rank[i]
+            elif player_rank_progress_changed[i] >= (player_rank[i]*400):
                 player_rank[i] += 1
-        elif player_rank[i] == 0:
-            if player_rank_progress_changed[i] == 0:
-                player_rank_progress[i] = 0
-            else:
-                player_rank_progress[i] = 200
-                player_rank[i] += 1
-        elif player_rank_progress_changed[i] < 0:
-            if player_rank[i] == 1:
-                player_rank_progress[i] = 0
-            else:
-                player_rank[i] -= 1
                 player_rank_progress[i] = 200*player_rank[i]
-        elif player_rank_progress_changed[i] >= (player_rank[i]*400):
-            player_rank[i] += 1
-            player_rank_progress[i] = 200*player_rank[i]
-        else:
-            player_rank_progress[i] = player_rank_progress_changed[i]
-    
-    for i in range(0,len(game.player_set.all())):
-        game.player_set.all()[placings[i]].new_rank = player_rank[i]
-        game.player_set.all()[placings[i]].new_rank_progress = player_rank_progress[i]
-        game.player_set.all()[placings[i]].save()
+            else:
+                player_rank_progress[i] = player_rank_progress_changed[i]
+        
+        for i in range(0,len(accounts)):
+            accounts[player_list.index(player_list[i])].rank = player_rank[i]
+            accounts[player_list.index(player_list[i])].rank_points = player_rank_progress[i]
+            #if accounts[player_list.index(player_list[i])].rank > 0:
+                #accounts[player_list.index(player_list[i])].rank_promote = (accounts[player_list.index(player_list[i])].rank)*400
+            #else:
+                #accounts[player_list.index(player_list[i])].rank_promote = 45
+            accounts[player_list.index(player_list[i])].save()
   
 def elo_calculation(game):
     

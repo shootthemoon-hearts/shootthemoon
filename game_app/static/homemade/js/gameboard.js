@@ -27,66 +27,6 @@ var across_location_y = (board_height/30);
 var right_location_x = (board_length/1.04);
 var right_location_y = (board_height/2);
 
-function temp_card_func(hand){
-	var cards = [
-		new Card(0,'Clubs'),
-		new Card(1,'Clubs'),
-		new Card(12,'Clubs'),
-		new Card(4,'Clubs'),		
-		new Card(11,'Clubs'),	
-	];
-	hand.updateCardState(cards);
-}
-
-function temp_temp(a){
-	var x = 1;
-	x++;
-}
-
-function show_facedown_cards(game_board, player_cards) {
-	
-	var handA = new Hand(game_board,20,50);
-	var handB = new Hand(game_board,20,50);
-	handA.x=150;handA.y=80;
-	handB.x=300;handB.y=300;handB.angle=-60;
-	var cardsA = [
-		new Card(0,'Clubs'),
-		new Card(1,'Clubs'),
-		new Card(2,'Clubs'),
-		new Card(3,'Clubs'),		
-		new Card(4,'Clubs'),	
-	];
-	handA.updateCardState(cardsA);
-	handB.fillWithFaceDowns(5);
-	
-	var timer = game_board.time.create(true);
-	timer.add(2000,temp_card_func,this,handA);
-	timer.add(4000,handA.hideAll,handA);
-	timer.add(6000,handA.revealAll,handA);
-	timer.add(7000,handB.passToCardGroup,handB,[new Card(0,'Hearts'),new Card(4,'Hearts'),new Card(12,'Hearts')],handA);
-	timer.add(9000,handA.passToCardGroup,handA,[new Card(0,'Clubs'),new Card(4,'Clubs'),new Card(12,'Clubs')],handB);
-	timer.add(11000,handB.passToCardGroup,handB,[new Card(0,'Hearts'),new Card(4,'Hearts')],handA);
-	timer.start();
-	/**
-	if(sprite_group != null){
-		sprite_group.destroy();
-	}
-	sprite_group = game_board.add.group();
-	
-    total_hor_space_of_cards = 300;
-    hor_start_x = board_length/2 - (total_hor_space_of_cards/2);
-    hor_end_x = board_length/2 + (total_hor_space_of_cards/2 - 60);
-    ver_start_x = board_height/2 - (total_hor_space_of_cards/2) + 70;
-    ver_end_x = board_height/2 + (total_hor_space_of_cards/2 - 60) + 80;
-
-    createHorizontalCards([], 50, hor_start_x, hor_end_x, game_board);
-    createHorizontalCards(player_cards, board_height - 50 - 130, hor_start_x, hor_end_x, game_board);
-    createVerticalCards(50, ver_start_x, ver_end_x, game_board);
-    createVerticalCards(board_length - 50 - 60 - 40, ver_start_x, ver_end_x, game_board);
-    */
-}
-
-
 function mouseOn(sprite) {
 	if (my_turn && is_card_valid(sprite.card)) {
 		if (!sprite.clicked) {
@@ -176,6 +116,10 @@ function createGame() {
 		scale_factor.copyTo(hand_group.children[3].scale);
 		
 		trick_group = game_board.add.group();
+
+		myTimer = new Timer(game_board);
+		game_board.stage.addChild(myTimer.textDisplay);
+
 		
 		/// creating the not someone's turn indicators at near-player-card locations  ///
 		create_turn_indicator(game_board, my_location_x + 33, my_location_y,"turn_no");

@@ -5,21 +5,19 @@ from game_app.multiplex_transmit import game_transmit
 from game_app.deck import Deck
 from game_app.card import Card
 
-from . import game as grz
-from . import trick_turn as trrz
-from . import pass_round as prrz
+from game_app.rules import game
+from game_app.rules import trick_turn
+from game_app.rules import pass_round
+from game_app.rules.game_phases import GamePhases
 
 from game_app.models.pass_round import PassRound
 from game_app.models.trick_turn import TrickTurn
-
-PHASE_TRICK = 'IN_TRICK'
-PHASE_PASS = 'PHASE_PASS'
 
 
 def setup(game_round, game, number):
     '''Sets up the given GameRound object and adds it to the given game.
     
-    This function guarentees a save of the GameRound object.
+    This function guarantees a save of the GameRound object.
     
     Arguments:
         game_round: the GameRound database entry
@@ -88,19 +86,19 @@ def determine_passing(gr):
     return direction
 
 def add_pass_phase(gr,pass_direction):
-    gr.phase = PHASE_PASS
+    gr.phase = GamePhases.PASS
     gr.save()
     send_group_the_phase(gr)
     pr = PassRound()
-    prrz.setup(pr,gr,pass_direction)
+    pass_round.setup(pr, gr, pass_direction)
     send_players_initial_valid_cards(gr)
-    prrz.start(pr)
+    pass_round.start(pr)
     
 def bypass_pass_phase(gr):
     add_first_trick_phase(gr)
     
 def add_first_trick_phase(gr):
-    gr.phase = PHASE_TRICK
+    gr.phase = GamePhases.TRICK
     gr.save()
     add_trick_phase(gr,what_seat_has_two_of_clubs(gr))
 
@@ -110,8 +108,8 @@ def add_trick_phase(gr,seat_to_go_first):
     else:
         send_group_the_phase(gr)
         tr = TrickTurn()
-        trrz.setup(tr,gr,len(gr.trickturn_set.all()),seat_to_go_first,gr.hearts_broken)
-        trrz.start(tr)
+        trick_turn.setup(tr, gr, len(gr.trickturn_set.all()), seat_to_go_first, gr.hearts_broken)
+        trick_turn.start(tr)
 
 def what_seat_has_two_of_clubs(gr):
     two_of_clubs = Card(2,'Clubs')
@@ -120,7 +118,7 @@ def what_seat_has_two_of_clubs(gr):
             return player.position
 
 def send_group_the_phase(gr):
-    grz.send_group_the_phase(gr.game,gr.phase)
+    game.send_group_the_phase(gr.game, gr.phase)
     
 def finish(gr):
     gr.active = False
@@ -138,8 +136,7 @@ def finish(gr):
     for i in players:
         i.game_points += i.hand_points
         i.save()
-    grz.add_round(gr.game)
+    game.add_round(gr.game)
 
-        
 
-            
+

@@ -12,12 +12,11 @@ from game_app.rules import game_round
 from game_app.rules import pass_round
 from game_app.rules import trick_turn
 from game_app.rules import ranking
+from game_app.rules.game_phases import GamePhases
 
 POINTS_TO_WIN = 100
 
 GAME_GROUP_CHANNEL_PREFIX= 'game_'
-
-PHASE_BEFORE_GAME = 'BEFORE_GAME' 
 
 def setup(game, players, delay):
     '''Sets up the game and player database objects. 
@@ -35,7 +34,8 @@ def setup(game, players, delay):
     # the game needs to get saved before the players get added
     for player in players:
         add_player(game, player, game.group_channel)
-    send_group_the_phase(game, PHASE_BEFORE_GAME)
+
+    send_group_the_phase(game, GamePhases.BEFORE_GAME)
     
     delay_message = {
         'channel':'game_command',
@@ -189,8 +189,7 @@ def finish(game):
     '''
     save_how_people_placed(game)
     ranking.elo_calculation(game)
-    #TODO: Reimplement rank_calculation
-#         ranking.rank_calculation(game)
+    ranking.rank_calculation(game)
     game.active = False
     game.save()
 

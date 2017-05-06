@@ -14,9 +14,7 @@ var cards_to_select = 3;
 var turn_id = 0;
 var hand_group = null;
 var trick_group = null;
-
-
-
+var myTimer = null;
 
 var game_state = BEFORE_GAME;
 
@@ -37,6 +35,17 @@ function init_game(game_info_dict) {
 
 function relative_seat(seat,base_seat){
 	return (seat-base_seat+4)%4;
+}
+
+function got_time_info(time_list){
+	start_time = time_list[0];
+	base_time = time_list[1];
+	bank_time = time_list[2];
+	
+	if(myTimer != null){
+		myTimer.startCountdown(start_time,1000,base_time,bank_time);
+	}
+	
 }
 
 function got_scores(score_list_dict){
@@ -98,6 +107,7 @@ function new_game_phase(phase) {
 function trick_update(trick_dict) {
 	var trick_id = trick_dict['id'];
 	var relative_player_seat = relative_seat(trick_dict["player"],player_pos);
+	var time_info = trick_dict['time_info'];
 	if (trick_group.countLiving() > 1){
 		var to_die = trick_group.countLiving() -1;
 		for (var i=0; i<to_die; i++){
@@ -116,10 +126,12 @@ function trick_update(trick_dict) {
 	if (relative_player_seat ==0){
 		turn_id = trick_id;
 		my_turn = true;
+		got_time_info(time_info);
 	}else{
 		my_turn = false;
 	}
 }
+
 
 function all_cards_selected() {
 	var short_cards = [];
@@ -132,6 +144,7 @@ function all_cards_selected() {
 		tx_multiplexed_packet("game",{'pass_cards_selected': {'received_cards':short_cards, 'turn_id':turn_id}});
 	}
 	if (game_state == IN_TRICK) {
-		tx_multiplexed_packet("game",{'trick_card_selected': {'received_cards':short_cards, 'turn_id':turn_id}});
+		tx_multiplexed_packet("game",{'trick_card_selected': {'received_cards':short_cards, 'turn_id':turn_id}});	
 	}
+	myTimer.stop();
 }
