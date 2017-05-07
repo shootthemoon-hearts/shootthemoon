@@ -1,5 +1,6 @@
 var CardGrouping = function(game) {
 	Phaser.Group.call(this, game);
+	this.classType = CardSprite;
 }
 
 CardGrouping.prototype = Object.create(Phaser.Group.prototype);

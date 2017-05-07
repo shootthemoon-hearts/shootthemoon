@@ -14,6 +14,7 @@ var cards_to_select = 3;
 var turn_id = 0;
 var hand_group = null;
 var trick_group = null;
+var deck_group = null;
 var myTimer = null;
 
 var game_state = BEFORE_GAME;

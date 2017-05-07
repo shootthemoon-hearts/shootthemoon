@@ -115,6 +115,11 @@ function createGame() {
 		scale_factor.copyTo(hand_group.children[2].scale);
 		scale_factor.copyTo(hand_group.children[3].scale);
 		
+        deck_group = game_board.add.group();
+    	deck_group.addChild(new Deck(game,1,500)).position = new Phaser.Point(game_board.width/2,game_board.height/2);
+    	scale_factor.copyTo(deck_group.children[0].scale);
+    	deck_group.children[0].dealNoReveal(hand_group.children,5000,0);
+		
 		trick_group = game_board.add.group();
 
 		myTimer = new Timer(game_board);
@@ -162,7 +167,7 @@ function createGame() {
         p1.fill = "red";
         p2.fill = "green";
         p3.fill = "yellow";
-        ///-///
+        ///-///        
 	}
 	
 	/**
