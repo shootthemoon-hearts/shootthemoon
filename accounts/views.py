@@ -48,6 +48,7 @@ def sign_up(request):
         if form.is_valid():
             user = User.objects.create_user(form.data['user_name'], None, form.data['password'])
             Account.objects.create(user=user)
+            auth.login(request,user)
             return HttpResponseRedirect('/')
 
     # if a GET (or any other method) we'll create a blank form
