@@ -87,6 +87,7 @@ function got_cards(card_str) {
     cards = Card.CardsFromJSON(card_str);
     player_cards = cards;
     hand_group.children[0].updateCardState(player_cards,duration,delay);
+    hand_group.children[0].revealAll()
     if (cards.length == 13){
     	hand_group.children[1].fillWithFaceDowns(13,duration,delay);
     	hand_group.children[2].fillWithFaceDowns(13,duration,delay);

@@ -189,16 +189,16 @@ CardGrouping.prototype.updateCardState = function(cards,duration,delay){
 	this.dematerialize(card_sprites_to_delete,new Phaser.Point(0,10),duration,delay);
 }
 
-CardGrouping.prototype.revealAll = function(duration=400){
-	this.callAll('reveal',null,duration);
+CardGrouping.prototype.revealAll = function(duration=400,delay=0){
+	this.callAll('reveal',null,duration,delay);
 }
 
-CardGrouping.prototype.hideAll = function(duration=400){
-	this.callAll('flipToShallow',null,'Back',0,duration);
+CardGrouping.prototype.hideAll = function(duration=400,delay=0){
+	this.callAll('flipToShallow',null,'Back',0,duration,delay);
 }
 
-CardGrouping.prototype.deepHideAll = function(duration=400){
-	this.callAll('flipTo',null,'Back',0,duration);
+CardGrouping.prototype.deepHideAll = function(duration=400,delay=0){
+	this.callAll('flipTo',null,'Back',0,duration,delay);
 }
 
 CardGrouping.prototype.getCardSpriteList = function(){

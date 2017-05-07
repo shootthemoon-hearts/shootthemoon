@@ -19,8 +19,9 @@ Deck.prototype.getPositions = function(numberOfCards){
 Deck.prototype.dealNoReveal= function(grouping_list,duration,slide_duration=duration/4){
 	var delay = (duration-slide_duration)/this.children.length;
 	var group_to_pass_to;
-	for (var i=0;i<this.children.length;i++){
+	var cards = this.getCardList();
+	for (var i=0;i<cards.length;i++){
 		group_to_pass_to = grouping_list[i%grouping_list.length];
-		this.passToCardGroup([this.children[i].card],group_to_pass_to,slide_duration,delay*i);
+		this.passToCardGroup([cards[i]],group_to_pass_to,slide_duration,delay*i);
 	}
 }
