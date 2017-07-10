@@ -10,18 +10,24 @@
 
 	</head>
 	<body>
-		{% include "home_page/nav-bar.html" %}]
-		<div id=stats>
-		    <h2>ELO:</h2>
-		    <p>{{ elo }}</p>
-			
-		    <h2>Game History</h2>
-			<script type="text/javascript"> 
-				{% autoescape off %}
-					 var game_history = {{ game_history }};
-				{% endautoescape %}	   
-			</script>
-			<script type="text/javascript" src="{% static 'homemade/js/game_history.js' %}"></script>
-		</div>
+        {% if user.is_authenticated %}
+			{% include "home_page/nav-bar.html" %}]
+			<div id=stats>
+				<h2>ELO:</h2>
+				<p>{{ elo }}</p>
+
+				<h2>Game History</h2>
+				<script type="text/javascript">
+					{% autoescape off %}
+						 var game_history = {{ game_history }};
+					{% endautoescape %}	
+				</script>
+				<script type="text/javascript" src="{% static 'homemade/js/game_history.js' %}"></script>
+			</div>
+		{% else %}
+            <div>
+                <p>You must be logged in to view your player statistics</p>
+            </div>
+        {% endif %}
 	</body>
 </html>
