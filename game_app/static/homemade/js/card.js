@@ -10,7 +10,7 @@ Card.CLUBS = 'Clubs';
 Card.HEARTS = 'Hearts';
 Card.DIAMONDS = 'Diamonds';
 Card.BACK = 'Back';
-Card.SUITS = [Card.BACK, Card.SPADES, Card.CLUBS, Card.HEARTS, Card.DIAMONDS];
+Card.SUITS = [Card.BACK, Card.CLUBS, Card.DIAMONDS, Card.SPADES, Card.HEARTS];
 
 Card.JACK = 'Jack';
 Card.QUEEN = 'Queen';
@@ -34,7 +34,7 @@ Card.NUMBER_STR_DICT = {
 } ;
 
 Card.NUMBERS = []; 
-for (i = 0; i <= 13; i++) {
+for (i = 1; i <= 13; i++) {
     Card.NUMBERS.push(i);
 }
 
@@ -43,7 +43,7 @@ Card.SHORT_CLUBS = 'C';
 Card.SHORT_HEARTS = 'H';
 Card.SHORT_DIAMONDS = 'D';
 Card.SHORT_BACK = 'B';
-Card.SHORT_SUITS = [Card.SHORT_BACK,Card.SHORT_SPADES, Card.SHORT_CLUBS, Card.SHORT_HEARTS, Card.SHORT_DIAMONDS];
+Card.SHORT_SUITS = [Card.SHORT_BACK, Card.SHORT_CLUBS, Card.SHORT_DIAMONDS, Card.SHORT_SPADES, Card.SHORT_HEARTS];
 
 //Card.SUIT_TO_SHORT_SUIT_DICT = {
 //    Card.SPADES: Card.SHORT_SPADES, 
