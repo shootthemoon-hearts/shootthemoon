@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"/>
+		<title>Yay!</title>
+		{% load staticfiles %}
+		<link rel="shortcut icon" type="image/png" href="{% static 'homemade/assets/favicon.png' %}"/>
+		<link rel="stylesheet" href="{% static 'homemade/assets/home_page.css' %}"></link>
+	</head>
+	<body>
+		{% include "home_page/nav-bar.html" %}]
+		<div id=about>
+		    <p><b>Wikipedia page on Hearts Rules:</b></p>
+		    <a href="https://en.wikipedia.org/wiki/Hearts#Method">https://en.wikipedia.org/wiki/Hearts#Method</a>
+		    <p><b>Some things about our ruleset:</b></p>
+            <ul>
+		    <p><li>4 Players</li></p>
+		    <p><li>When a player reaches or surpasses 75 points, the game ends, and the player with the lowest score wins.</li></p>
+		    <p><li>No blood on the first trick (you cannot discard hearts or the queen of spades on the first trick unless your entire hand is comprised of those cards)</li></p>
+		    <p><li>Shooting the Moon: When you shoot the moon, all other players get 26 points.  You cannot choose to lower your score by 26, as is an option in some other variants. (Done in the interest of reducing game time.)</li></p>
+		    </ul>
+			<p><b>About the timer:</b></p>
+            <ul>
+			<p><li>The timer is comprised of a base time and a bank time separated by a plus sign (5+10 intially.) On any given move, if you use more than the base time (always 5 seconds every move), it will begin to eat into your bank time (starts off as 10 seconds.)  However, if you make a move before the base time has passed, your leftover base time will go back toward replenishing your bank time. The bank time has a maximum value of 10 seconds.</li></p>
+			<p><li>If you use up all your time and do not make a move, a random legal move will be made for you.</li></p>
+			<ul>
+		</div>
+	</body>
+</html>

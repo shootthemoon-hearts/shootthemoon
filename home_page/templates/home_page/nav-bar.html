@@ -22,16 +22,7 @@
 
 	<li>
 	   <div class="image_container">
-		   <a href="{% url 'stats:index' %}">
-			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
-			   <h2 class="text_over_image">Stats</h2>
-		   </a>
-	   </div>
-	</li>
-
-	<li>
-	   <div class="image_container">
-	       <a>
+	       <a href="{% url 'about:index' %}">
 			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
 			   <h2 class="text_over_image">About</h2>
            </a>
@@ -39,6 +30,15 @@
 	</li>
 
 	{% if user.is_authenticated %}
+	<li>
+	   <div class="image_container">
+		   <a href="{% url 'stats:index' %}">
+			   <img src="{% static 'homemade/assets/menu_button_gen1.png' %}" alt="Home">
+			   <h2 class="text_over_image">Stats</h2>
+		   </a>
+	   </div>
+	</li>
+
 	<li>
 	   <div class="image_container">
 	       <a>

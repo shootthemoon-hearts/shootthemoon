@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'home_page',
     'game_app',
     'accounts',
-    'stats'
+    'stats',
+    'about'
 ]
 
 CHANNEL_LAYERS = {

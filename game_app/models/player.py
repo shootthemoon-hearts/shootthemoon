@@ -22,7 +22,7 @@ class Player(models.Model):
         
     ''' these are supposed to get sent to update the account in some way after the game '''
     new_elo = models.IntegerField(default=0)
-    new_rank = models.IntegerField(default=0)
-    new_rank_progress = models.IntegerField(default=0)
+    #new_rank = models.IntegerField(default=0)
+    #new_rank_progress = models.IntegerField(default=0)
     place_this_game = models.IntegerField(default=0)
     

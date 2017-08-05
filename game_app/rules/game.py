@@ -189,7 +189,7 @@ def finish(game):
     '''
     save_how_people_placed(game)
     ranking.elo_calculation(game)
-    ranking.rank_calculation(game)
+    #ranking.rank_calculation(game)
     game.active = False
     game.save()
 
