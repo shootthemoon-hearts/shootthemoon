@@ -74,7 +74,7 @@ function create_turn_indicator(game, x, y, image) {
 	sprite = game.add.sprite(x, y, image);
 }
 
-function createGame(game_state) {
+function createGame(game_controller) {
 
 	var phaser_game = new Phaser.Game(board_length, board_height, Phaser.AUTO, 'game_board', { preload: preload, create: create, update: update });
 
@@ -96,14 +96,16 @@ function createGame(game_state) {
 	 * Create the game board
 	 */
 	function create () {
-		background = phaser_game.add.tileSprite(0, 0, 800, 600, "background");
+		var game_state = game_controller.game_state;
 		game_state.game_board = phaser_game;
 		
+		background = phaser_game.add.tileSprite(0, 0, 800, 600, "background");
+
 		game_state.hand_group = phaser_game.add.group();
-		game_state.hand_group.addChild(new Hand(phaser_game,20,50)).position = new Phaser.Point(my_location_x,my_location_y-210);
-		game_state.hand_group.addChild(new Hand(phaser_game,20,50)).position = new Phaser.Point(left_location_x+210,left_location_y);
-		game_state.hand_group.addChild(new Hand(phaser_game,20,50)).position = new Phaser.Point(across_location_x,across_location_y+210);
-		game_state.hand_group.addChild(new Hand(phaser_game,20,50)).position = new Phaser.Point(right_location_x-210,right_location_y);
+		game_state.hand_group.addChild(new Hand(game_controller,20,50,0)).position = new Phaser.Point(my_location_x,my_location_y-210);
+		game_state.hand_group.addChild(new Hand(game_controller,20,50,1)).position = new Phaser.Point(left_location_x+210,left_location_y);
+		game_state.hand_group.addChild(new Hand(game_controller,20,50,2)).position = new Phaser.Point(across_location_x,across_location_y+210);
+		game_state.hand_group.addChild(new Hand(game_controller,20,50,3)).position = new Phaser.Point(right_location_x-210,right_location_y);
 		
 		var scale_factor = new Phaser.Point(0.7,0.7);
 		game_state.hand_group.children[0].angle =   0;

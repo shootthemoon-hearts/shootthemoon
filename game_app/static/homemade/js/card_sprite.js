@@ -8,6 +8,7 @@ var CardSprite = function(game,x,y,suit,number) {
 	anchor.copyTo(new_child.anchor);
 	this.card = new Card(number,suit);
 	this.value = this.card.value();
+    new_child.inputEnabled = true;
 }
 
 CardSprite.prototype = Object.create(Phaser.Group.prototype);
@@ -90,10 +91,3 @@ CardSprite.convertValueToFrame = function(value,forward=true){
 		return value+1;
 	}
 }
-
-
-
-
-
-
-

@@ -1,5 +1,5 @@
-var DiscardPile = function(game,initial_relative_seat,radius_mean,radius_std_dev,position_angle_std_dev,facing_angle_offset_std_dev) {
-	CardGrouping.call(this, game);
+var DiscardPile = function(game_controller,initial_relative_seat,radius_mean,radius_std_dev,position_angle_std_dev,facing_angle_offset_std_dev) {
+	CardGrouping.call(this, game_controller);
 	this.relative_seat_discard_positions = [];
 	this.relative_seat_discard_angles = [];
 	this.initial_relative_seat = initial_relative_seat;

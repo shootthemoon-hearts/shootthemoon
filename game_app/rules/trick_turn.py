@@ -71,7 +71,7 @@ def send_delay_message(tt, player, turn_id, valid_cards):
     received_cards.append(valid_cards[random_number])
     delay_message = {
         'channel':'game_command',
-        'delay':2000,
+        'delay':3000,
         'content':{
             'command':'trick_card_selected',
             'command_args':{

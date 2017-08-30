@@ -1,9 +1,10 @@
-var CardGrouping = function(game) {
-	Phaser.Group.call(this, game);
+var CardGrouping = function(game_controller) {
+	Phaser.Group.call(this, game_controller.game_state.game_board);
 
 	// Since Phaser.Group's constructor overrides this.classType, we need to
 	// set it again after that constructor call
     this.classType = CardSprite;
+    this.game_controller = game_controller;
 }
 
 CardGrouping.prototype = Object.create(Phaser.Group.prototype);
@@ -116,6 +117,10 @@ CardGrouping.prototype.ghostAddCards = function(cards){
 	for (i=0;i<cards.length;i++){
 		var new_sprite = this.create(0,0,cards[i].suit,cards[i].number);
 		new_sprite.alpha = 0;
+		new_sprite.inputEnableChildren = true;
+		new_sprite.onChildInputUp.add(this.cardSelected, this);
+		new_sprite.onChildInputOver.add(this.mouseOverCard, this);
+		new_sprite.onChildInputOut.add(this.mouseOffCard, this);
 		created_sprites.push(new_sprite);
 	}
 	return created_sprites;
@@ -265,3 +270,11 @@ CardGrouping.prototype.fillWithFaceDowns = function(count,duration){
 	this.updateCardState(cards,duration);
 }
 
+CardGrouping.prototype.cardSelected = function(sprite) {
+}
+
+CardGrouping.prototype.mouseOverCard = function(sprite) {
+}
+
+CardGrouping.prototype.mouseOffCard = function(sprite) {
+}
