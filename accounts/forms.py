@@ -13,8 +13,7 @@ class LogInForm(forms.Form):
                                 max_length=MAX_USERNAME_LENGTH)
     
     password_form = forms.TextInput(attrs={'type':'password'})
-    password = forms.CharField(max_length=MAX_PASSWORD_LENGTH, 
-                               widget=password_form)
+    password = forms.CharField(widget=password_form)
 
     def clean(self):
         '''This function validates the input the user enters when trying to
@@ -38,8 +37,7 @@ class SignUpForm(forms.Form):
     user_name = forms.CharField(label='Username', 
                                 max_length=MAX_USERNAME_LENGTH)
     password_form = forms.TextInput(attrs={'type':'password'})
-    password = forms.CharField(max_length=MAX_PASSWORD_LENGTH, 
-                               widget=password_form)
+    password = forms.CharField(widget=password_form)
 
     def clean(self):
         '''This function validates the input the user enters when trying to
