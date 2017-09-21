@@ -1,5 +1,6 @@
 var GameState = function(){
 	this.game_board = null;
+	this.game_controller = null;
 	this.player_cards = [];
 	this.valid_cards = [];
 	this.player_pos = null;

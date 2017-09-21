@@ -25,48 +25,15 @@ var across_location_y = (board_height/30);
 var right_location_x = (board_length/1.04);
 var right_location_y = (board_height/2);
 
-function mouseOn(sprite) {
-	if (my_turn && is_card_valid(sprite.card)) {
-		if (!sprite.clicked) {
-			current_scale_x = sprite.scale.x;
-			current_scale_y = sprite.scale.y;
-			sprite.scale.set(current_scale_x * 1.1, current_scale_y * 1.1);
-			sprite.tint = .8 * 0xFFFFFF;
-		}
-	}
-}
-
-function mouseOff(sprite) {
-	if (my_turn && is_card_valid(sprite.card)) {
-		if (!sprite.clicked) {
-			current_scale_x = sprite.scale.x;
-			current_scale_y = sprite.scale.y;
-			sprite.scale.set(current_scale_x / 1.1, current_scale_y / 1.1);
-			sprite.tint = 0xFFFFFF;
-		}
-	}
-}
-
-function cardClicked(sprite) {
-	if (my_turn && is_card_valid(sprite.card)) {
-		if (game_state != BEFORE_GAME) {
-			if (!sprite.clicked) {
-			
-				sprite.tint = 0xFF0000;
-				sprite.clicked = true;
-				selected_cards.push(sprite.card);
-
-				if (selected_cards.length == cards_to_select) {
-					all_cards_selected();
-				}
-				
-			} else {
-				sprite.tint = 0xFFFFFF;
-				sprite.clicked = false;
-				selected_cards.pop(sprite.card);
-			} 
-			
-		}
+var game_board_functions = {
+	createDiscardPile: function(game_state, trick_id) {
+		var location = new Phaser.Point(300,200);
+		var scale_factor = new Phaser.Point(0.7,0.7);
+		var pile = new DiscardPile(game_state.game_controller, game_state.relative_player_seat, 100, 5, 8, 15);
+		pile.name = trick_id.toString();
+		location.copyTo(pile.position);
+		scale_factor.copyTo(pile.scale);
+		return pile;
 	}
 }
 

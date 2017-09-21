@@ -1,5 +1,6 @@
 var GameController = function(){
 	this.game_state = new GameState();
+	this.game_state.game_controller = this;
 	this.game_event_handler = null;
 }
 
@@ -43,6 +44,9 @@ GameController.prototype.got_scores = function(score_list_dict){
 
 GameController.prototype.got_discard = function(card_player_dict){
 	var trick_id = card_player_dict["id"];
+	if (this.game_state.trick_group.getByName(trick_id.toString()) == undefined) {
+		this.game_state.trick_group.addChild(game_board_functions.createDiscardPile(this.game_state, trick_id));
+	}
 	this.game_state.relative_player_seat = this.get_relative_seat(card_player_dict["player"],this.game_state.player_pos);
 	var card = Card.CardsFromJSON(card_player_dict["card"])[0];
 	var discard_pile = this.game_state.trick_group.getByName(trick_id.toString());
@@ -93,21 +97,20 @@ GameController.prototype.trick_update = function(trick_dict) {
 	this.game_state.relative_player_seat = this.get_relative_seat(trick_dict["player"],this.game_state.player_pos);
 	var time_info = trick_dict['time_info'];
 	var trick_group = this.game_state.trick_group;
+
 	if (trick_group.countLiving() > 1){
 		var to_die = this.game_state.trick_group.countLiving() -1;
 		for (var i=0; i<to_die; i++){
 			trick_group.children[i].alive = false;
 		}
 	}
+
 	trick_group.forEachDead(trick_group.remove, trick_group, true, true);
+
 	if (trick_group.getByName(trick_id.toString()) == undefined){
-		var location = new Phaser.Point(300,200);
-		var scale_factor = new Phaser.Point(0.7,0.7);
-		var pile = trick_group.addChild(new DiscardPile(this,this.game_state.relative_player_seat,100,5,8,15));
-		pile.name = trick_id.toString();
-		location.copyTo(pile.position);
-		scale_factor.copyTo(pile.scale);
+		trick_group.addChild(game_board_functions.createDiscardPile(this.game_state, trick_id));
 	}
+
 	if (this.game_state.relative_player_seat ==0){
 		this.game_state.turn_id = trick_id;
 		this.game_state.my_turn = true;
