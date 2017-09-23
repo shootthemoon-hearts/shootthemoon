@@ -34,6 +34,35 @@ var game_board_functions = {
 		location.copyTo(pile.position);
 		scale_factor.copyTo(pile.scale);
 		return pile;
+	},
+
+	createPlayerIcons: function(phaser_game, player_pos) {
+		// TODO(Matt Weiss) Replace with players' usernames
+        if(player_pos == 0){
+        	p0 = phaser_game.add.text(my_location_x, my_location_y,"p0");
+    		p1 = phaser_game.add.text(left_location_x, left_location_y,"p1");
+    		p2 = phaser_game.add.text(across_location_x, across_location_y,"p2");
+    		p3 = phaser_game.add.text(right_location_x, right_location_y,"p3");
+        } else if(player_pos == 1){
+        	p1 = phaser_game.add.text(my_location_x, my_location_y,"p1");
+    		p2 = phaser_game.add.text(left_location_x, left_location_y,"p2");
+    		p3 = phaser_game.add.text(across_location_x, across_location_y,"p3");
+    		p0 = phaser_game.add.text(right_location_x, right_location_y,"p0");
+        } else if(player_pos == 2){
+        	p2 = phaser_game.add.text(my_location_x, my_location_y,"p2");
+    		p3 = phaser_game.add.text(left_location_x, left_location_y,"p3");
+    		p0 = phaser_game.add.text(across_location_x, across_location_y,"p0");
+    		p1 = phaser_game.add.text(right_location_x, right_location_y,"p1");
+        } else if(player_pos == 3){
+        	p3 = phaser_game.add.text(my_location_x, my_location_y,"p3");
+    		p0 = phaser_game.add.text(left_location_x, left_location_y,"p0");
+    		p1 = phaser_game.add.text(across_location_x, across_location_y,"p1");
+    		p2 = phaser_game.add.text(right_location_x, right_location_y,"p2");
+        }
+		p0.fill = "blue";
+        p1.fill = "red";
+        p2.fill = "green";
+        p3.fill = "yellow";
 	}
 }
 
@@ -106,32 +135,6 @@ function createGame(game_controller) {
         game_state.score_textbox_p2.fill = "green";
         game_state.score_textbox_p3 = phaser_game.add.text((board_length/1.25) + 120, (board_height/7), "0");
         game_state.score_textbox_p3.fill = "yellow";
-        if(game_state.player_pos == 0){
-        	p0 = phaser_game.add.text(my_location_x, my_location_y,"p0");
-    		p1 = phaser_game.add.text(left_location_x, left_location_y,"p1");
-    		p2 = phaser_game.add.text(across_location_x, across_location_y,"p2");
-    		p3 = phaser_game.add.text(right_location_x, right_location_y,"p3");
-        } else if(game_state.player_pos == 1){
-        	p1 = phaser_game.add.text(my_location_x, my_location_y,"p1");
-    		p2 = phaser_game.add.text(left_location_x, left_location_y,"p2");
-    		p3 = phaser_game.add.text(across_location_x, across_location_y,"p3");
-    		p0 = phaser_game.add.text(right_location_x, right_location_y,"p0");
-        } else if(game_state.player_pos == 2){
-        	p2 = phaser_game.add.text(my_location_x, my_location_y,"p2");
-    		p3 = phaser_game.add.text(left_location_x, left_location_y,"p3");
-    		p0 = phaser_game.add.text(across_location_x, across_location_y,"p0");
-    		p1 = phaser_game.add.text(right_location_x, right_location_y,"p1");
-        } else if(game_state.player_pos == 3){
-        	p3 = phaser_game.add.text(my_location_x, my_location_y,"p3");
-    		p0 = phaser_game.add.text(left_location_x, left_location_y,"p0");
-    		p1 = phaser_game.add.text(across_location_x, across_location_y,"p1");
-    		p2 = phaser_game.add.text(right_location_x, right_location_y,"p2");
-        }
-		p0.fill = "blue";
-        p1.fill = "red";
-        p2.fill = "green";
-        p3.fill = "yellow";
-        ///-///
 	}
 	
 	/**

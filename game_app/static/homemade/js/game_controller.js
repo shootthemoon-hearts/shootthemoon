@@ -2,6 +2,7 @@ var GameController = function(){
 	this.game_state = new GameState();
 	this.game_state.game_controller = this;
 	this.game_event_handler = null;
+	this.game_state.game_board = createGame(this);
 }
 
 GameController.prototype.register_handlers = function(game_event_handler) {
@@ -17,7 +18,8 @@ GameController.prototype.register_handlers = function(game_event_handler) {
 
 GameController.prototype.init_game = function(game_info_dict) {
 	this.game_state.player_pos = game_info_dict['player_pos'];
-	this.game_state.game_board = createGame(this);
+	game_board_functions.createPlayerIcons(this.game_state.game_board, this.game_state.player_pos);
+	this.game_state.phase = game_info_dict['game_phase'];
 }
 
 GameController.prototype.get_relative_seat = function(seat,base_seat){
