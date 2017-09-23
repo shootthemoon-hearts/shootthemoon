@@ -85,9 +85,12 @@ TweenCapsule.prototype.onTweenEnd = function(tweened_object,tween){
 }
 
 TweenCapsule.prototype.finish = function(silent=false){
-	TweenCapsule.forceRelativeGeometry(this.children[0],this.parent);
-	this.parent.add(this.children[0],silent,this.z);
-	this.parent.remove(this,true,silent);
+	// If parent and child objects haven't been removed yet
+	if (this.children[0] != undefined && this.parent != undefined) {
+		TweenCapsule.forceRelativeGeometry(this.children[0],this.parent);
+		this.parent.add(this.children[0],silent,this.z);
+		this.parent.remove(this,true,silent);
+	}
 }
 
 
