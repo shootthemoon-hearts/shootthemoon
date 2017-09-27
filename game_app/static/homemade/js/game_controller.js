@@ -9,7 +9,7 @@ GameController.prototype.register_handlers = function(game_event_handler) {
 	this.game_event_handler = game_event_handler;
 	game_event_handler.register_handler("enter_room", this.init_game, this);
 	game_event_handler.register_handler("Cards", this.got_cards, this);
-	game_event_handler.register_handler("game_phase", this.new_game_phase, this);
+	game_event_handler.register_handler("pass_round_started", this.pass_round_update, this)
 	game_event_handler.register_handler("trick", this.trick_update, this);
 	game_event_handler.register_handler("valid_cards", this.got_valid_cards, this);
 	game_event_handler.register_handler("discard", this.got_discard, this);
@@ -18,8 +18,9 @@ GameController.prototype.register_handlers = function(game_event_handler) {
 
 GameController.prototype.init_game = function(game_info_dict) {
 	this.game_state.player_pos = game_info_dict['player_pos'];
-	game_board_functions.createPlayerIcons(this.game_state.game_board, this.game_state.player_pos);
 	this.game_state.phase = game_info_dict['game_phase'];
+	this.game_state.player_id = game_info_dict['player_id'];
+	game_board_functions.createPlayerIcons(this.game_state.game_board, this.game_state.player_pos);
 }
 
 GameController.prototype.get_relative_seat = function(seat,base_seat){
@@ -80,21 +81,16 @@ GameController.prototype.got_cards = function(card_str) {
     
 }
 
-GameController.prototype.new_game_phase = function(phase) {
-	this.game_state.phase = phase;
-	if (this.game_state.phase == GameState.PASS_PHASE ){
-		my_turn = false;
-		cards_to_select = 3;
-		selected_cards = [];
-	}
-	if (this.game_state.phase == GameState.IN_TRICK) {
-		cards_to_select = 1;
-		selected_cards = [];
-	}
+GameController.prototype.pass_round_update = function(pass_round_dict) {
+	this.game_state.turn_id = pass_round_dict['id'];
+	this.game_state.cards_to_pass = pass_round_dict['cards_to_pass']
+	this.game_state.phase = pass_round_dict['game_phase'];
+	this.game_state.my_turn = true;
 }
 
 GameController.prototype.trick_update = function(trick_dict) {
 	var trick_id = trick_dict['id'];
+	this.game_state.phase = trick_dict['game_phase'];
 	this.game_state.current_trick_id = trick_id;
 	this.game_state.relative_player_seat = this.get_relative_seat(trick_dict["player"],this.game_state.player_pos);
 	var time_info = trick_dict['time_info'];
@@ -113,7 +109,7 @@ GameController.prototype.trick_update = function(trick_dict) {
 		trick_group.addChild(game_board_functions.createDiscardPile(this.game_state, trick_id));
 	}
 
-	if (this.game_state.relative_player_seat ==0){
+	if (this.game_state.relative_player_seat == 0){
 		this.game_state.turn_id = trick_id;
 		this.game_state.my_turn = true;
 		this.got_time_info(time_info);
@@ -129,21 +125,23 @@ GameController.prototype.discard_trick_cards = function(cards) {
 		short_cards.push(card.toJSON());
 	}
 	var turn_id = this.game_state.turn_id;
+	this.game_state.your_turn = false;
 	tx_multiplexed_packet("game",{'trick_card_selected': {'received_cards':short_cards, 'turn_id':turn_id}});	
 }
 
-GameController.prototype.all_cards_selected = function() {
+GameController.prototype.pass_cards = function(cards) {
 	var short_cards = [];
-	for (card in selected_cards) {
-		card = selected_cards[card];
+	for (card in cards) {
+		card = cards[card];
 		short_cards.push(card.toJSON());
 	}
-	this.game_state.my_turn = false;
-	if (game_state == PASS_PHASE) {
-		tx_multiplexed_packet("game",{'pass_cards_selected': {'received_cards':short_cards, 'turn_id':turn_id}});
-	}
-	if (game_state == IN_TRICK) {
-		tx_multiplexed_packet("game",{'trick_card_selected': {'received_cards':short_cards, 'turn_id':turn_id}});	
-	}
-	this.game_state.myTimer.stop();
+	var turn_id = this.game_state.turn_id;
+	this.game_state.your_turn = false;
+	tx_multiplexed_packet("game", {
+		'pass_cards_selected': {
+			'received_cards':short_cards,
+			'turn_id':turn_id,
+			'player_id':this.game_state.player_id
+		}
+	});
 }

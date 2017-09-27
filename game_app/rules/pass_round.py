@@ -1,23 +1,35 @@
 from . import game_round as grrz
 from channels import Group, Channel
+from enum import Enum
 from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
 import random as rn
 from game_app.models.pass_round import PassRound
 from django.db import transaction
 
-def setup(pr,parent_round,direction):
-    pr.direction = direction
+def setup(pr, parent_round, pass_direction):
+    pr.direction = pass_direction.value
     pr.game_round = parent_round
     pr.save()
 
-def start(pr):
+def start(pr, num_cards_to_pass):
     pr.active = True
     pr.save()
     send_turn_notification(pr)
+    pr_id = pr.id
+    send_pass_round_started(pr.game_round.game.group_channel, pr_id, num_cards_to_pass, pr.game_round.phase)
     for i in pr.game_round.game.player_set.all():
-        send_delay_message(pr, i, pr.id)
-    
+        send_delay_message(pr, i, pr_id)
+
+def send_pass_round_started(group_channel, pass_round_id, num_cards_to_pass, phase):
+    game_transmit(Group(group_channel), {
+        "pass_round_started": {
+            "id": pass_round_id,
+            "cards_to_pass": num_cards_to_pass,
+            "game_phase": phase
+        }
+    })
+
 def send_delay_message(pr, player, turn_id):
     received_cards = []
     random_numbers = rn.sample(range(0,13),3)

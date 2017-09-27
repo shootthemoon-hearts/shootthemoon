@@ -4,9 +4,10 @@ var GameState = function(){
 	this.player_cards = [];
 	this.valid_cards = [];
 	this.player_pos = null;
+	this.player_id = null;
 	this.selected_cards = [];
 	this.my_turn = true;
-	this.cards_to_select = 3;
+	this.cards_to_pass = null;
 	this.turn_id = 0;
 	this.hand_group = null;
 	this.trick_group = null;
@@ -22,5 +23,5 @@ var GameState = function(){
 }
 
 GameState.BEFORE_GAME = "BEFORE_GAME";
-GameState.PASS_PHASE = "PASS_PHASE";
+GameState.PASS_PHASE = "PHASE_PASS";
 GameState.IN_TRICK = "IN_TRICK";

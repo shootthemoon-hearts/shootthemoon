@@ -1,6 +1,7 @@
 from channels import Channel
 from django.db import transaction
 
+from enum import Enum
 from game_app.multiplex_transmit import game_transmit
 from game_app.deck import Deck
 from game_app.card import Card
@@ -13,6 +14,20 @@ from game_app.rules.game_phases import GamePhases
 from game_app.models.pass_round import PassRound
 from game_app.models.trick_turn import TrickTurn
 
+class PASS_DIRECTION(Enum):
+    LEFT = 1
+    RIGHT = -1
+    ACROSS = 2
+    NO_PASS = 0
+
+NUM_CARDS_TO_PASS_NORMAL = 3
+NUM_CARDS_TO_PASS_NO_PASS = 0
+NUM_CARDS_TO_PASS_DICT = {
+    PASS_DIRECTION.LEFT: NUM_CARDS_TO_PASS_NORMAL,
+    PASS_DIRECTION.RIGHT: NUM_CARDS_TO_PASS_NORMAL,
+    PASS_DIRECTION.ACROSS: NUM_CARDS_TO_PASS_NORMAL,
+    PASS_DIRECTION.NO_PASS: NUM_CARDS_TO_PASS_NO_PASS
+}
 
 def setup(game_round, game, number):
     '''Sets up the given GameRound object and adds it to the given game.
@@ -75,24 +90,23 @@ def send_player_valid_cards(gr, player, valid_cards):
     game_transmit(Channel(player.channel),{"valid_cards":cards_str})
         
 def determine_passing(gr):
-    if (gr.number)%4 == 0:
-        direction = 1
-    elif (gr.number)%4 == 1:
-        direction = -1
-    elif (gr.number)%4 == 2:
-        direction = 2
+    if (gr.number) % 4 == 0:
+        direction = PASS_DIRECTION.LEFT
+    elif (gr.number) % 4 == 1:
+        direction = PASS_DIRECTION.RIGHT
+    elif (gr.number) % 4 == 2:
+        direction = PASS_DIRECTION.ACROSS
     else:
-        direction = 0
+        direction = PASS_DIRECTION.NO_PASS
     return direction
 
 def add_pass_phase(gr,pass_direction):
     gr.phase = GamePhases.PASS
     gr.save()
-    send_group_the_phase(gr)
     pr = PassRound()
     pass_round.setup(pr, gr, pass_direction)
     send_players_initial_valid_cards(gr)
-    pass_round.start(pr)
+    pass_round.start(pr, NUM_CARDS_TO_PASS_DICT.get(pass_direction))
     
 def bypass_pass_phase(gr):
     add_first_trick_phase(gr)
@@ -106,7 +120,6 @@ def add_trick_phase(gr,seat_to_go_first):
     if len(gr.trickturn_set.all()) >=13:
         finish(gr)
     else:
-        send_group_the_phase(gr)
         tr = TrickTurn()
         trick_turn.setup(tr, gr, len(gr.trickturn_set.all()), seat_to_go_first, gr.hearts_broken)
         trick_turn.start(tr)
@@ -117,9 +130,6 @@ def what_seat_has_two_of_clubs(gr):
         if two_of_clubs in player.hand:
             return player.position
 
-def send_group_the_phase(gr):
-    game.send_group_the_phase(gr.game, gr.phase)
-    
 def finish(gr):
     gr.active = False
     gr.save()

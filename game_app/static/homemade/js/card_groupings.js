@@ -183,12 +183,11 @@ CardGrouping.prototype.setAlive = function(display_objects,setting=true){
 
 CardGrouping.prototype.updateCardState = function(cards,duration){
 	var groups = this.findCardSprites(cards);
-	
+
 	var card_sprites_to_slide  = groups['matched'];
 	var card_sprites_to_delete = groups['unused'];
 	var card_sprites_to_create = this.ghostAddCards(groups['unmatched']);
-	
-	
+
 	this.setAlive(card_sprites_to_delete,false);
 	this.applyPositions(card_sprites_to_create);
 	this.slideToPositions(card_sprites_to_slide,duration);

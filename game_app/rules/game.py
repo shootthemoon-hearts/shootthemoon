@@ -36,7 +36,7 @@ def setup(game, players, delay):
         add_player(game, player, game.group_channel)
 
     send_group_the_phase(game, GamePhases.BEFORE_GAME)
-    
+
     delay_message = {
         'channel':'game_command',
         'delay':delay,
@@ -61,8 +61,14 @@ def add_player(game, player, group):
     player.position = len(game.player_set.all()) #no -1 because didn't save yet
     player.save()
     Group(group).add(Channel(player.channel))
-    game_transmit(Channel(player.channel), {'enter_room':
-        {'id':str(game.id),'player_pos':player.position}})
+    game_transmit(Channel(player.channel), {
+        'enter_room': {
+            'id':str(game.id),
+            'player_pos':player.position,
+            'game_phase':GamePhases.BEFORE_GAME,
+            'player_id':player.id
+        }
+    })
     logging.info('Game %s has %s players', game.id, 'has', game.player_set.all().count(), 'players')
 
 def start(game):
@@ -74,7 +80,7 @@ def start(game):
     game.active = True
     game.save()
     add_round(game)
-    
+
 def send_group_the_phase(game, phase):
     '''Sends each player in the game the current phase
     
