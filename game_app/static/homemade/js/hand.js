@@ -58,6 +58,7 @@ Hand.prototype.selectCardForPass = function(card) {
 	this.selected_cards.push(card);
 	if (this.selected_cards.length == this.game_controller.game_state.cards_to_pass) {
 		this.game_controller.pass_cards(this.selected_cards);
+		this.selected_cards = [];
 	}
 }
 

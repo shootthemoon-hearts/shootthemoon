@@ -5,7 +5,9 @@ from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
 import random as rn
 from game_app.models.pass_round import PassRound
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+
 
 def setup(pr, parent_round, pass_direction):
     pr.direction = pass_direction.value
@@ -50,7 +52,12 @@ def send_delay_message(pr, player, turn_id):
     }
     Channel('asgi.delay').send(delay_message)
 
-def received_passed_cards(pr, player, passed_cards, turn_id):
+def received_passed_cards(game, player, passed_cards, turn_id):
+    try:
+        pr = game.gameround_set.get(active=True).passround
+    except ObjectDoesNotExist:
+        # If the query is invalid, the turn is invalid
+        return
     passed_cards_sorted = sorted(passed_cards)
     from_seat = player.position
     if not from_seat in pr.seats_received and pr.id == turn_id:

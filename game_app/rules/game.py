@@ -114,7 +114,7 @@ def pass_cards_selected(game, cards_str, player, turn_id):
         turn_id: the id of the current turn
     '''
     cards = Card.list_from_str_list(cards_str)
-    pass_round.received_passed_cards(game.gameround_set.get(active=True).passround,player,cards,turn_id)
+    pass_round.received_passed_cards(game, player, cards, turn_id)
 
 def trick_cards_selected(game, cards_str, player, turn_id):
     '''Called when a player selects which card to play for the trick turn
@@ -130,7 +130,7 @@ def trick_cards_selected(game, cards_str, player, turn_id):
     # The assumption is that the player can only select one card on their turn
     # for the trick. 
     card = cards[0]
-    trick_turn.card_discarded(game.gameround_set.get(active=True).trickturn_set.get(active=True), player, card, turn_id)
+    trick_turn.card_discarded(game, player, card, turn_id)
     
 def send_players_score(game):
     '''Sends a message to each player telling them the scores 

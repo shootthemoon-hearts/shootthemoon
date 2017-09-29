@@ -125,7 +125,7 @@ GameController.prototype.discard_trick_cards = function(cards) {
 		short_cards.push(card.toJSON());
 	}
 	var turn_id = this.game_state.turn_id;
-	this.game_state.your_turn = false;
+	this.game_state.my_turn = false;
 	tx_multiplexed_packet("game",{'trick_card_selected': {'received_cards':short_cards, 'turn_id':turn_id}});	
 }
 
@@ -136,7 +136,7 @@ GameController.prototype.pass_cards = function(cards) {
 		short_cards.push(card.toJSON());
 	}
 	var turn_id = this.game_state.turn_id;
-	this.game_state.your_turn = false;
+	this.game_state.my_turn = false;
 	tx_multiplexed_packet("game", {
 		'pass_cards_selected': {
 			'received_cards':short_cards,

@@ -1,6 +1,7 @@
 from channels import Group
 from channels import Channel
 from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
 import datetime
 
 from game_app.multiplex_transmit import game_transmit
@@ -24,7 +25,12 @@ def start(tt):
     tt.save()
     send_turn_notification(tt)
     
-def card_discarded(tt, player, discard, turn_id):
+def card_discarded(game, player, discard, turn_id):
+    try:
+        tt = game.gameround_set.get(active=True).trickturn_set.get(active=True)
+    except ObjectDoesNotExist:
+        # If the query is invalid, the turn is invalid
+        return
     validated = False
     if player.position == tt.expected_seat  and tt.id == turn_id:
         if tt.expected_seat == tt.first_seat:
@@ -60,8 +66,14 @@ def send_turn_notification(tt):
         
     current_time_ms = (datetime.datetime.now() - datetime.datetime.utcfromtimestamp(0)).total_seconds() * 1000
     time_info = [current_time_ms,5000,player.bank_ms]
-    game_transmit(Group(tt.game_round.game.group_channel),
-                  {'trick':{'id':tt.id,'player':player.position,'time_info':time_info}})
+    game_transmit(Group(tt.game_round.game.group_channel), {
+        'trick':{
+            'id':tt.id,
+            'player':player.position,
+            'time_info':time_info,
+            'game_phase':tt.game_round.phase
+        }
+    })
     grrz.send_player_valid_cards(tt.game_round,player, valid_cards)
     send_delay_message(tt, player, tt.id, valid_cards)
     
