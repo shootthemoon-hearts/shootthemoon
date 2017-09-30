@@ -56,7 +56,7 @@ def start(gr):
     send_players_their_cards(gr)
     
     pass_direction = determine_passing(gr)
-    if pass_direction != 0:
+    if pass_direction != PASS_DIRECTION.NO_PASS:
         add_pass_phase(gr,pass_direction)
     else:
         bypass_pass_phase(gr)
