@@ -28,9 +28,9 @@ GameController.prototype.get_relative_seat = function(seat,base_seat){
 }
 
 GameController.prototype.got_time_info = function(time_list){
-	start_time = time_list[0];
-	base_time = time_list[1];
-	bank_time = time_list[2];
+	start_time = time_list[message_constants.KEY_START_TIME];
+	base_time = time_list[message_constants.KEY_BASE_MS];
+	bank_time = time_list[message_constants.KEY_BANK_MS];
 	
 	if(this.game_state.myTimer != null){
 		this.game_state.myTimer.startCountdown(start_time,1000,base_time,bank_time);
@@ -86,6 +86,7 @@ GameController.prototype.pass_round_update = function(pass_round_dict) {
 	this.game_state.cards_to_pass = pass_round_dict['cards_to_pass']
 	this.game_state.phase = pass_round_dict['game_phase'];
 	this.game_state.my_turn = true;
+	this.got_time_info(pass_round_dict['time_info'])
 }
 
 GameController.prototype.trick_update = function(trick_dict) {

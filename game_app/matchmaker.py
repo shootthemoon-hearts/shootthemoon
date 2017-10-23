@@ -2,19 +2,23 @@ from django.db import transaction
 from game_app.models import Player
 from game_app.models import Game
 from game_app.models import MatchMakingQueue
+from game_app.models.player_type import PlayerType
 from game_app.rules import game as game_rules
 
 MAX_PLAYER_COUNT = 4
 
 def makeDummyPlayer():
-    dummy = Player()
-    dummy.channel = "null";
+    with transaction.atomic():
+        dummy = Player()
+        dummy.type = PlayerType.DUMMY
+        dummy.channel = "null"
+        dummy.save()
     return dummy
 
 def join_hanyuu(player):
     players_to_join_game = [player,makeDummyPlayer(),makeDummyPlayer(),makeDummyPlayer()]
     new_game = Game()
-    delay = 10000
+    delay = 3000
     game_rules.setup(new_game, players_to_join_game,delay)
 
 def join_queue(queue_name,player):   

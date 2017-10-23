@@ -1,24 +1,17 @@
 from channels import Channel
 from django.db import transaction
 
-from enum import Enum
-from game_app.multiplex_transmit import game_transmit
-from game_app.deck import Deck
+from game_app import message_constants
 from game_app.card import Card
-
-from game_app.rules import game
-from game_app.rules import trick_turn
-from game_app.rules import pass_round
-from game_app.rules.game_phases import GamePhases
-
+from game_app.deck import Deck
 from game_app.models.pass_round import PassRound
 from game_app.models.trick_turn import TrickTurn
-
-class PASS_DIRECTION(Enum):
-    LEFT = 1
-    RIGHT = -1
-    ACROSS = 2
-    NO_PASS = 0
+from game_app.multiplex_transmit import game_transmit
+from game_app.rules import game
+from game_app.rules import pass_round
+from game_app.rules import trick_turn
+from game_app.rules.game_phases import GamePhases
+from game_app.rules.pass_direction import PASS_DIRECTION
 
 NUM_CARDS_TO_PASS_NORMAL = 3
 NUM_CARDS_TO_PASS_NO_PASS = 0
@@ -129,6 +122,13 @@ def what_seat_has_two_of_clubs(gr):
     for player in gr.game.player_set.all():
         if two_of_clubs in player.hand:
             return player.position
+
+def get_time_info(now, base, bank=None):
+    return {
+        message_constants.KEY_START_TIME: now.timestamp() * 1000,
+        message_constants.KEY_BASE_MS: base,
+        message_constants.KEY_BANK_MS: bank
+    }
 
 def finish(gr):
     gr.active = False

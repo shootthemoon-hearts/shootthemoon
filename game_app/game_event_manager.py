@@ -6,21 +6,31 @@ from game_app.event_handler_generics import value_is_key_event_handler
 from game_app.models.game import Game
 from game_app.models.player import Player
 from game_app.rules import game as game_rules
+from game_app.rules import pass_round
+from game_app.rules import trick_turn
+from game_app.card import Card
+
+from django.utils import timezone
 
 def receive_pass_cards(content):
-    cards = content['received_cards']
+    cards_str = content['received_cards']
     turn_id = content['turn_id']
-    player = Player.objects.get(id=content['player_id'])
-    game = player.enrolled_game
-    game_rules.pass_cards_selected(game, cards, player, turn_id)
-    
+    player_id = content['player_id']
+    passed_cards = Card.list_from_str_list(cards_str)
+    pass_round.received_passed_cards(passed_cards, player_id, turn_id)
+
 def receive_trick_discard(content):
+    # Get the move time first so the player isn't punished by slow server
+    # processing,
+    move_time = timezone.now()
     cards = content['received_cards']
     turn_id = content['turn_id']
-    player = Player.objects.get(id=content['player_id'])
-    game = player.enrolled_game
-    game_rules.trick_cards_selected(game, cards, player, turn_id)
-    
+    player_id = content['player_id']
+    # The assumption is that the player can only select one card on their turn
+    # for the trick.
+    discard = Card.list_from_str_list(cards)[0]
+    trick_turn.card_discarded(discard, player_id, turn_id, move_time)
+
 def start_game(content):
     game = Game.objects.get(id=content['game_id'])
     game_rules.start(game)
@@ -37,7 +47,7 @@ command_event_manager.register_handler('trick_card_selected', receive_trick_disc
 
 
 class GamePlayerEventConsumer(JsonWebsocketConsumer):
-    http_user = True    
+    http_user = True
     def receive(self, content, multiplexer, **kwargs):
         player = Player.objects.get(channel=multiplexer.reply_channel.name)
         #temporary, "this kit needs to change"

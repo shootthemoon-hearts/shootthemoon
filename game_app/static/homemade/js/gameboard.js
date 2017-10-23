@@ -115,8 +115,8 @@ function createGame(game_controller) {
 		
 		game_state.trick_group = phaser_game.add.group();
 
-		myTimer = new Timer(phaser_game);
-		phaser_game.stage.addChild(myTimer.textDisplay);
+		game_state.myTimer = new Timer(phaser_game, game_state);
+		phaser_game.stage.addChild(game_state.myTimer.textDisplay);
 
 		
 		/// creating the not someone's turn indicators at near-player-card locations  ///

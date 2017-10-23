@@ -2,16 +2,20 @@ from channels import Group
 from channels import Channel
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
-import datetime
+from django.utils import timezone
 
 from game_app.multiplex_transmit import game_transmit
 from game_app.card import Card
 from game_app.models.trick_turn import TrickTurn
+from game_app.models.player import Player
+from game_app.models.player_type import PlayerType
 
 from . import game_round as grrz
 
 import random as rn
-    
+
+TRICK_BASE_MS = 5000
+
 def setup(tt,parent_round,number,first_seat,hearts_broken):
     tt.game_round = parent_round
     tt.first_seat = first_seat
@@ -24,48 +28,60 @@ def start(tt):
     tt.active = True
     tt.save()
     send_turn_notification(tt)
-    
-def card_discarded(game, player, discard, turn_id):
+
+def card_discarded(discard, player_id, turn_id, move_time):
+    # If the move is invalid this function will simply return and will not
+    # make any changes
     try:
-        tt = game.gameround_set.get(active=True).trickturn_set.get(active=True)
-    except ObjectDoesNotExist:
-        # If the query is invalid, the turn is invalid
-        return
-    validated = False
-    if player.position == tt.expected_seat  and tt.id == turn_id:
-        if tt.expected_seat == tt.first_seat:
-            valid_cards = valid_cards_leader(tt,player.hand)
-        else:
-            valid_cards = valid_cards_follower(tt,player.hand)
-        #
-        if discard in valid_cards:
-            validated = True
-    if validated == True:
         with transaction.atomic():
-            tt = TrickTurn.objects.select_for_update().get(id=tt.id)
+
+            tt = TrickTurn.objects.select_for_update().get(id=turn_id)
+            if not tt.active:
+                return
+
+            player = Player.objects.select_for_update().get(id=player_id)
+
+
+            if player.position == tt.expected_seat:
+                if tt.expected_seat == tt.first_seat:
+                    valid_cards = valid_cards_leader(tt, player.hand)
+                else:
+                    valid_cards = valid_cards_follower(tt, player.hand)
+
+                if not discard in valid_cards:
+                    return
+            else:
+                return
+
             tt.discards.append(discard)
             tt.expected_seat = get_next_expected_seat(tt)
             tt.save()
-        
-        player.hand = sorted(list(set(player.hand) - set([discard])))
-        player.save()
-        
-        send_players_discard(tt,player,discard)
-         
-        if tt.expected_seat == tt.first_seat:
-            finish(tt)
-        else:
-            send_turn_notification(tt)
-    
+
+            player.hand.remove(discard)
+            player.bank_ms = get_updated_bank_ms(player.bank_ms, move_time, player.time_turn_started)
+            player.save()
+
+    except ObjectDoesNotExist:
+        # If the query is invalid, the turn is invalid, so don't make it
+        return
+
+    send_players_discard(tt, player, discard)
+
+    if tt.expected_seat == tt.first_seat:
+        finish(tt)
+    else:
+        send_turn_notification(tt)
+
 def send_turn_notification(tt):
     player = tt.game_round.game.player_set.get(position=tt.expected_seat)
     if tt.expected_seat == tt.first_seat:
         valid_cards = valid_cards_leader(tt,player.hand)
     else:
         valid_cards = valid_cards_follower(tt,player.hand)
-        
-    current_time_ms = (datetime.datetime.now() - datetime.datetime.utcfromtimestamp(0)).total_seconds() * 1000
-    time_info = [current_time_ms,5000,player.bank_ms]
+    grrz.send_player_valid_cards(tt.game_round, player, valid_cards)
+
+    now = timezone.now()
+    time_info = grrz.get_time_info(now, TRICK_BASE_MS, player.bank_ms)
     game_transmit(Group(tt.game_round.game.group_channel), {
         'trick':{
             'id':tt.id,
@@ -74,16 +90,23 @@ def send_turn_notification(tt):
             'game_phase':tt.game_round.phase
         }
     })
-    grrz.send_player_valid_cards(tt.game_round,player, valid_cards)
+
+    player.time_turn_started = now
+    player.save()
+
     send_delay_message(tt, player, tt.id, valid_cards)
     
 def send_delay_message(tt, player, turn_id, valid_cards):
     received_cards = []
     random_number = rn.randint(0,len(valid_cards)-1)
     received_cards.append(valid_cards[random_number])
+    if player.type == PlayerType.DUMMY:
+        delay = 300
+    else:
+        delay = player.bank_ms + TRICK_BASE_MS
     delay_message = {
         'channel':'game_command',
-        'delay':3000,
+        'delay':delay,
         'content':{
             'command':'trick_card_selected',
             'command_args':{
@@ -163,6 +186,17 @@ def valid_cards_leader(tt, hand):
             if len(valid_cards)==0:
                 valid_cards = hand
     return valid_cards
+
+def get_updated_bank_ms(bank_ms, time_this_move, time_turn_started):
+    time_took = (time_this_move - time_turn_started).total_seconds() * 1000
+    if not time_took > TRICK_BASE_MS:
+        # the player didn't eat into their bank
+        return bank_ms
+
+    new_bank_ms = bank_ms - (time_took - TRICK_BASE_MS)
+    if new_bank_ms < 0:
+        new_bank_ms = 0
+    return new_bank_ms
 
 def send_players_discard(tt, player, discard):
     '''Sends a message to each player telling them which cards are 
